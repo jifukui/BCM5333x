@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<ShortCutPacketGroups>
+    <PacketGroup>
+        <name>arp</name>
+        <interval>1000</interval>
+        <loopcount>0</loopcount>
+        <incdec>true</incdec>
+        <PacketItems>
+            <PacketItem>
+                <name>request</name>
+                <count>0</count>
+                <lostrate>0%</lostrate>
+                <items>
+                    <item>
+                        <protocol>0</protocol>
+                        <data>
+                            <dmac type="mac" num="0" loop="0">FF:FF:FF:FF:FF:FF</dmac>
+                            <smac type="mac" num="0" loop="0">00:00:00:00:00:00</smac>
+                            <ethtype type="int" length="2">0x0806</ethtype>
+                        </data>
+                        <flags>0</flags>
+                        <extradata>0000000001000000</extradata>
+                        <layer>2</layer>
+                        <offset>0</offset>
+                    </item>
+                    <item>
+                        <protocol>1</protocol>
+                        <data>
+                            <hwtype type="int" length="2">0x0001</hwtype>
+                            <prtype type="int" length="2">0x0800</prtype>
+                            <hwsize type="int" length="1">6</hwsize>
+                            <prsize type="int" length="1">4</prsize>
+                            <opcode type="int" length="2">1</opcode>
+                            <sender>
+                                <mac type="mac" num="0" loop="0">00:00:00:00:00:00</mac>
+                                <ip type="ipv4" num="0" loop="0">192.168.9.10</ip>
+                            </sender>
+                            <target>
+                                <mac type="mac" num="0" loop="0">00:00:00:00:00:00</mac>
+                                <ip type="ipv4" num="0" loop="0">192.168.9.250</ip>
+                            </target>
+                        </data>
+                        <flags>0</flags>
+                        <extradata>0000000000000000</extradata>
+                        <layer>3</layer>
+                        <offset>0</offset>
+                    </item>
+                </items>
+            </PacketItem>
+            <PacketItem>
+                <name>response</name>
+                <count>0</count>
+                <lostrate>0%</lostrate>
+                <items>
+                    <item>
+                        <protocol>0</protocol>
+                        <data>
+                            <dmac type="mac" num="0" loop="0">FF:FF:FF:FF:FF:FF</dmac>
+                            <smac type="mac" num="0" loop="0">00:00:00:00:00:00</smac>
+                            <ethtype type="int" length="2">0x0806</ethtype>
+                        </data>
+                        <flags>0</flags>
+                        <extradata>0000000001000000</extradata>
+                        <layer>2</layer>
+                        <offset>0</offset>
+                    </item>
+                    <item>
+                        <protocol>1</protocol>
+                        <data>
+                            <hwtype type="int" length="2">0x0001</hwtype>
+                            <prtype type="int" length="2">0x0800</prtype>
+                            <hwsize type="int" length="1">6</hwsize>
+                            <prsize type="int" length="1">4</prsize>
+                            <opcode type="int" length="2">2</opcode>
+                            <sender>
+                                <mac type="mac" num="0" loop="0">00:00:00:00:00:00</mac>
+                                <ip type="ipv4" num="0" loop="0">192.168.9.10</ip>
+                            </sender>
+                            <target>
+                                <mac type="mac" num="0" loop="0">00:00:00:00:00:00</mac>
+                                <ip type="ipv4" num="0" loop="0">192.168.9.250</ip>
+                            </target>
+                        </data>
+                        <flags>0</flags>
+                        <extradata>0000000000000000</extradata>
+                        <layer>3</layer>
+                        <offset>0</offset>
+                    </item>
+                </items>
+            </PacketItem>
+        </PacketItems>
+    </PacketGroup>
+    <PacketGroup>
+        <name>icmp</name>
+        <interval>1000</interval>
+        <loopcount>0</loopcount>
+        <incdec>true</incdec>
+        <PacketItems>
+            <PacketItem>
+                <name>request</name>
+                <count>0</count>
+                <lostrate>0%</lostrate>
+                <items>
+                    <item>
+                        <protocol>0</protocol>
+                        <data>
+                            <dmac type="mac" num="0" loop="0">FF:FF:FF:FF:FF:FF</dmac>
+                            <smac type="mac" num="0" loop="0">00:00:00:00:00:00</smac>
+                            <ethtype type="int" length="2">0x0800</ethtype>
+                        </data>
+                        <flags>0</flags>
+                        <extradata>0000000001000000</extradata>
+                        <layer>2</layer>
+                        <offset>0</offset>
+                    </item>
+                    <item>
+                        <protocol>3</protocol>
+                        <data>
+                            <verhl type="combo" length="1">
+                                <ver type="bit" length="4">4</ver>
+                                <hl type="bit" length="4">5</hl>
+                            </verhl>
+                            <tos type="int" length="1">0x00</tos>
+                            <totallen type="int" length="2">0</totallen>
+                            <id type="int" length="2" num="0" loop="0">0</id>
+                            <frag type="combo" length="2" num="0" loop="0">
+                                <rsvd type="bit" length="1">0</rsvd>
+                                <df type="bit" length="1">0</df>
+                                <mf type="bit" length="1">0</mf>
+                                <frag type="bit" length="13">0</frag>
+                            </frag>
+                            <ttl type="int" length="1" num="0" loop="0">128</ttl>
+                            <proto type="int" length="1">1</proto>
+                            <cksum type="int" length="2">0x1234</cksum>
+                            <ip type="elem">
+                                <sip type="ipv4" num="0" loop="0">123.4.5.6</sip>
+                                <dip type="ipv4" num="0" loop="0">213.4.5.6</dip>
+                            </ip>
+                        </data>
+                        <flags>1</flags>
+                        <extradata>010000000100000001000000010000000000000000000000</extradata>
+                        <layer>3</layer>
+                        <offset>0</offset>
+                    </item>
+                    <item>
+                        <protocol>257</protocol>
+                        <data>
+                            <type type="int" length="1">0x08</type>
+                            <code type="int" length="1">0x00</code>
+                            <checksum type="int" length="2">0x0000</checksum>
+                            <id type="int" length="2" num="0" loop="0">1</id>
+                            <seq type="int" length="2" num="0" loop="0">1</seq>
+                            <data type="hex">313233343536373839306162636465666768696A6B6C6D6E6F707172737475767778797A</data>
+                        </data>
+                        <flags>1</flags>
+                        <extradata>0000000000000000000000000000000000000000</extradata>
+                        <layer>4</layer>
+                        <offset>0</offset>
+                    </item>
+                </items>
+            </PacketItem>
+            <PacketItem>
+                <name>response</name>
+                <count>0</count>
+                <lostrate>0%</lostrate>
+                <items>
+                    <item>
+                        <protocol>0</protocol>
+                        <data>
+                            <dmac type="mac" num="0" loop="0">FF:FF:FF:FF:FF:FF</dmac>
+                            <smac type="mac" num="0" loop="0">00:00:00:00:00:00</smac>
+                            <ethtype type="int" length="2">0x0800</ethtype>
+                        </data>
+                        <flags>0</flags>
+                        <extradata>0000000001000000</extradata>
+                        <layer>2</layer>
+                        <offset>0</offset>
+                    </item>
+                    <item>
+                        <protocol>3</protocol>
+                        <data>
+                            <verhl type="combo" length="1">
+                                <ver type="bit" length="4">4</ver>
+                                <hl type="bit" length="4">5</hl>
+                            </verhl>
+                            <tos type="int" length="1">0x00</tos>
+                            <totallen type="int" length="2">0</totallen>
+                            <id type="int" length="2" num="0" loop="0">0</id>
+                            <frag type="combo" length="2" num="0" loop="0">
+                                <rsvd type="bit" length="1">0</rsvd>
+                                <df type="bit" length="1">0</df>
+                                <mf type="bit" length="1">0</mf>
+                                <frag type="bit" length="13">0</frag>
+                            </frag>
+                            <ttl type="int" length="1" num="0" loop="0">128</ttl>
+                            <proto type="int" length="1">1</proto>
+                            <cksum type="int" length="2">0x1234</cksum>
+                            <ip type="elem">
+                                <sip type="ipv4" num="0" loop="0">123.4.5.6</sip>
+                                <dip type="ipv4" num="0" loop="0">213.4.5.6</dip>
+                            </ip>
+                        </data>
+                        <flags>1</flags>
+                        <extradata>010000000100000001000000010000000000000000000000</extradata>
+                        <layer>3</layer>
+                        <offset>0</offset>
+                    </item>
+                    <item>
+                        <protocol>257</protocol>
+                        <data>
+                            <type type="int" length="1">0x00</type>
+                            <code type="int" length="1">0x00</code>
+                            <checksum type="int" length="2">0x0000</checksum>
+                            <id type="int" length="2" num="0" loop="0">1</id>
+                            <seq type="int" length="2" num="0" loop="0">1</seq>
+                            <data type="hex">313233343536373839306162636465666768696A6B6C6D6E6F707172737475767778797A</data>
+                        </data>
+                        <flags>1</flags>
+                        <extradata>0000000000000000000000000000000000000000</extradata>
+                        <layer>4</layer>
+                        <offset>0</offset>
+                    </item>
+                </items>
+            </PacketItem>
+        </PacketItems>
+    </PacketGroup>
+</ShortCutPacketGroups>
