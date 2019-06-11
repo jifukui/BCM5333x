@@ -106,8 +106,7 @@ extern uint32 _getticks(void);
  *      Check per-port discovery packet counter.
  *
  */
-STATICFN void
-bcm5333x_loopdetect_task(void *param)
+STATICFN void bcm5333x_loopdetect_task(void *param)
 {
     uint8 lport, link;
     uint32 counter[3];
@@ -515,9 +514,8 @@ bcm5333x_loop_detect_enable(BOOL enable)
     }
     loopdetect_status = enable;
 }
-
-uint8
-bcm5333x_loop_detect_status_get(void)
+/**获取回环检测状态 */
+uint8 bcm5333x_loop_detect_status_get(void)
 {
     return loopdetect_status;
 }

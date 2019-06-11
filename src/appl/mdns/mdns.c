@@ -139,20 +139,22 @@ STATICFN void mdns_goodbye_task(uint8 type);
  *    NULL : error or not enough question to bypass
  *    ptr : new data pointer
  */
-STATICFN uint8*
-mdns_packet_domain_name_ignore(uint8 *data_ptr)
+STATICFN uint8* mdns_packet_domain_name_ignore(uint8 *data_ptr)
 {
     uint8 len, *ptr;
 
-    if (data_ptr == NULL) {
+    if (data_ptr == NULL) 
+    {
         return NULL;
     }
 
     ptr = data_ptr;
     len = *ptr; /* label length */
-    while (len != 0x0) {
+    while (len != 0x0) 
+    {
 
-        switch (len & DNS_COMPRESS_FLAG) {
+        switch (len & DNS_COMPRESS_FLAG) 
+        {
             case 0x00:
                 ptr += (len + 1);
                 break;
@@ -209,8 +211,7 @@ mdns_domain_name_print(uint8 *name)
  *    NULL : error or not enough question to bypass
  *    ptr : new data pointer
  */
-STATICFN sys_error_t
-mdns_packet_domain_name_parse(uint8 *data_ptr, uint8 *name,
+STATICFN sys_error_t mdns_packet_domain_name_parse(uint8 *data_ptr, uint8 *name,
         uint8 *name_len)        REENTRANT
 {
     uint8 len, index, offset, sub_name_len;
@@ -274,8 +275,7 @@ mdns_packet_domain_name_parse(uint8 *data_ptr, uint8 *name,
  *    NULL : error or not enough question to bypass
  *    ptr : new data pointer
  */
-STATICFN uint8 *
-mdns_packet_question_ignore(uint8 *data_ptr, int num_q)
+STATICFN uint8 * mdns_packet_question_ignore(uint8 *data_ptr, int num_q)
 {
     int i;
     uint8 *ptr;
@@ -310,8 +310,7 @@ mdns_packet_question_ignore(uint8 *data_ptr, int num_q)
  *    NULL : error or not enough records to bypass
  *    ptr : new data pointer
  */
-STATICFN uint8 *
-mdns_packet_record_ignore(uint8 *data_ptr, int num_rr)
+STATICFN uint8 *mdns_packet_record_ignore(uint8 *data_ptr, int num_rr)
 {
     int i;
     uint16 rd_len;
@@ -349,8 +348,7 @@ mdns_packet_record_ignore(uint8 *data_ptr, int num_rr)
  *    sec_type : DNS section types
  * Returns:
  */
-STATICFN uint8*
-mdns_packet_section_pointer(struct dns_hdr *dns_data, int sec_type)
+STATICFN uint8* mdns_packet_section_pointer(struct dns_hdr *dns_data, int sec_type)
 {
     int num;
     uint8 *ptr;
@@ -483,8 +481,7 @@ mdns_packet_record_data_get(uint8 section, uint8 *name,
  * Returns:
  *
  */
-STATICFN BOOL
-mdns_pkt_same_domain_name(uint16 buf_offset,
+STATICFN BOOL mdns_pkt_same_domain_name(uint16 buf_offset,
                                         uint8 *name, uint8 name_len) REENTRANT
 {
     uint16  i;

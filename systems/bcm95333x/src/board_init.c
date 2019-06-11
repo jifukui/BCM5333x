@@ -117,7 +117,7 @@ uint8 reset_button_enable = 0;
 #define MII_EXP_REG             0x15 /* MII Expansion registers */
 #define MII_EXP_SEL             0x17 /* MII Expansion register select */
 #define MII_TEST1_REG           0x1e /* MII Test Register 1 */
-
+/**芯片 phy 初始化回调函数 */
 int board_phy_init_callback(phy_ctrl_t *pc) {
 
     uint32_t val;
@@ -135,8 +135,9 @@ int board_phy_init_callback(phy_ctrl_t *pc) {
 
     
     /* Re-Configure LED selectors */
-    if (sal_strcmp(pc->drv->drv_name, "bcm54880e")==0 ||
-        sal_strcmp(pc->drv->drv_name, "bcm5428(9)2")==0) {
+    /**设置LED的状态 */
+    if (sal_strcmp(pc->drv->drv_name, "bcm54880e")==0 ||sal_strcmp(pc->drv->drv_name, "bcm5428(9)2")==0) 
+    {
 #ifdef CFG_VENDOR_CONFIG_SUPPORT_INCLUDED
         sal_config_uint8_get(SAL_CONFIG_PHY_LED1_MODE, &phy_led1_mode);
         sal_config_uint8_get(SAL_CONFIG_PHY_LED2_MODE, &phy_led2_mode);
@@ -208,9 +209,8 @@ int board_phy_init_callback(phy_ctrl_t *pc) {
 #if CFG_CONSOLE_ENABLED
 #define UART_READREG(r)    SYS_REG_READ8((CFG_UART_BASE+(r)))
 #define UART_WRITEREG(r,v) SYS_REG_WRITE8((CFG_UART_BASE+(r)), v)
-
-void
-board_console_init(uint32 baudrate, uint32 clk_hz)
+/**设备控制端口初始化 */
+void board_console_init(uint32 baudrate, uint32 clk_hz)
 {
     uint32 brtc;
 #if CONFIG_HURRICANE2_EMULATION
@@ -248,8 +248,7 @@ board_console_init(uint32 baudrate, uint32 clk_hz)
  * Returns:
  *   None
  */
-void
-board_early_init(void)
+void board_early_init(void)
 {
 #if CFG_CONSOLE_ENABLED
    /* Initialize UART using default clock */
@@ -275,8 +274,7 @@ board_early_init(void)
 }
 
 #if CFG_RXTX_SUPPORT_ENABLED
-static void
-bcm5333x_fp_init(void)
+static void bcm5333x_fp_init(void)
 {
     int i;
     uint32 port_entry[8];
@@ -453,8 +451,7 @@ bcm5333x_fp_init(void)
  * Returns:
  *   SYS_OK or SYS_XXX
  */
-sys_error_t
-board_init(void)
+sys_error_t board_init(void)
 {
     sys_error_t rv = SYS_OK;
 
@@ -466,18 +463,25 @@ board_init(void)
 
                 {
                     hsaddr_t loadaddr;
-                    if (board_loader_mode_get(NULL, FALSE) != LM_UPGRADE_FIRMWARE) {
+                    /**获取加载模式 */
+                    if (board_loader_mode_get(NULL, FALSE) != LM_UPGRADE_FIRMWARE) 
+                    {
 #ifdef CFG_DUAL_IMAGE_INCLUDED
                         /* Determine which image to boot */
-                        if (board_select_boot_image(&loadaddr)) {
+                        /**获取加载地址 */
+                        if (board_select_boot_image(&loadaddr)) 
+                        {
 #else
                         /* Validate firmware image if not requested to upgrade firmware */
-                        if (board_check_image(BOARD_FIRMWARE_ADDR, &loadaddr)) {
+                        /**检测映像文件是否正确 */
+                        if (board_check_image(BOARD_FIRMWARE_ADDR, &loadaddr)) 
+                        {
 #endif /* CFG_DUAL_IMAGE_INCLUDED */
                             /* launch firmware */
 #if CFG_CONSOLE_ENABLED
                             sal_printf("Load program at 0x%08lX...\n", loadaddr);
 #endif /* CFG_CONSOLE_ENABLED */
+                            /**加载映像文件 */
                             board_load_program(loadaddr);
                         }
                         /* Stay in loader in case of invalid firmware */

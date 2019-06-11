@@ -490,9 +490,8 @@ uint32 counter_val[BCM5333X_LPORT_MAX][R_MAX * 2];
 
 static void bcm5333x_load_led_program(void);
 
-
-void
-bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags)
+/**处理端口连接上 */
+void bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags)
 {
     int rv;
     uint32 val;
@@ -501,10 +500,12 @@ bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags)
     BOOL   tx_pause, rx_pause;
     int an = 0;
 
-    if (1 == changed) {
+    if (1 == changed) 
+    {
         /* Port changes to link up from link down */
 
-        if (hr2_sw_info.loopback[lport] == PORT_LOOPBACK_MAC) {
+        if (hr2_sw_info.loopback[lport] == PORT_LOOPBACK_MAC) 
+        {
             /* Force link up in mac loopback mode */
             speed = SOC_PORT_SPEED_MAX(lport)*1000;
             if (speed == 11000) {
@@ -512,7 +513,9 @@ bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags)
             }
             duplex = TRUE;
             an = tx_pause = rx_pause = FALSE;
-        } else {
+        } 
+        else 
+        {
         
             rv = PHY_SPEED_GET(BMD_PORT_PHY_CTRL(unit, lport), &speed);
             if (rv) sal_printf("error 1:%d\n", rv);
@@ -615,18 +618,19 @@ bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags)
 #endif /* CFG_SWITCH_EEE_INCLUDED */
     }
 }
-
-void
-bcm5333x_handle_link_down(uint8 unit, uint8 lport, int changed)
+/**处理端口失去连接 */
+void bcm5333x_handle_link_down(uint8 unit, uint8 lport, int changed)
 {
 #if defined(CFG_SWITCH_EEE_INCLUDED)
     uint8 eee_state;
 #endif /* CFG_SWITCH_EEE_INCLUDED */
 
 #ifdef CFG_LOOPBACK_TEST_ENABLED
-    if (1 == changed) {
+    if (1 == changed) 
+    {
 #if CFG_CONSOLE_ENABLED
-        if (board_linkdown_message) {
+        if (board_linkdown_message) 
+        {
             sal_printf("lport %d goes down!\n", lport);
         }
 #endif /* CFG_CONSOLE_ENABLED */
@@ -635,7 +639,8 @@ bcm5333x_handle_link_down(uint8 unit, uint8 lport, int changed)
 #else
     uint32 val;
 
-    if (1 == changed) {
+    if (1 == changed) 
+    {
         /* Update LED status */
         val = READCSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)));
         val &= 0xfc;
@@ -645,21 +650,25 @@ bcm5333x_handle_link_down(uint8 unit, uint8 lport, int changed)
         hr2_sw_info.link[lport] = PORT_LINK_DOWN;
 
 #if CFG_CONSOLE_ENABLED
-        if (board_linkdown_message) {
+        if (board_linkdown_message) 
+        {
             sal_printf("lport %d goes down!\n", lport);
         }
 #endif /* CFG_CONSOLE_ENABLED */
 
 #if defined(CFG_SWITCH_EEE_INCLUDED)
         bcm5333x_port_eee_enable_get(unit, lport, &eee_state);
-        if (eee_state == TRUE) {
+        if (eee_state == TRUE) 
+        {
             /* Disable EEE in UMAC_EEE_CTRL register if EEE is enabled in S/W database */
             SAL_DEBUGF(("EEE : disable eee for port %d\n", lport));
             bcm5333x_port_eee_enable_set(unit, lport, FALSE, FALSE);
             hr2_sw_info.need_process_for_eee_1s[lport] = FALSE;
         }
 #endif /* CFG_SWITCH_EEE_INCLUDED */
-    } else {
+    } 
+    else 
+    {
         /* Port stays in link down state */
     }
 #endif /* CFG_LOOPBACK_TEST_ENABLED */
@@ -678,8 +687,8 @@ bcm5333x_handle_link_down(uint8 unit, uint8 lport, int changed)
  *  Note :
  *
  */
-void
-bcm5333x_linkscan_task(void *param)
+/**扫描各个端口的连接状态 */
+void bcm5333x_linkscan_task(void *param)
 {
     int unit = 0, rv, lport;
 
@@ -687,17 +696,24 @@ bcm5333x_linkscan_task(void *param)
     int link, andone;
 
     if (board_linkscan_disable) 
+    {
         return;
+    }
     
-    SOC_LPORT_ITER(lport) {
+    SOC_LPORT_ITER(lport) 
+    {
         link = hr2_sw_info.link[lport];
-        if (hr2_sw_info.loopback[lport] == PORT_LOOPBACK_MAC) {
+        if (hr2_sw_info.loopback[lport] == PORT_LOOPBACK_MAC) 
+        {
             /* Force link up in mac loopback mode */
             link = PORT_LINK_UP;
-        } else {
+        } 
+        else 
+        {
 
             rv = PHY_LINK_GET(BMD_PORT_PHY_CTRL(unit, lport), &link, &andone);
-            if (rv < 0) {
+            if (rv < 0) 
+            {
 #if CFG_CONSOLE_ENABLED
                 sal_printf("Failed to get link of port %d\n", (int)lport);
 #endif /* CFG_CONSOLE_ENABLED */
@@ -705,18 +721,27 @@ bcm5333x_linkscan_task(void *param)
             }
         }
 
-        if (link == PORT_LINK_UP) {
+        if (link == PORT_LINK_UP) 
+        {
             /* Link up */
             flags = 0;
-            if (hr2_sw_info.link[lport] == PORT_LINK_DOWN) {
+            if (hr2_sw_info.link[lport] == PORT_LINK_DOWN) 
+            {
                 bcm5333x_handle_link_up(unit, lport, 1, &flags);
-            } else {
+            } 
+            else 
+            {
                 bcm5333x_handle_link_up(unit, lport, 0, &flags);
             }
-        } else {
-            if (hr2_sw_info.link[lport] == PORT_LINK_UP) {
+        } 
+        else 
+        {
+            if (hr2_sw_info.link[lport] == PORT_LINK_UP) 
+            {
                 bcm5333x_handle_link_down(unit, lport, 1);
-            } else {
+            } 
+            else 
+            {
                 bcm5333x_handle_link_down(unit, lport, 0);
             }
         }
@@ -724,13 +749,13 @@ bcm5333x_linkscan_task(void *param)
 }
 
 /* please refer to MDK bcm56150_a0_xlport_reset() */
-static void
-soc_hr2_xlport_reset(uint8 unit)
+static void soc_hr2_xlport_reset(uint8 unit)
 {
     int i;
     uint32 val;
    /* XLPORT block id is 5 and 6 */
-    for (i = 5; i < 7; i++) {
+    for (i = 5; i < 7; i++) 
+    {
         /*
         * Reference clock selection: REFIN_ENf [Bit 2]
         */
@@ -767,8 +792,7 @@ soc_hr2_xlport_reset(uint8 unit)
     }
 }
 
-static void
-soc_hr2_tsc_reset(void)
+static void soc_hr2_tsc_reset(void)
 {
     int block;
 
@@ -776,7 +800,8 @@ soc_hr2_tsc_reset(void)
     soc_hr2_xlport_reset(0);
 
     /* MAC reset */
-    for (block = 5; block <= 6; block++) {
+    for (block = 5; block <= 6; block++) 
+    {
         uint32 val;
         bcm5333x_reg_get(0, block, R_XLPORT_MAC_CONTROL, &val);
         /* XMAC0_RESETf: [Bit 0] */
@@ -789,8 +814,7 @@ soc_hr2_tsc_reset(void)
     }
 }
 
-void
-soc_reset(void)
+void soc_reset(void)
 {
     uint32 val, to_usec;
     /* Use 156.25Mhz reference clock for LCPLL? */
@@ -874,7 +898,8 @@ soc_reset(void)
      *     m TOP_MISC_CONTROL_1 CMIC_TO_BS_PLL1_SW_OVWR=0x1
      */
 
-    switch (hr2_sw_info.devid) {
+    switch (hr2_sw_info.devid) 
+    {
         case BCM53333_DEVICE_ID:
         case BCM53334_DEVICE_ID:
         case BCM53342_DEVICE_ID:
@@ -915,25 +940,24 @@ soc_reset(void)
     sal_usleep(to_usec);
 }
 
-soc_chip_type_t
-bcm5333x_chip_type(void)
+soc_chip_type_t bcm5333x_chip_type(void)
 {
     return SOC_TYPE_SWITCH_XGS;
 }
 
-uint8
-bcm5333x_port_count(uint8 unit)
+uint8 bcm5333x_port_count(uint8 unit)
 {
-    if (unit > 0) {
+    if (unit > 0) 
+    {
         return 0;
     }
     return hr2_sw_info.port_count;
 }
-
-sys_error_t
-bcm5333x_link_status(uint8 unit, uint8 port, BOOL *link)
+/**获取端口的link状态 */
+sys_error_t bcm5333x_link_status(uint8 unit, uint8 port, BOOL *link)
 {
-    if (link == NULL || unit > 0 || port > BCM5333X_LPORT_MAX || port < BCM5333X_LPORT_MIN) {
+    if (link == NULL || unit > 0 || port > BCM5333X_LPORT_MAX || port < BCM5333X_LPORT_MIN) 
+    {
         return SYS_ERR_PARAMETER;
     }
 
@@ -941,9 +965,15 @@ bcm5333x_link_status(uint8 unit, uint8 port, BOOL *link)
 
     return SYS_OK;
 }
-
-static int
-bcm5333x_sw_op(uint8 unit,
+/**53334操作
+ * unit：操作单元号
+ * op:操作编码
+ * block_id：块ID
+ * addr:
+ * buf
+ * len:数据长度
+ */
+static int bcm5333x_sw_op(uint8 unit,
                uint32 op,
                uint8 block_id,
                uint32 addr,
@@ -954,37 +984,44 @@ bcm5333x_sw_op(uint8 unit,
     uint32 ctrl;
     int i;
 
-    if (buf == NULL || unit > 0) {
+    if (buf == NULL || unit > 0) 
+    {
         return -1;
     }
 
     msg_hdr = (V_SMHDR_OP_CODE(op) | V_SMHDR_DEST_BLOCK(block_id));
 
-    if (op != SC_OP_RD_MEM_CMD) {
+    if (op != SC_OP_RD_MEM_CMD) 
+    {
         msg_hdr |= V_SMHDR_DATA_LEN(len*4);
     }
 
     WRITECSR(R_CMIC_SCHAN_D(0), msg_hdr);
     WRITECSR(R_CMIC_SCHAN_D(1), addr);
 
-    if (op == SC_OP_WR_REG_CMD || op == SC_OP_WR_MEM_CMD) {
-        for (i = 0; i < len; i++) {
+    if (op == SC_OP_WR_REG_CMD || op == SC_OP_WR_MEM_CMD) 
+    {
+        for (i = 0; i < len; i++) 
+        {
             WRITECSR(R_CMIC_SCHAN_D(2+i), buf[i]);
         }
     }
 
     WRITECSR(CMIC_CMC1_SCHAN_CTRL, SC_CMCx_MSG_START);
 
-    for (i = 0; i < 100; i++) {
+    for (i = 0; i < 100; i++) 
+    {
         sal_usleep(2);
         ctrl = READCSR(CMIC_CMC1_SCHAN_CTRL);
-        if (ctrl & SC_CMCx_MSG_DONE) {
+        if (ctrl & SC_CMCx_MSG_DONE)
+        {
             break;
         }
     }
 
 #if CFG_CONSOLE_ENABLED
-    if (i == 100) {
+    if (i == 100) 
+    {
         sal_printf("S-CHAN %d:0x%x, timeout!\n", block_id, addr);
     }
 #endif /* CFG_CONSOLE_ENABLED */
@@ -993,49 +1030,45 @@ bcm5333x_sw_op(uint8 unit,
     ctrl &= ~SC_CMCx_MSG_DONE;
     WRITECSR(CMIC_CMC1_SCHAN_CTRL, ctrl);
 
-    if (op == SC_OP_RD_REG_CMD || op == SC_OP_RD_MEM_CMD) {
-        for (i = 0; i < len; i++) {
+    if (op == SC_OP_RD_REG_CMD || op == SC_OP_RD_MEM_CMD) 
+    {
+        for (i = 0; i < len; i++) 
+        {
             buf[i] = READCSR(R_CMIC_SCHAN_D(1+i));
         }
     }
 
     return 0;
 }
-
-sys_error_t
-bcm5333x_phy_reg_get(uint8 unit, uint8 lport,
-                           uint16 reg_addr, uint16 *p_value)
+/**bcm5334获取逻辑端口的phy寄存器地址的值 */
+sys_error_t bcm5333x_phy_reg_get(uint8 unit, uint8 lport,uint16 reg_addr, uint16 *p_value)
 {
     return phy_reg_read(lport, reg_addr, p_value);
 }
-
-sys_error_t
-bcm5333x_phy_reg_set(uint8 unit, uint8 lport,
+/**bcm5334设置逻辑端口的phy寄存器的值 */
+sys_error_t bcm5333x_phy_reg_set(uint8 unit, uint8 lport,
                            uint16 reg_addr, uint16 value)
 {
     return phy_reg_write(lport, reg_addr, value);
 }
-
-sys_error_t
-bcm5333x_reg_get(uint8 unit,
+/**获取5334寄存器的值*/
+sys_error_t bcm5333x_reg_get(uint8 unit,
                  uint8 block_id,
                  uint32 addr,
                  uint32 *val)
 {
     return bcm5333x_sw_op(unit, SC_OP_RD_REG_CMD, block_id, addr, val, 1);
 }
-
-sys_error_t
-bcm5333x_reg_set(uint8 unit,
+/**设置5334寄存器的值 */
+sys_error_t bcm5333x_reg_set(uint8 unit,
                  uint8 block_id,
                  uint32 addr,
                  uint32 val)
 {
     return bcm5333x_sw_op(unit, SC_OP_WR_REG_CMD, block_id, addr, &val, 1);
 }
-
-sys_error_t
-bcm5333x_reg64_get(uint8 unit,
+/**获取533464位寄存器的值 */
+sys_error_t bcm5333x_reg64_get(uint8 unit,
                  uint8 block_id,
                  uint32 addr,
                  uint32 *val,
@@ -1043,9 +1076,8 @@ bcm5333x_reg64_get(uint8 unit,
 {
     return bcm5333x_sw_op(unit, SC_OP_RD_REG_CMD, block_id, addr, val, len);
 }
-
-sys_error_t
-bcm5333x_reg64_set(uint8 unit,
+/**设置5333464位寄存器的值 */
+sys_error_t bcm5333x_reg64_set(uint8 unit,
                  uint8 block_id,
                  uint32 addr,
                  uint32 *buf,
@@ -1053,9 +1085,8 @@ bcm5333x_reg64_set(uint8 unit,
 {
     return bcm5333x_sw_op(unit, SC_OP_WR_REG_CMD, block_id, addr, buf, len);
 }
-
-sys_error_t
-bcm5333x_mem_get(uint8 unit,
+/**获取5334内存的数据 */
+sys_error_t bcm5333x_mem_get(uint8 unit,
                  uint8 block_id,
                  uint32 addr,
                  uint32 *buf,
@@ -1063,9 +1094,8 @@ bcm5333x_mem_get(uint8 unit,
 {
     return bcm5333x_sw_op(unit, SC_OP_RD_MEM_CMD, block_id, addr, buf, len);
 }
-
-sys_error_t
-bcm5333x_mem_set(uint8 unit,
+/***设置53334内存的值 */
+sys_error_t bcm5333x_mem_set(uint8 unit,
                  uint8 block_id,
                  uint32 addr,
                  uint32 *buf,
@@ -1073,13 +1103,13 @@ bcm5333x_mem_set(uint8 unit,
 {
     return bcm5333x_sw_op(unit, SC_OP_WR_MEM_CMD, block_id, addr, buf, len);
 }
-
-sys_error_t
-bcm5333x_chip_revision(uint8 unit, uint16 *dev, uint16 *rev)
+/**获取5334芯片的版本和修订版本*/
+sys_error_t bcm5333x_chip_revision(uint8 unit, uint16 *dev, uint16 *rev)
 {
     uint32 val;
 
-    if (unit > 0) {
+    if (unit > 0) 
+    {
         return -1;
     }
 
@@ -1090,9 +1120,8 @@ bcm5333x_chip_revision(uint8 unit, uint16 *dev, uint16 *rev)
     return 0;
 }
 
-
-static void
-bcm5333x_load_led_program(void)
+/**加载led的应用程序 */
+static void bcm5333x_load_led_program(void)
 {
     uint32 val;
 #ifdef CFG_LED_MICROCODE_INCLUDED
@@ -1110,35 +1139,41 @@ bcm5333x_load_led_program(void)
                              0x005544d2, 0x006585d6, 0x0069b71d, 0x0079f821,
                              0x00000022 };
 
-    for (i = 0, addr = CMIC_LEDUP0_PORT_ORDER_REMAP_0_3; i < 9; i++, addr += 4) {
+    for (i = 0, addr = CMIC_LEDUP0_PORT_ORDER_REMAP_0_3; i < 9; i++, addr += 4) 
+    {
         WRITECSR(addr, port_remap[i]);
     }
 #ifdef CFG_VENDOR_CONFIG_SUPPORT_INCLUDED 
     sal_config_rv = sal_config_uint8_get(SAL_CONFIG_LED_OPTION, &led_option);
-    if (sal_config_rv == SYS_OK) {
+    if (sal_config_rv == SYS_OK) 
+    {
         sal_printf("Vendor Config : Overwrite serial led option with value %d.\n", led_option);
     }
 
     byte_count = sal_config_bytes_get(SAL_CONFIG_LED_PROGRAM, led_program_3, 256);
 #endif /* CFG_VENDOR_CONFIG_SUPPORT_INCLUDED */
-    if (led_option == 2) {
+    if (led_option == 2) 
+    {
         led_program = led_program_2;
         led_code_size = sizeof(led_program_2);
-    } else if ((led_option == 3) && byte_count) {
+    } 
+    else if ((led_option == 3) && byte_count) 
+    {
         sal_printf("Vendor Config : Load customer LED ucdoe with length %d.\n", byte_count);
         led_program = led_program_3;
         led_code_size = sizeof(led_program_3);
-    } else {
+    } 
+    else 
+    {
         led_program = led_program_1;
         led_code_size = sizeof(led_program_1);
     }
 
 #define LED_RAM_SIZE     0x100
 
-    for (offset = 0; offset < LED_RAM_SIZE; offset++) {
-        WRITECSR(CMIC_LEDUP_PROGRAM_RAM_D(offset),
-                      (offset >= led_code_size) ? 0 : *(led_program + offset));
-
+    for (offset = 0; offset < LED_RAM_SIZE; offset++) 
+    {
+        WRITECSR(CMIC_LEDUP_PROGRAM_RAM_D(offset),(offset >= led_code_size) ? 0 : *(led_program + offset));
         WRITECSR(CMIC_LEDUP_DATA_RAM_D(offset), 0);
     }
 
@@ -1162,9 +1197,8 @@ bcm5333x_load_led_program(void)
     WRITECSR(CMIC_LEDUP0_CTRL, 0x6b);
 #endif /* CFG_LED_MICROCODE_INCLUDED */
 }
-
-sys_error_t
-bcm5333x_l2_op(uint8 unit,
+/**53334二层操作 */
+sys_error_t bcm5333x_l2_op(uint8 unit,
                l2x_entry_t *entry,
                uint8 op_code
                )
@@ -1203,40 +1237,44 @@ bcm5333x_l2_op(uint8 unit,
 
     WRITECSR(CMIC_CMC1_SCHAN_CTRL, SC_CMCx_MSG_START);
 
-    for (i = 0; i < 100; i++) {
+    for (i = 0; i < 100; i++) 
+    {
         sal_usleep(2);
         ctrl = READCSR(CMIC_CMC1_SCHAN_CTRL);
         if (ctrl & SC_CMCx_MSG_DONE)
+        {
             break;
+        }
     }
 
     return SYS_OK;
 }
 
 #define JUMBO_FRM_SIZE (9216)
-
-static void
-enable_jumbo_frame(void)
+/**使能巨帧 */
+static void enable_jumbo_frame(void)
 {
     int lport;
     uint32 entry[2];
 
     SOC_LPORT_ITER(lport) {
-        if (IS_XL_PORT(lport)) {
+        if (IS_XL_PORT(lport)) 
+        {
             entry[0] = JUMBO_FRM_SIZE;
             entry[1] = 0x0;
             bcm5333x_reg64_set(0, SOC_PORT_BLOCK(lport),
                        R_XLMAC_RX_MAX_SIZE(SOC_PORT_BLOCK_INDEX(lport)),
                        entry, 2);
-        } else {
+        } 
+        else 
+        {
             bcm5333x_reg_set(0, SOC_PORT_BLOCK(lport),
                     R_FRM_LENGTH(SOC_PORT_BLOCK_INDEX(lport)), JUMBO_FRM_SIZE);
         }
     }
 }
-
-static void
-soc_pipe_mem_clear(void)
+/**芯片管道内存清理 */
+static void soc_pipe_mem_clear(void)
 {
     uint32 val;
     /*
@@ -1260,7 +1298,8 @@ soc_pipe_mem_clear(void)
     do {
         /* Polling DONE[Bit 18] */
         bcm5333x_reg_get(0, R_ING_HW_RESET_CONTROL_2, &val);
-        if (val & (0x1 << 18)) {
+        if (val & (0x1 << 18)) 
+        {
             break;
         }
         
@@ -1271,7 +1310,8 @@ soc_pipe_mem_clear(void)
     do {
         /* Polling DONE[Bit 18] */
         bcm5333x_reg_get(0, R_EGR_HW_RESET_CONTROL_1, &val);
-        if (val & (0x1 << 18)) {
+        if (val & (0x1 << 18)) 
+        {
             break;
         }
 
@@ -1284,46 +1324,57 @@ soc_pipe_mem_clear(void)
 
     
 }
-
-static void
-soc_port_block_info_get(uint8 unit, uint8 pport, int *block_type, int *block_idx, int *port_idx)
+/**端口块信息获取 */
+static void soc_port_block_info_get(uint8 unit, uint8 pport, int *block_type, int *block_idx, int *port_idx)
 {
     *block_type = PORT_BLOCK_TYPE_XLPORT;
-    if ((pport >= PHY_XLPORT1_BASE) && (pport <= BCM5333X_PORT_MAX)) {
+    if ((pport >= PHY_XLPORT1_BASE) && (pport <= BCM5333X_PORT_MAX)) 
+    {
         *block_idx = XLPORT1_BLOCK_ID;
         *port_idx = (pport - PHY_XLPORT1_BASE) & 0x7;
-    } else if (pport >= PHY_XLPORT0_BASE) {
+    } 
+    else if (pport >= PHY_XLPORT0_BASE) 
+    {
         *block_idx = XLPORT0_BLOCK_ID;
         *port_idx = (pport - PHY_XLPORT0_BASE) & 0x7;
-    } else if (pport >= PHY_GXPORT2_BASE) {
+    } 
+    else if (pport >= PHY_GXPORT2_BASE) 
+    {
         *block_idx = GXPORT2_BLOCK_ID;
         *port_idx = (pport - PHY_GXPORT2_BASE) & 0x7;
         *block_type = PORT_BLOCK_TYPE_GXPORT;
-    } else if (pport >= PHY_GXPORT1_BASE) {
+    } 
+    else if (pport >= PHY_GXPORT1_BASE) 
+    {
         *block_idx = GXPORT1_BLOCK_ID;
         *port_idx = (pport - PHY_GXPORT1_BASE) & 0x7;
         *block_type = PORT_BLOCK_TYPE_GXPORT;
-    } else {
+    } 
+    else 
+    {
         *block_idx = GXPORT0_BLOCK_ID;
-        if (SOC_IS_DEERHOUND(unit)) {
+        if (SOC_IS_DEERHOUND(unit)) 
+        {
             *port_idx = (pport - PHY_GXPORT0_BASE) & 0x7;
-        } else {
+        } 
+        else 
+        {
             *port_idx = 7 - ((pport - PHY_GXPORT0_BASE) & 0x7);            
         }
         *block_type = PORT_BLOCK_TYPE_GXPORT;
     }
 }
 
-
-static void
-soc_init_port_mapping(void)
+/**端口映射初始化 */
+static void soc_init_port_mapping(void)
 {
     int i, port_count;
     const int *p2l_mapping = 0;
     const int *speed_max = 0;
     uint32 val;
     
-    switch (hr2_sw_info.devid) {
+    switch (hr2_sw_info.devid) 
+    {
         case BCM53333_DEVICE_ID:
             p2l_mapping = p2l_mapping_16_0_0;
             speed_max = port_speed_max_16x1g;
@@ -1338,15 +1389,20 @@ soc_init_port_mapping(void)
             speed_max = port_speed_max_6x1g_4x1g_4x1g;
             break;
         case BCM53394_DEVICE_ID:
-            if (config_id == 1) {
+            if (config_id == 1) 
+            {
                 /* Option 1: 10P 1G + 4x1/2.5/5/10G  (no PHY) */
                 p2l_mapping = p2l_mapping_6_4_4;
                 speed_max = port_speed_max_6x1g_4x10g_4x1g;
-            } else if (config_id == 2) {
+            } 
+            else if (config_id == 2) 
+            {
                 /* Option 2: 10P 1G + 1P XAUI (no Phy) */
                 p2l_mapping = p2l_mapping_6_1_4;
                 speed_max = port_speed_max_6x1g_1x10g_4x1g;
-            } else if (config_id == 3) {
+            } 
+            else if (config_id == 3) 
+            {
                 /* Option 3: 6P 1G + 3x1/10G + 1P XAUI (no Phy) */
                 p2l_mapping = p2l_mapping_6_1_3;
                 speed_max = port_speed_max_6x1g_1x10g_3x10g;
@@ -1363,15 +1419,20 @@ soc_init_port_mapping(void)
             speed_max = port_speed_max_16x1g_4x1g;
             break;
         case BCM53344_DEVICE_ID:
-            if (config_id == 1) {
+            if (config_id == 1) 
+            {
                 /* 1 = Option 1: 24P 1G + 4x1G (PHY) */
                 p2l_mapping = p2l_mapping_24_4_0_wh;
                 speed_max = port_speed_max_24x1g_4x1g;
-            } else if (config_id == 2) {
+            } 
+            else if (config_id == 2) 
+            {
                 /* 2 = Option 2: 24P 1G + 2P 1G + 2P 13G (PHY) */
                 p2l_mapping = p2l_mapping_24_2_2;
                 speed_max = port_speed_max_24x1g_2x1g_2x13g;
-            } else if (config_id == 3) {
+            } 
+            else if (config_id == 3) 
+            {
                 /* 3 = Otion 2A: 24P 1G + 2P 13G + 2P 1G (PHY) */
                 p2l_mapping = p2l_mapping_24_2_2;
                 speed_max = port_speed_max_24x1g_2x13g_2x1g;
@@ -1411,39 +1472,47 @@ soc_init_port_mapping(void)
         default :
             break;
     }
-    for (i = 0 ; i <= BCM5333X_LPORT_MAX ; i++) {
+    for (i = 0 ; i <= BCM5333X_LPORT_MAX ; i++) 
+    {
         SOC_PORT_L2P_MAPPING(i) = -1;
         SOC_PORT_SPEED_MAX(i) = -1;
     }
 
-    for (i = 0; i <= BCM5333X_PORT_MAX ; i++) {
+    for (i = 0; i <= BCM5333X_PORT_MAX ; i++) 
+    {
         SOC_PORT_P2L_MAPPING(i) = p2l_mapping[i];
-        if (p2l_mapping[i] != -1) {
+        if (p2l_mapping[i] != -1) 
+        {
             SOC_PORT_L2P_MAPPING(p2l_mapping[i]) = i;
             SOC_PORT_SPEED_MAX(p2l_mapping[i]) = speed_max[i];
         }
     }
 
     /* Ingress physical to logical port mapping */
-    for (i = 0; i <= BCM5333X_PORT_MAX; i++) {
+    /**物理端口到逻辑端口的映射 */
+    for (i = 0; i <= BCM5333X_PORT_MAX; i++) 
+    {
         val = (p2l_mapping[i] == -1) ? 0x1F: p2l_mapping[i];
         bcm5333x_mem_set(0, M_ING_PHYSICAL_TO_LOGICAL_PORT_NUMBER_MAPPING_TABLE(i), &val, 1);
     }
 
    /* Egress logical to physical port mapping, needs a way for maximum logical port? */
-    for (i = 0; i <= BCM5333X_LPORT_MAX; i++) {
+    for (i = 0; i <= BCM5333X_LPORT_MAX; i++) 
+    {
         val = (hr2_sw_info.port_l2p_mapping[i] == -1) ? 0x3F : hr2_sw_info.port_l2p_mapping[i];
         bcm5333x_reg_set(0, R_EGR_LOGICAL_TO_PHYSICAL_PORT_NUMBER_MAPPING(i), val);
         /* MMU logical to physical port mapping
          * (Here, Same as Egress logical to physical port mapping)
          */
-        if (val != 0x3F) {
+        if (val != 0x3F) 
+        {
             bcm5333x_reg_set(0, R_LOG_TO_PHY_PORT_MAPPING(i), val);
         }
     }
 
     port_count = 0;
-    SOC_LPORT_ITER(i) {
+    SOC_LPORT_ITER(i) 
+    {
         soc_port_block_info_get(0, SOC_PORT_L2P_MAPPING(i),
                                 &SOC_PORT_BLOCK_TYPE(i),
                                 &SOC_PORT_BLOCK(i), &SOC_PORT_BLOCK_INDEX(i));

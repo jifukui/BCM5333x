@@ -118,7 +118,8 @@ main(void)
 #endif /* CFG_RXTX_SUPPORT_ENABLED && !defined(__BOOTLOADER__) */
 
 #if defined(__LINUX__)
-   if (sal_bde_init()) {
+   if (sal_bde_init()) 
+   {
    	   sal_printf("bde module init fail\n");
    } 
 #endif
@@ -143,9 +144,11 @@ main(void)
     net_utils_init();
 #endif /* CFG_UIP_STACK_ENABLED */
 
-    if (board_init() == SYS_OK) {
+    if (board_init() == SYS_OK) 
+    {
 #if defined(__LINUX__)
-     for (i=0; i<DEFAULT_RX_BUFFER_COUNT; i++) {
+     for (i=0; i<DEFAULT_RX_BUFFER_COUNT; i++) 
+     {
 	 	rx_buffers[i] = sal_dma_malloc(DEFAULT_RX_BUFFER_SIZE);
      }
 #endif
