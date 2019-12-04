@@ -64,6 +64,7 @@
 #include "boardapi/mcast.h"
 #if CFG_CLI_ENABLED
 #define BUFLEN  64
+#define JIFUKUI_DEBUG
 static const uint32 Timeout=100000; 
 static const uint8 commandhead=0xeb;
 static const uint8 commandaddr=0x5f;
@@ -257,6 +258,44 @@ void GetMonth()
 
 void APIFUNC(cli)(void) REENTRANT
 {
+#ifdef JIFUKUI_DEBUG
+	for(;;) {
+        char cmd;
+        CLI_CMD_FUNC *pcmd;
+
+        sal_printf("\n" CFG_CLI_PROMPT);
+        cmd = sal_getchar();
+        if (cmd >= 'a' && cmd <= 'z') {
+            pcmd = &cmds[cmd - 'a'];
+        } else if (cmd >= 'A' && cmd <= 'Z') {
+            pcmd = &cmds[26 + cmd - 'A'];
+        } else if (cmd >= '0' && cmd <= '9') {
+            pcmd = &cmds[52 + cmd - '0'];
+        } else if (cmd == UI_KB_LF || cmd == UI_KB_ESC ||
+                   cmd == UI_KB_BS || cmd == UI_KB_CR) {
+            ui_backspace();
+            sal_putchar('\n');
+            continue;
+#ifdef __LINUX__			
+        } else if (cmd == UI_KB_CTRL_C) {
+            sal_reset(0);
+#endif		  
+        } else {
+            sal_printf("\nInvalid command\n");
+            continue;
+        }
+        
+        if (*pcmd == NULL) {
+            sal_printf("\nCommand not available\n");
+            continue;
+        }
+
+        sal_printf(" - ");
+        (*(*pcmd))(CLI_CMD_OP_DESC);
+        sal_printf("\n");
+        (*(*pcmd))(CLI_CMD_OP_EXEC);
+    }
+#else
     uint8 val;
     tx_Command.CommandHead=commandhead;    
     tx_Command.CommandAddr=commandaddr; 
@@ -317,21 +356,75 @@ void APIFUNC(cli)(void) REENTRANT
 	}
 	commandbuf_add();
     }
+#endif
 }
 
 BOOL APIFUNC(cli_add_cmd)(char cmd, CLI_CMD_FUNC func) REENTRANT
 {
+#ifdef JIFUKUI_DEBUG
+	CLI_CMD_FUNC *pcmd = NULL;
+    
+    SAL_ASSERT(func);
+    if (func == NULL) {
+        return FALSE;
+    }
+    
+    if (cmd >= 'a' && cmd <= 'z') {
+        pcmd = &cmds[cmd - 'a'];
+    } else if (cmd >= 'A' && cmd <= 'Z') {
+        pcmd = &cmds[26 + cmd - 'A'];
+    } else if (cmd >= '0' && cmd <= '9') {
+        pcmd = &cmds[52 + cmd - '0'];
+    } else {
+        SAL_ASSERT(FALSE);
+        return FALSE;
+    }
+    
+    SAL_ASSERT(*pcmd == NULL);
+    if (*pcmd != NULL) {
+        return FALSE;
+    }
+    
+    *pcmd = func;
+    return TRUE;
+#else
     return FALSE;
+#endif
 }
 
 void APIFUNC(cli_remove_cmd)(char cmd) REENTRANT
 {
-   
+#ifdef JIFUKUI_DEBUG
+	CLI_CMD_FUNC *pcmd = NULL;
+    
+    if (cmd >= 'a' && cmd <= 'z') {
+        pcmd = &cmds[cmd - 'a'];
+    } else if (cmd >= 'A' && cmd <= 'Z') {
+        pcmd = &cmds[26 + cmd - 'A'];
+    } else if (cmd >= '0' && cmd <= '9') {
+        pcmd = &cmds[52 + cmd - '0'];
+    } else {
+        SAL_ASSERT(FALSE);
+        return;
+    }
+    
+    *pcmd = NULL;
+#else
+    
+#endif   
 }
 
 void APIFUNC(cli_init)(void) REENTRANT
 {
-	
+#ifdef JIFUKUI_DEBUG
+	uint8 i;
+    for(i=0; i<MAX_CLI_COMMANDS; i++) {
+        cmds[i] = NULL;
+    }
+    cli_add_cmd('h', cli_cmd_list_commands);
+    cli_add_cmd('H', cli_cmd_command_help);
+#else
+#endif	
 }
 ////////////////////////////////////////
 void StartRecCom()
