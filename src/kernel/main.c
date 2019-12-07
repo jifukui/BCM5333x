@@ -105,6 +105,7 @@ STATIC uint8 rx_buffers[DEFAULT_RX_BUFFER_COUNT][DEFAULT_RX_BUFFER_SIZE];
  * Returns:
  *   None
  */
+/**交换机的主程序*/
 #if defined(__ARM__) || defined(__LINUX__)
 int
 main(void)

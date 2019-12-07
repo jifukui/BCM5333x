@@ -469,6 +469,13 @@ typedef struct phy_port_cable_diag_s {
  * external PHYs will be board-specific because the PHY address typically
  * is strappable. 
  */
+/**PHY的总线驱动
+ * drv_name驱动的名字
+ * phy_addr根据端口号获取PHY的地址
+ * read：读取PHY的数据
+ * write:写PHY的数据
+ * phy_inst：获取PHY的实例
+*/
 typedef struct phy_bus_s {
 
     /* String to identify PHY bus driver */
@@ -493,6 +500,29 @@ typedef struct phy_bus_s {
  * directly by PHY drivers (or application code) except through
  * the provided macros.
  */
+/**PHY的控制结构体
+ * next
+ * drv
+ * bus
+ * symbols
+ * fw_helper
+ * addr_type
+ * unit
+ * port
+ * addr_offset
+ * flags
+ * addr
+ * lane
+ * lane_mask
+ * line_intf
+ * num_phys
+ * blk_id
+ * blk_idx
+ * lane_num
+ * lane_idx
+ * priv
+ * slave
+*/
 typedef struct phy_ctrl_s {
     struct phy_ctrl_s *next;
     struct phy_driver_s *drv;
@@ -545,7 +575,26 @@ typedef struct phy_ctrl_s {
 /* Provided for backward compatibility */
 #define PHY_CTRL_INST(_pc) ((_pc)->bus->phy_inst ? \
         ((_pc)->bus->phy_inst((_pc)->port) | PHY_INST_VALID) : 0)
-
+/**PHY的驱动程序结构体
+ * drv_name驱动的名字
+ * drv_desc驱动的描述
+ * flags
+ * pd_probe
+ * pd_notify
+ * pd_reset
+ * pd_init
+ * pd_link_get
+ * pd_duplex_set
+ * pd_duplex_get
+ * pd_speed_set
+ * pd_speed_get
+ * pd_autoneg_set
+ * pd_autoneg_get
+ * pd_ability_get
+ * pd_config_set
+ * pd_status_get
+ * pd_cable_diag
+*/
 typedef struct phy_driver_s {
     const char *drv_name;
     const char *drv_desc;
@@ -626,7 +675,7 @@ typedef struct phy_driver_s {
 
 #define PHY_CONFIG_SET(_pc, _c, _v, _cd) \
         _PHY_CALL((_pc), pd_config_set, ((_pc), (_c), (_v), (_cd)))
-
+/***/
 #define PHY_CONFIG_GET(_pc, _c, _v, _cd) \
         _PHY_CALL((_pc), pd_config_get, ((_pc), (_c), (_v), (_cd)))
 

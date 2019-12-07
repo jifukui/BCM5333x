@@ -150,8 +150,7 @@ extern cdk_symbols_t bcmi_qsgmii_serdes_symbols;
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_probe(phy_ctrl_t *pc)
+static int bcmi_qsgmii_serdes_probe(phy_ctrl_t *pc)
 {
     uint32_t phyid0, phyid1;
     SERDES_ID0r_t serdesid0;
@@ -162,11 +161,13 @@ bcmi_qsgmii_serdes_probe(phy_ctrl_t *pc)
 
     phyid1 &= ~PHY_ID1_REV_MASK;
 
-    if (phyid0 == BCM_SERDES_PHY_ID0 && phyid1 == BCM_SERDES_PHY_ID1) {
+    if (phyid0 == BCM_SERDES_PHY_ID0 && phyid1 == BCM_SERDES_PHY_ID1) 
+    {
         /* Common PHY ID found - read specific SerDes ID */
         ioerr += READ_SERDES_ID0r(pc, &serdesid0);
         model = SERDES_ID0r_MODELf_GET(serdesid0);
-        if (model == SERDES_ID0_QSGMII) {
+        if (model == SERDES_ID0_QSGMII) 
+        {
             /* All lanes are accessed from the same PHY address */
             PHY_CTRL_FLAGS(pc) |= PHY_F_ADDR_SHARE | PHY_F_SERDES_MODE;
             PHY_CTRL_LANE_MASK(pc) = LANE_NUM_MASK;

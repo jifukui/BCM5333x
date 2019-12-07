@@ -248,10 +248,12 @@ void board_console_init(uint32 baudrate, uint32 clk_hz)
  * Returns:
  *   None
  */
+/**板子的早期的初始化*/
 void board_early_init(void)
 {
 #if CFG_CONSOLE_ENABLED
    /* Initialize UART using default clock */
+   /**串口的初始化*/
    board_console_init(CFG_UART_BAUDRATE, BOARD_CCA_UART_CLOCK);
 #endif /* CFG_CONSOLE_ENABLED */
    /* Initialize timer using default clock */

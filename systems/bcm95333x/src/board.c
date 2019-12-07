@@ -105,8 +105,7 @@ lag_group_t lag_group[BOARD_MAX_NUM_OF_LAG];
 
 extern void um_launch(hsaddr_t entry);
 
-const char *
-board_name(void)
+const char * board_name(void)
 {
     return um_boardname;
 }
@@ -117,8 +116,7 @@ board_name(void)
  *    
  */
 
-uint8
-board_uport_count(void)
+uint8 board_uport_count(void)
 {
     return bcm5333x_port_count(0);
 }
@@ -134,13 +132,14 @@ board_uport_count(void)
  *     SYS_ERR_PARAMETER : fail, because parameter is invalid
  *   
  */
-sys_error_t
-board_uport_to_lport(uint16 uport, uint8 *unit, uint8 *lport)
+/**将用户端口转换为逻辑端口*/
+sys_error_t board_uport_to_lport(uint16 uport, uint8 *unit, uint8 *lport)
 {
     uint8 count, port;
     int temp_lport;
 
-    if (SAL_UPORT_IS_NOT_VALID(uport)|| unit == NULL || lport == NULL) {
+    if (SAL_UPORT_IS_NOT_VALID(uport)|| unit == NULL || lport == NULL) 
+    {
         return SYS_ERR_PARAMETER;
     }
 
@@ -148,11 +147,13 @@ board_uport_to_lport(uint16 uport, uint8 *unit, uint8 *lport)
     
     SOC_PPORT_ITER(port) {
         temp_lport = SOC_PORT_P2L_MAPPING(port);
-        if (!lport_active[temp_lport]) {
+        if (!lport_active[temp_lport]) 
+        {
             continue;
         }
         
-        if (count == uport) {
+        if (count == uport) 
+        {
             break;
         }
         count++;
@@ -164,20 +165,27 @@ board_uport_to_lport(uint16 uport, uint8 *unit, uint8 *lport)
 
     *unit = 0;
 
-    if (SOC_IS_DEERHOUND(*unit)) {
+    if (SOC_IS_DEERHOUND(*unit)) 
+    {
         *lport = SOC_PORT_P2L_MAPPING(port);
-    } else {
+    } 
+    else 
+    {
 
         /* In Wolfhound ref platform, TSC ports are Even-Odd swapped (TSC physical port start from 26)*/ 
         /*  To simply HR2 QGPHY(2~9) port swapping  we use physical port instead of logical port*/
-        if (port >= 10) {
+        if (port >= 10) 
+        {
             *lport = SOC_PORT_P2L_MAPPING(port);
-        } else {
+        } 
+        else 
+        {
             *lport = port;
         }
     }
 
-    if (*lport == -1) {
+    if (*lport == -1) 
+    {
         return SYS_ERR_NOT_FOUND;
     }
     return SYS_OK;
@@ -196,8 +204,7 @@ board_uport_to_lport(uint16 uport, uint8 *unit, uint8 *lport)
  *   
  */
 
-sys_error_t
-board_lport_to_uport(uint8 unit, uint8 lport, uint16 *uport)
+sys_error_t board_lport_to_uport(uint8 unit, uint8 lport, uint16 *uport)
 {
 
     uint8 count;
@@ -256,8 +263,7 @@ board_lport_to_uport(uint8 unit, uint8 lport, uint16 *uport)
  *   
  */
 
-sys_error_t
-board_uplist_to_lpbmp(uint8 *uplist, uint8 unit, pbmp_t *lpbmp)
+sys_error_t board_uplist_to_lpbmp(uint8 *uplist, uint8 unit, pbmp_t *lpbmp)
 {
 
     uint8 val, lport;
@@ -310,8 +316,7 @@ board_uport_to_lpbmp(uint8 uport, uint8 unit, pbmp_t *lpbmp)
  *   
  */
 
-sys_error_t
-board_lpbmp_to_uplist(uint8 unit, pbmp_t lpbmp, uint8 *uplist)
+sys_error_t board_lpbmp_to_uplist(uint8 unit, pbmp_t lpbmp, uint8 *uplist)
 {
 
     uint8 pport, lport;
@@ -341,17 +346,15 @@ board_lpbmp_to_uplist(uint8 unit, pbmp_t lpbmp, uint8 *uplist)
     return SYS_OK;
 }
 
-soc_switch_t *
-board_get_soc_by_unit(uint8 unit)
+soc_switch_t * board_get_soc_by_unit(uint8 unit)
 {
     if (unit > 0) {
         return NULL;
     }
     return &soc_switch_bcm5333x;
 }
-
-sys_error_t
-board_port_enable_get(uint16 uport, BOOL *enable)
+/***/
+sys_error_t board_port_enable_get(uint16 uport, BOOL *enable)
 {
     uint8 unit, lport, pport;
     sys_error_t r;
@@ -359,17 +362,21 @@ board_port_enable_get(uint16 uport, BOOL *enable)
     
     r = board_uport_to_lport(uport, &unit, &lport);
 
-    if (r != SYS_OK) {
+    if (r != SYS_OK) 
+    {
         return r;
     }    
 
     pport = SOC_PORT_L2P_MAPPING(lport);
 
-    if (!SOC_IS_DEERHOUND(unit) && pport < PHY_SECOND_QGPHY_PORT0) {
+    if (!SOC_IS_DEERHOUND(unit) && pport < PHY_SECOND_QGPHY_PORT0) 
+    {
         /* Get chip local port for BMD_PORT_PHY_CTRL for FH */
         r = PHY_CONFIG_GET(BMD_PORT_PHY_CTRL(unit, pport), 
                        PhyConfig_Enable, &en, NULL);
-    } else {   
+    } 
+    else 
+    {   
     
         r = PHY_CONFIG_GET(BMD_PORT_PHY_CTRL(unit, lport), 
                        PhyConfig_Enable, &en, NULL);
@@ -380,8 +387,7 @@ board_port_enable_get(uint16 uport, BOOL *enable)
     return r;
 }
 
-sys_error_t
-board_port_enable_set(uint16 uport, BOOL enable)
+sys_error_t board_port_enable_set(uint16 uport, BOOL enable)
 {
     uint8 unit;
     uint8 lport, pport;
@@ -428,8 +434,7 @@ board_port_enable_set(uint16 uport, BOOL enable)
     return r;
 }
 
-sys_error_t
-board_get_port_link_status(uint16 uport, BOOL *link)
+sys_error_t board_get_port_link_status(uint16 uport, BOOL *link)
 {
     uint8 unit, lport;
     sys_error_t r;
@@ -452,20 +457,20 @@ board_get_port_link_status(uint16 uport, BOOL *link)
     return (*soc_switch_bcm5333x.link_status)(unit, lport, link);
 }
 
-void
-board_reset(void *param)
+void board_reset(void *param)
 {
-    if (param) {
-        if (*(BOOL *)param) {
+    if (param) 
+    {
+        if (*(BOOL *)param) 
+        {
             /* Hard reset */
         }
     }
     /* [Bit 0]: switch reset, [Bit 1]: iproc only reset */
     SYS_REG_WRITE32(DMU_CRU_RESET, 0x0);
 }
-
-void
-board_firmware_version_get(uint8 *major, uint8 *minor, uint8 *eco, uint8 *misc)
+/**获取程序的固件版本*/
+void board_firmware_version_get(uint8 *major, uint8 *minor, uint8 *eco, uint8 *misc)
 {
     *major = CFE_VER_MAJOR;
     *minor = CFE_VER_MINOR;
@@ -513,8 +518,7 @@ board_get_flash_dev()
 #endif /* CFG_FLASH_SUPPORT_ENABLED */
 
 /* Check integrity of firmware image */
-BOOL
-board_check_image(hsaddr_t address, hsaddr_t *outaddr)
+BOOL board_check_image(hsaddr_t address, hsaddr_t *outaddr)
 {
     uint16 hdrchksum, chksum = 0;
     uint32 i, size;
@@ -564,8 +568,7 @@ board_check_image(hsaddr_t address, hsaddr_t *outaddr)
     return TRUE;
 }
 
-BOOL
-board_check_imageheader(msaddr_t address)
+BOOL board_check_imageheader(msaddr_t address)
 {
     flash_imghdr_t *hdr = (flash_imghdr_t *)address;
 
@@ -591,8 +594,7 @@ board_check_imageheader(msaddr_t address)
 }
 
 /* Launch program at entry address */
-void
-board_load_program(hsaddr_t entry)
+void board_load_program(hsaddr_t entry)
 {
     void (*funcptr)(void) = (void (*)(void))entry;
     (*funcptr)();
@@ -887,8 +889,7 @@ board_port_mode_get(uint16 uport, port_mode_t *mode)
     return rv;
 }
 
-sys_error_t
-board_port_pause_get(uint16 uport, BOOL *tx, BOOL *rx)
+sys_error_t board_port_pause_get(uint16 uport, BOOL *tx, BOOL *rx)
 {
     uint8 unit, lport;
     sys_error_t r;
@@ -909,8 +910,7 @@ board_port_pause_get(uint16 uport, BOOL *tx, BOOL *rx)
     return r;
 }
 
-sys_error_t
-board_port_an_get(uint16 uport, BOOL *an)
+sys_error_t board_port_an_get(uint16 uport, BOOL *an)
 {
     uint8 unit, lport;
     sys_error_t r;
@@ -965,8 +965,7 @@ board_get_cable_diag_support_by_port(uint16 uport, BOOL *support)
     return r;
 }
 
-uint16
-board_cable_diag_port_count(void)
+uint16 board_cable_diag_port_count(void)
 {
     uint8 cnt = 0;
     BOOL support;
@@ -1134,8 +1133,7 @@ board_lag_group_max_num(uint8 *num)
     *num = BOARD_MAX_NUM_OF_LAG;
 }
 
-void
-board_lag_linkchange(uint16 uport, BOOL link, void *arg)
+void board_lag_linkchange(uint16 uport, BOOL link, void *arg)
 {
     uint8 unit, lport;
     pbmp_t hw_pbmp;

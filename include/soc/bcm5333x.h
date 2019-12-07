@@ -748,15 +748,20 @@ typedef struct l2x_entry_s {
 } l2x_entry_t;
 
 /* Switch characteristics */
+/**定义第一个QSGMII的端口*/
 #define PHY_FIRST_QSGMII_PORT                   18
 
 #define PHY_FIRST_QGPHY_PORT0                    2
 #define PHY_SECOND_QGPHY_PORT0                  10
 
-/* physical port */
+/** physical port
+ * 定义物理端口的最大最小值
+ */
 #define BCM5333X_PORT_MIN                        2
 #define BCM5333X_PORT_MAX                       33
-/* logical port */
+/** logical port 
+ * 定义逻辑端口的最大最小值
+*/
 #define BCM5333X_LPORT_MIN                        2
 #define BCM5333X_LPORT_MAX                       29
 

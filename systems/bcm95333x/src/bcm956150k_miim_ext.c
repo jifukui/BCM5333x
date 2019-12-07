@@ -87,20 +87,28 @@ static const uint16 _phy_addr_bcm5339x[] = {
     0xFF /* Port  33        N/A */
 };
 
-static uint32_t
-_phy_addr(int pport)
+static uint32_t _phy_addr(int pport)
 {
-    if (pport < BCM5333X_PORT_MAX) {
-        switch (hr2_sw_info.devid) {
+    if (pport < BCM5333X_PORT_MAX) 
+    {
+        switch (hr2_sw_info.devid) 
+        {
             case BCM53333_DEVICE_ID:
             case BCM53334_DEVICE_ID:
             case BCM53346_DEVICE_ID:
-                if (pport >= 2 && pport < 18) {
+                /**内置PHY的处理*/
+                if (pport >= 2 && pport < 18) 
+                {
                     return 0xFF;
-                } else if (pport < 26) {
+                } 
+                /**外置PHY的处理*/
+                else if (pport < 26) 
+                {
                     //return pport + ((pport - 0x2) >> 3) + CDK_XGSM_MIIM_EBUS(0);
                     return pport;
-                } else if (pport < 34) {
+                } 
+                else if (pport < 34) 
+                {
                     return 0x01 + (pport - 26) + CDK_XGSM_MIIM_EBUS(1);
                 }
                 break;
@@ -136,9 +144,8 @@ _write(int unit, uint32_t addr, uint32_t reg, uint32_t val)
 {
     return cdk_xgsm_miim_write(unit, addr, reg, val);
 }
-
-static int
-_phy_inst(int port)
+/***/
+static int _phy_inst(int port)
 {
     return port - 2;
 }

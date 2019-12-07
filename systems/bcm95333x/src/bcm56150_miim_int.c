@@ -170,32 +170,42 @@ static const uint16 _phy_addr_bcm5339x[] = {
     0x08 + CDK_XGSM_MIIM_IBUS(1)  /* Port 33 IntBus=1 Addr=0x08 */
 };
 
-static uint32_t
-_phy_addr(int pport)
+static uint32_t _phy_addr(int pport)
 {
-    if (pport <= BCM5333X_PORT_MAX) {
-        switch (hr2_sw_info.devid) {
+    if (pport <= BCM5333X_PORT_MAX) 
+    {
+        switch (hr2_sw_info.devid) 
+        {
             case BCM53333_DEVICE_ID:
             case BCM53334_DEVICE_ID:
-                if (pport < sizeof(_phy_addr_bcm5333x)) {
+                if (pport < sizeof(_phy_addr_bcm5333x)) 
+                {
                     return _phy_addr_bcm5333x[pport];
-                } else {
+                } 
+                else 
+                {
                     return 0xFF;
                 }
                 break;
             case BCM53344_DEVICE_ID:
             case BCM53346_DEVICE_ID:
-                if (pport < sizeof(_phy_addr_bcm5334x)) {
+                if (pport < sizeof(_phy_addr_bcm5334x)) 
+                {
                     return _phy_addr_bcm5334x[pport];
-                } else {
+                } 
+                else 
+                {
                     return 0xFF;
                 }
                 break;
             case BCM53393_DEVICE_ID:
             case BCM53394_DEVICE_ID:
-                if (pport < sizeof(_phy_addr_bcm5339x)) {
+                if (pport < sizeof(_phy_addr_bcm5339x)) 
+                {
                     return _phy_addr_bcm5339x[pport];
-                } else {
+                } 
+                else 
+                {
                     return 0xFF;
                 }
                 break;
@@ -207,31 +217,33 @@ _phy_addr(int pport)
     return 0xFF;
 }
 
-static int
-_read(int unit, uint32_t addr, uint32_t reg, uint32_t *val)
+static int _read(int unit, uint32_t addr, uint32_t reg, uint32_t *val)
 {
     return cdk_xgsm_miim_read(unit, addr, reg, val);
 }
 
-static int
-_write(int unit, uint32_t addr, uint32_t reg, uint32_t val)
+static int _write(int unit, uint32_t addr, uint32_t reg, uint32_t val)
 {
     return cdk_xgsm_miim_write(unit, addr, reg, val);
 }
-
-static int
-_phy_inst(int pport)
+/**PHY的实例化，根据传入的端口号返回*/
+static int _phy_inst(int pport)
 {
-    if ((pport >= BCM5333X_PORT_MIN) && (pport <= BCM5333X_PORT_MAX)) {
-        switch (hr2_sw_info.devid) {
+    if ((pport >= BCM5333X_PORT_MIN) && (pport <= BCM5333X_PORT_MAX)) 
+    {
+        switch (hr2_sw_info.devid) 
+        {
             case BCM53333_DEVICE_ID:
             case BCM53334_DEVICE_ID:
             case BCM53344_DEVICE_ID:
             case BCM53346_DEVICE_ID:
                 /* 56150 type with internal GPHY */
-                if (pport < 10) {
+                if (pport < 10) 
+                {
                     return 9 - pport;
-                } else {
+                } 
+                else 
+                {
                     return pport - 2;
                 }
             break;
@@ -248,7 +260,8 @@ _phy_inst(int pport)
     return 0;
 }
 
-phy_bus_t phy_bus_bcm56150_miim_int = {
+phy_bus_t phy_bus_bcm56150_miim_int = 
+{
     "bcm56150_miim_int",
     _phy_addr,
     _read,

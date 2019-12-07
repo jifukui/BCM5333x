@@ -49,13 +49,10 @@
 
 #include <phy/phy.h>
 
-int
-phy_ctrl_check(phy_ctrl_t *pc)
+int phy_ctrl_check(phy_ctrl_t *pc)
 {
-    if (pc == 0 ||
-        pc->bus == 0 ||
-        pc->bus->read == 0 ||
-        pc->bus->write == 0) {
+    if (pc == 0 ||pc->bus == 0 ||pc->bus->read == 0 ||pc->bus->write == 0) 
+    {
         return -1;
     }
     return 0;

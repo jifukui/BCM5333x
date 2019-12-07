@@ -56,6 +56,7 @@
 
 bcm5333x_sw_info_t hr2_sw_info;
 uint8 config_id = CFG_CONFIG_OPTION;
+/**定义BCM53334X的有效端口*/
 uint8 lport_active[BCM5333X_LPORT_MAX + 1] = {
                       1, 1, 1, 1, 1, 1, 1, 1,
                       1, 1, 1, 1, 1, 1, 1, 1,
@@ -1565,22 +1566,25 @@ ccb_mii_write(int phy_addr, int reg_off, uint16 data)
     return 0;
 }
 #endif /* CFG_PCIE_SERDES_POWERDOWN_ENABLED */
-
-static int
-soc_port_num_lanes(int unit, int lport)
+/**根据设备的端口号和单元号获取设备的lane的数量*/
+static int soc_port_num_lanes(int unit, int lport)
 {
     int lanes = 1;
 
-    switch (hr2_sw_info.devid) {
+    switch (hr2_sw_info.devid) 
+    {
         case BCM53394_DEVICE_ID:
-            if ((config_id == 2) || (config_id == 3)) {
-                if (lport == 26) {
+            if ((config_id == 2) || (config_id == 3)) 
+            {
+                if (lport == 26) 
+                {
                     lanes = 4;
                 }
             }
             break;
         case BCM53344_DEVICE_ID:
-            if (config_id == 2){
+            if (config_id == 2)
+            {
                 /* 24P 1G + 2P 1G + 2P 13G */
                 if (lport >= 28) {
                     lanes = 2;
@@ -1613,8 +1617,7 @@ soc_port_num_lanes(int unit, int lport)
     }
     return lanes;
 }
-static void
-soc_misc_init(void)
+static void soc_misc_init(void)
 {
 #define NUM_XLPORT 4
     int i, bindex, lport, lanes;
@@ -1788,8 +1791,7 @@ soc_misc_init(void)
     }
 }
 
-static void
-soc_mmu_init(void)
+static void soc_mmu_init(void)
 {
     int i, j;
     uint32 addr, val;
@@ -1797,7 +1799,8 @@ soc_mmu_init(void)
     const uint32 *arr = NULL;
 
     /* TDM initialization */
-    switch (hr2_sw_info.devid) {
+    switch (hr2_sw_info.devid) 
+    {
         case BCM53333_DEVICE_ID:
         case BCM53334_DEVICE_ID:
         case BCM53342_DEVICE_ID:
@@ -1969,8 +1972,7 @@ soc_mmu_init(void)
 #endif /* CFG_RXTX_SUPPORT_ENABLED */
 }
 
-static void
-config_schedule_mode(void)
+static void config_schedule_mode(void)
 {
     int i, j;
 
@@ -2193,8 +2195,7 @@ bcm5333x_lag_group_get(uint8 unit, uint8 lagid, pbmp_t *lpbmp) {
 #endif /* CFG_SWITCH_LAG_INCLUDED */
 
 
-static void
-bcm5333x_system_init(void)
+static void bcm5333x_system_init(void)
 {
     int i, j;
     uint32 entry[6];
@@ -2417,8 +2418,7 @@ bcm5333x_system_init(void)
 #define BMD_MODID(_u)  (_u)
 #define HG_TRUNKID(_u)  (0)
 
-static int 
-_bmd_post_init(int unit)
+static int  _bmd_post_init(int unit)
 {
     int lport, dest_unit, dest_modid;
     uint32 val, entry[8];
@@ -2562,8 +2562,7 @@ _bmd_post_init(int unit)
 
 #define FW_ALIGN_BYTES                  16
 #define FW_ALIGN_MASK                   (FW_ALIGN_BYTES - 1)
-int
-_firmware_helper(void *ctx, uint32 offset, uint32 size, void *data)
+int _firmware_helper(void *ctx, uint32 offset, uint32 size, void *data)
 {
     uint32 wbuf[4], ucmem_data[4];
     uint32 *fw_data;
@@ -2630,9 +2629,8 @@ bmd_phy_fw_helper_set(int unit, int port,
  * Returns:
  *   None
  */
-
-sys_error_t
-bcm5333x_sw_init(void)
+/**bcm5333x的初始化，默认单元只有0*/
+sys_error_t bcm5333x_sw_init(void)
 {
     uint8 unit = 0;
     uint8 lport;
@@ -2692,6 +2690,7 @@ bcm5333x_sw_init(void)
 	sal_memset(counter_val, 0 ,sizeof(uint32) * BCM5333X_LPORT_MAX *(R_MAX * 2));	
 
     /* Probe PHYs */
+    /**检测PHY从最小的逻辑端口号到最大的逻辑端口号，且定义为有效的端口*/
     SOC_LPORT_ITER(lport) {
         rv = bmd_phy_probe(unit, lport);
         if (CDK_SUCCESS(rv)) {

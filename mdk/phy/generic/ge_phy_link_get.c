@@ -62,8 +62,8 @@
  * Returns:     
  *      CDK_E_xxx
  */
-int
-ge_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
+/**获取link状态*/
+int ge_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
 {
     uint32_t stat;
     int ioerr = 0;
@@ -72,10 +72,12 @@ ge_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
 
     ioerr += PHY_BUS_READ(pc, MII_STAT_REG, &stat);
 
-    if (link) {
+    if (link) 
+    {
         *link = (stat & MII_STAT_LA) ? 1 : 0;
     }
-    if (autoneg_done) {
+    if (autoneg_done) 
+    {
         *autoneg_done = (stat & MII_STAT_AN_DONE) ? 1 : 0;
     }
 

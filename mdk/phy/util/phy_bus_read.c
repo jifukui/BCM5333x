@@ -46,9 +46,12 @@
  */
 
 #include <phy/phy.h>
-
-int
-phy_bus_read(phy_ctrl_t *pc, uint32_t reg, uint32_t *data)
+/**读取PHY的值
+ * pc:PHY控制结构体
+ * reg：寄存器的地址
+ * data：数据
+*/
+int phy_bus_read(phy_ctrl_t *pc, uint32_t reg, uint32_t *data)
 {
     /* Read raw PHY data */
     return pc->bus->read(pc->unit, PHY_CTRL_BUS_ADDR(pc), reg, data);

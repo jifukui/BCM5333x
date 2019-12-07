@@ -266,9 +266,8 @@ APIFUNC(cli_cmd_switch_vlan_info_dump)(CLI_CMD_OP op) REENTRANT
     }
 }
 #endif /* BRD_VLAN_DEBUG */
-
-APISTATIC void
-APIFUNC(cli_cmd_phy_reg_get)(CLI_CMD_OP op) REENTRANT
+/**获取PHY寄存器的值*/
+APISTATIC void APIFUNC(cli_cmd_phy_reg_get)(CLI_CMD_OP op) REENTRANT
 {
     uint32 uport = 0, rw = 0;
     uint32 addr;
@@ -279,14 +278,22 @@ APIFUNC(cli_cmd_phy_reg_get)(CLI_CMD_OP op) REENTRANT
     uint32_t data;
     
 
-    if (op == CLI_CMD_OP_HELP) {
+    if (op == CLI_CMD_OP_HELP) 
+    {
         sal_printf("Command to get PHY register value.\n");
-    } else if (op == CLI_CMD_OP_DESC) {
+    } 
+    else if (op == CLI_CMD_OP_DESC) 
+    {
         sal_printf("Get value of PHY register");
-    } else {
-           if (ui_get_decimal(&uport, "User port: ") == UI_RET_OK) {
+    } 
+    else 
+    {
+            /***/
+           if (ui_get_decimal(&uport, "User port: ") == UI_RET_OK) 
+           {
 
-                if (SAL_UPORT_IS_NOT_VALID(uport)) {
+                if (SAL_UPORT_IS_NOT_VALID(uport)) 
+                {
                     sal_printf("User port range from %d to %d\n", SAL_NZUPORT_TO_UPORT(1), board_uport_count());
                     return;
                 }
@@ -294,7 +301,8 @@ APIFUNC(cli_cmd_phy_reg_get)(CLI_CMD_OP op) REENTRANT
                 board_uport_to_lport(uport, &unit, &lport);
 
 #ifdef _BCM95333X_ 
-                if (!SOC_IS_DEERHOUND(unit) && lport < PHY_SECOND_QGPHY_PORT0) {
+                if (!SOC_IS_DEERHOUND(unit) && lport < PHY_SECOND_QGPHY_PORT0) 
+                {
                     /* Get chip local port for BMD_PORT_PHY_CTRL for FH */
                     lport = SOC_PORT_P2L_MAPPING(lport);
                 }
@@ -302,7 +310,8 @@ APIFUNC(cli_cmd_phy_reg_get)(CLI_CMD_OP op) REENTRANT
 
                 pc = BMD_PORT_PHY_CTRL(0, lport);
 
-                if (pc == NULL) {
+                if (pc == NULL) 
+                {
                     sal_printf("There is no valid phy driver\n");
                     return;
                 }
@@ -311,17 +320,22 @@ APIFUNC(cli_cmd_phy_reg_get)(CLI_CMD_OP op) REENTRANT
 
                 max_index ++;
 
-                if (pc->next != NULL) {
+                if (pc->next != NULL) 
+                {
                     sal_printf(" 1: %s addr=0x%x on bus %d\n", pc->next->drv->drv_name, (pc->next->addr & 0x1f), (pc->next->addr & 0x40) ? 1 : 0);
                     max_index ++;
                 }
 
                 rv = ui_get_decimal(&rw, "Enter your choice: [0] ");
 
-                if (rv == UI_RET_EMPTY || rv == UI_RET_OK) {
-                   if (rv == UI_RET_EMPTY) {
+                if (rv == UI_RET_EMPTY || rv == UI_RET_OK) 
+                {
+                   if (rv == UI_RET_EMPTY) 
+                   {
                        rw = 0;
-                   } else if (rw >= max_index) {
+                   } 
+                   else if (rw >= max_index) 
+                   {
                        sal_printf("Invalid choice.\n");
                        return;
                    }
@@ -329,39 +343,63 @@ APIFUNC(cli_cmd_phy_reg_get)(CLI_CMD_OP op) REENTRANT
 
             } 
 
-            if (ui_get_dword(&addr, "Reg address: ") == UI_RET_OK) {
+            if (ui_get_dword(&addr, "Reg address: ") == UI_RET_OK) 
+            {
                 
-                if (rw == 0) {
+                if (rw == 0) 
+                {
                     pc_temp = pc;
-                } else {
+                } else 
+                {
                     pc_temp = pc->next;
                 }
 
-                if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_BRCM_SHADOW) {
+                if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_BRCM_SHADOW) 
+                {
                     r = phy_brcm_shadow_read(pc_temp, addr, &data);
-                } else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_BRCM_1000X) {
+                } 
+                else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_BRCM_1000X) 
+                {
                     r = phy_brcm_1000x_read(pc_temp, addr, &data);
-                } else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_XGS_IBLK) {
+                } 
+                else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_XGS_IBLK) 
+                {
                     r = phy_xgs_iblk_read(pc_temp, addr, &data);
-                } else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_XAUI_IBLK) {
+                } 
+                else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_XAUI_IBLK) 
+                {
                     r = phy_xaui_iblk_read(pc_temp, addr, &data);
-                } else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_AER_IBLK) {
+                } 
+                else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_AER_IBLK) 
+                {
                     r = phy_aer_iblk_read(pc_temp, addr, &data);
-                } else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_BRCM_XE) {
+                } 
+                else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_BRCM_XE) 
+                {
                     r = phy_brcm_xe_read(pc_temp, addr, &data);
-                } else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_TSC_IBLK) {
-                    if (sal_strcmp(pc_temp->drv->drv_name, "bcmi_tsc_xgxs") == 0) {
+                } 
+                else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_TSC_IBLK) 
+                {
+                    if (sal_strcmp(pc_temp->drv->drv_name, "bcmi_tsc_xgxs") == 0) 
+                    {
                         r = phy_tsc_iblk_read(pc_temp, addr, &data);
-                    } else {
+                    } 
+                    else 
+                    {
                         r = PHY_CONFIG_GET(pc_temp, PhyConfig_RegisterAccess, &addr, (void *)&data);
                     }
-                } else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_BRCM_RDB) {
+                } 
+                else if ((addr & PHY_REG_ACC_MASK) == PHY_REG_ACC_BRCM_RDB) 
+                {
                     r = phy_brcm_rdb_read(pc_temp, addr, &data);
-                } else {
+                } 
+                else 
+                {
                     r = PHY_BUS_READ(pc_temp, addr, &data);
                 }
 
-                if (r != SYS_OK) {
+                if (r != SYS_OK) 
+                {
                     sal_printf("Error!\n");
                     return;
                 }
@@ -370,8 +408,7 @@ APIFUNC(cli_cmd_phy_reg_get)(CLI_CMD_OP op) REENTRANT
     }
 }
 
-APISTATIC void
-APIFUNC(cli_cmd_phy_reg_set)(CLI_CMD_OP op) REENTRANT
+APISTATIC void APIFUNC(cli_cmd_phy_reg_set)(CLI_CMD_OP op) REENTRANT
 {
     uint32 uport, rw = 0;
     uint32 addr;
@@ -693,8 +730,7 @@ APISTATIC APIFUNC(cli_cmd_switch_mem_get)(CLI_CMD_OP op) REENTRANT
     }
 }
 
-void
-APISTATIC APIFUNC(cli_cmd_switch_mem_set)(CLI_CMD_OP op) REENTRANT
+void APISTATIC APIFUNC(cli_cmd_switch_mem_set)(CLI_CMD_OP op) REENTRANT
 {
     if (op == CLI_CMD_OP_HELP) {
         sal_printf("This command edits the contents of table in a dword "
@@ -988,9 +1024,8 @@ _if_fmt_speed(char *b, int speed)
     return (b);
 }
 
-
-void
-brief_port_info(int unit, int port, bcm_port_info_t *info)
+/**端口简要信息*/
+void brief_port_info(int unit, int port, bcm_port_info_t *info)
 {
     char *spt_str, *discrd_str;
     char sbuf[6];
@@ -1046,16 +1081,20 @@ brief_port_info(int unit, int port, bcm_port_info_t *info)
     sal_printf("%s\n", buf);  
 }
 
-
-APISTATIC void
-APIFUNC(ui_switch_port_status)(CLI_CMD_OP op) REENTRANT 
+/**输出端口状态*/
+APISTATIC void APIFUNC(ui_switch_port_status)(CLI_CMD_OP op) REENTRANT 
 {
-    if (op == CLI_CMD_OP_HELP) {
+    if (op == CLI_CMD_OP_HELP) 
+    {
         sal_printf("This command displays data from port table.\n"
                     "To stop dumping, press ESC or Ctrl-C.\n");
-    } else if (op == CLI_CMD_OP_DESC) {
+    } 
+    else if (op == CLI_CMD_OP_DESC) 
+    {
         sal_printf("Dump Port status");
-    } else {  
+    } 
+    else 
+    {  
         uint8 lport;
 		uint8 pport;
         bcm_port_info_t info;
@@ -1247,8 +1286,7 @@ APIFUNC(ui_switch_reg_dump)(CLI_CMD_OP op) REENTRANT
     }
 }
 
-APISTATIC void
-APIFUNC(ui_switch_port_counters)(CLI_CMD_OP op) REENTRANT 
+APISTATIC void APIFUNC(ui_switch_port_counters)(CLI_CMD_OP op) REENTRANT 
 {
 	uint8 select = 0; 
     if (op == CLI_CMD_OP_HELP) {
@@ -1274,8 +1312,7 @@ APIFUNC(ui_switch_port_counters)(CLI_CMD_OP op) REENTRANT
 }
 
 
-void
-APIFUNC(ui_switch_init)(void) REENTRANT
+void APIFUNC(ui_switch_init)(void) REENTRANT
 {
     /* Phy register get/set */
     cli_add_cmd('p', cli_cmd_phy_reg_get);

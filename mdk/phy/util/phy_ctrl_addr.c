@@ -46,15 +46,20 @@
  */
 
 #include <phy/phy.h>
-
-uint32_t
-phy_ctrl_addr(phy_ctrl_t *pc, int adjust)
+/**获取端口的PHY地址
+ * pc:
+ * adjuest:是否进行调整
+*/
+uint32_t phy_ctrl_addr(phy_ctrl_t *pc, int adjust)
 {
     uint32_t phy_addr;
 
     /* Initialize PHY address if necessary */
-    if ((PHY_CTRL_FLAGS(pc) & PHY_F_ADDR_VALID) == 0) {
-        if (pc->bus->phy_addr != NULL) {
+
+    if ((PHY_CTRL_FLAGS(pc) & PHY_F_ADDR_VALID) == 0) 
+    {
+        if (pc->bus->phy_addr != NULL) 
+        {
             pc->addr = pc->bus->phy_addr(pc->port);
         }
         PHY_CTRL_FLAGS(pc) |= PHY_F_ADDR_VALID;
@@ -64,7 +69,8 @@ phy_ctrl_addr(phy_ctrl_t *pc, int adjust)
     phy_addr = pc->addr;
 
     /* Adjust according to selected instance */
-    if (adjust) {
+    if (adjust) 
+    {
         phy_addr += PHY_CTRL_ADDR_OFFSET(pc);
     }
 

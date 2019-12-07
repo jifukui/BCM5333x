@@ -56,23 +56,32 @@
  * bit4-0,   mdio addresses
  */
 #define CDK_CONFIG_MIIM_MAX_POLLS   100000
+/**内部PHY掩码*/
 #define PHY_INTERNAL_MASK        0x80
+/**PHY 总线ID掩码*/
 #define PHY_ID_BUS_MASK          0x60
+/**PHY 地址掩码*/
 #define PHY_ADDR_MASK            0x1f
-
+/**总线的移动位数*/
 #define PHY_ID_BUS_SHIFT         5
+/**根据PHY的ID获取总线号*/
 #define PHY_ID_BUS_NUM(_id)      (((_id) & PHY_ID_BUS_MASK) >> PHY_ID_BUS_SHIFT)
+/***/
 #define PHY_RESET_POLL_MAX       (20)
+/***/
 #define MIIM_PARAM_ID_OFFSET     (16)
+/***/
 #define MIIM_PARAM_BUSID_OFFSET  (22)
+/***/
 #define MIIM_PARAM_REG_ADDR_OFFSET  24
+/***/
 #define MIIM_PARAM_INT_OFFSET    (25)
 
 
 
 extern phy_bus_t phy_bus_bcm56150_miim_int;
 extern phy_bus_t phy_bus_bcm956150k_miim_ext;
-
+/**定义使用的总线驱动*/
 static phy_bus_t *bcm5333xmdk_phy_bus[] = {
     &phy_bus_bcm56150_miim_int,
     &phy_bus_bcm956150k_miim_ext,
@@ -86,7 +95,7 @@ extern phy_driver_t bcm56150_drv;
 extern phy_driver_t bcmi_qsgmii_serdes_drv;
 extern phy_driver_t bcm54880e_drv;
 #endif /* !CONFIG_GREYHOUND_ROMCODE */
-
+/**定义使用的PHY的驱动*/
 phy_driver_t *phy_drv_list_bcm95333x[] = {
     &bcm56150_drv,
     &bcm54282_drv,
@@ -128,15 +137,15 @@ bmd_phy_info_t bmd_phy_info[BOARD_NUM_OF_UNITS];
  * the block is free or in use.
  */
 static phy_ctrl_t _phy_ctrl[PHY_CTRL_NUM_MAX];
-
+/**定义PHY的复位回调函数*/
 int (*phy_reset_cb)(phy_ctrl_t *pc);
+/**定义PHY的初始化回调函数*/
 int (*phy_init_cb)(phy_ctrl_t *pc);
 
 /*
  * Register PHY init callback function
  */
-int
-bmd_phy_init_cb_register(int (*init_cb)(phy_ctrl_t *pc))
+int bmd_phy_init_cb_register(int (*init_cb)(phy_ctrl_t *pc))
 {
     phy_init_cb = init_cb;
 
@@ -146,35 +155,32 @@ bmd_phy_init_cb_register(int (*init_cb)(phy_ctrl_t *pc))
 /*
  * Register PHY reset callback function
  */
-int
-bmd_phy_reset_cb_register(int (*reset_cb)(phy_ctrl_t *pc))
+int bmd_phy_reset_cb_register(int (*reset_cb)(phy_ctrl_t *pc))
 {
     phy_reset_cb = reset_cb;
 
     return CDK_E_NONE;
 }
 
-int
-bmd_phy_add(int unit, int lport, phy_ctrl_t *pc)
+int bmd_phy_add(int unit, int lport, phy_ctrl_t *pc)
 {
     pc->next = BMD_PORT_PHY_CTRL(unit, lport);
     BMD_PORT_PHY_CTRL(unit, lport) = pc;
     return CDK_E_NONE;
 }
-
-phy_ctrl_t *
-bmd_phy_del(int unit, int lport)
+/***/
+phy_ctrl_t *bmd_phy_del(int unit, int lport)
 {
     phy_ctrl_t *pc;
 
-    if ((pc = BMD_PORT_PHY_CTRL(unit, lport)) != 0) {
+    if ((pc = BMD_PORT_PHY_CTRL(unit, lport)) != 0) 
+    {
         BMD_PORT_PHY_CTRL(unit, lport) = pc->next;
     }
     return pc;
 }
 
-static phy_ctrl_t *
-phy_ctrl_alloc(void)
+static phy_ctrl_t * phy_ctrl_alloc(void)
 {
     int idx;
     phy_ctrl_t *pc;
@@ -187,8 +193,7 @@ phy_ctrl_alloc(void)
     return NULL;
 }
 
-static void
-phy_ctrl_free(phy_ctrl_t *pc)
+static void phy_ctrl_free(phy_ctrl_t *pc)
 {
     pc->bus = 0;
 }
@@ -196,8 +201,8 @@ phy_ctrl_free(phy_ctrl_t *pc)
 /*
  * Probe all PHY buses associated with BMD device
  */
-int
-bmd_phy_probe_default(int unit, int lport, phy_driver_t **phy_drv)
+/**使用默认值键PHY的驱动*/
+int bmd_phy_probe_default(int unit, int lport, phy_driver_t **phy_drv)
 {
     phy_bus_t **bus;
     phy_driver_t **drv;
@@ -206,26 +211,35 @@ bmd_phy_probe_default(int unit, int lport, phy_driver_t **phy_drv)
     int rv;
 
     /* Remove any existing PHYs on this lport */
-    while ((pc = bmd_phy_del(unit, lport)) != 0) {
+    /**清除所有存在的端口的PHY*/
+    while ((pc = bmd_phy_del(unit, lport)) != 0) 
+    {
         phy_ctrl_free(pc);
     }
 
     /* Bail if not PHY driver list is provided */
-    if (phy_drv == NULL) {
+    /**对于驱动为空的处理*/
+    if (phy_drv == NULL) 
+    {
         return CDK_E_NONE;
     }
 
     /* Check that we have PHY bus list */
+    /**设置bus的值为总线的驱动程序，对于当前的总线的驱动程序为空的处理*/
     bus = BMD_PORT_PHY_BUS(unit, lport);
-    if (bus == NULL) {
+    if (bus == NULL) 
+    {
         return CDK_E_CONFIG;
     }
 
     /* Loop over PHY buses for this lport */
-    while (*bus != NULL) {
+    /**对于当前总线的驱动程序不为空的处理*/
+    while (*bus != NULL) 
+    {
         drv = phy_drv;
         /* Probe all PHY drivers on this bus */
-        while (*drv != NULL) {
+        while (*drv != NULL) 
+        {
             /* Initialize PHY control used for probing */
             pc = &pc_probe;
             sal_memset(pc, 0, sizeof(*pc));
@@ -233,16 +247,19 @@ bmd_phy_probe_default(int unit, int lport, phy_driver_t **phy_drv)
             pc->port = SOC_PORT_L2P_MAPPING(lport);
             pc->bus = *bus;
             pc->drv = *drv;
-            if (CDK_SUCCESS(PHY_PROBE(pc))) {
+            if (CDK_SUCCESS(PHY_PROBE(pc))) 
+            {
                 /* Found known PHY on bus */
                 pc = phy_ctrl_alloc();
-                if (pc == NULL) {
+                if (pc == NULL) 
+                {
                     return CDK_E_MEMORY;
                 }
                 sal_memcpy(pc, &pc_probe, sizeof(*pc));
                 /* Install PHY */
                 rv = bmd_phy_add(unit, lport, pc);
-                if (CDK_FAILURE(rv)) {
+                if (CDK_FAILURE(rv)) 
+                {
                     return rv;
                 }
 #ifdef PHY_PROBE_VERBOSE_INCLUDED
@@ -255,15 +272,16 @@ bmd_phy_probe_default(int unit, int lport, phy_driver_t **phy_drv)
         }
         bus++;
     }
-
+    /**设置pc为总线的crtl*/
     pc = BMD_PORT_PHY_CTRL(unit, lport);
-    if (pc && pc->next) {
+    if (pc && pc->next) 
+    {
         /* If both external PHY and serdes are attached. */
         phy_external_mode |= (0x1 << lport);
     }
 
-    if (pc && !pc->next && pc->drv && pc->drv->drv_name &&
-        (!sal_strcmp(pc->drv->drv_name, "bcm56150"))) {
+    if (pc && !pc->next && pc->drv && pc->drv->drv_name &&(!sal_strcmp(pc->drv->drv_name, "bcm56150"))) 
+    {
         /* If both external PHY and serdes are attached. */
         phy_egphy_mode |= (0x1 << lport);
     }
@@ -271,8 +289,7 @@ bmd_phy_probe_default(int unit, int lport, phy_driver_t **phy_drv)
     return CDK_E_NONE;
 }
 
-int
-soc_phyctrl_notify(phy_ctrl_t *pc, phy_event_t event, uint32 value)
+int soc_phyctrl_notify(phy_ctrl_t *pc, phy_event_t event, uint32 value)
 {
     int rv = CDK_E_NONE;
 #if 0
@@ -302,14 +319,13 @@ soc_phyctrl_notify(phy_ctrl_t *pc, phy_event_t event, uint32 value)
 
     return rv;
 }
-
-sys_error_t
-phy_reg_read(uint8 lport, uint16 reg_addr, uint16 *p_value)
+/**读取PHY的寄存器，传入的是逻辑端口寄存器地址返回数据的参数值*/
+sys_error_t phy_reg_read(uint8 lport, uint16 reg_addr, uint16 *p_value)
 {
     int rv = CDK_E_NONE;
     uint32 value;
     phy_ctrl_t *pc;
-
+    /**逻辑端口到物理端口的映射*/
     if ((SOC_PORT_L2P_MAPPING(lport) == -1) || (lport > BCM5333X_LPORT_MAX)) {
         return SYS_ERR;
     }
@@ -321,10 +337,12 @@ phy_reg_read(uint8 lport, uint16 reg_addr, uint16 *p_value)
 
     *p_value = (uint16)value;
 
-    if (!rv) {
+    if (!rv) 
+    {
         return SYS_OK;
     }
-    else {
+    else 
+    {
         return SYS_ERR;
     }
 }
@@ -345,14 +363,14 @@ phy_reg_read(uint8 lport, uint16 reg_addr, uint16 *p_value)
  *      SYS_ERR : failed to access the MII register
  *
  */
-sys_error_t
-phy_reg_write(uint8 lport, uint16 reg_addr, uint16 value)
+sys_error_t phy_reg_write(uint8 lport, uint16 reg_addr, uint16 value)
 {
     int rv = CDK_E_NONE;
 
     phy_ctrl_t *pc;
 
-    if ((SOC_PORT_L2P_MAPPING(lport) == -1) || (lport > BCM5333X_PORT_MAX)) {
+    if ((SOC_PORT_L2P_MAPPING(lport) == -1) || (lport > BCM5333X_PORT_MAX)) 
+    {
         return SYS_ERR;
     }
 
@@ -370,8 +388,7 @@ phy_reg_write(uint8 lport, uint16 reg_addr, uint16 value)
 }
 
 
-int
-cdk_xgsm_miim_read(int unit, uint32_t phy_addr, uint32_t reg, uint32_t *val)
+int cdk_xgsm_miim_read(int unit, uint32_t phy_addr, uint32_t reg, uint32_t *val)
 {
     int rv = CDK_E_NONE;
     uint32 polls, data, phy_param;
@@ -470,8 +487,7 @@ cdk_xgsm_miim_write(int unit, uint32_t phy_addr, uint32_t reg, uint32_t val)
     return rv;
 }
 
-int
-bmd_phy_init(int unit, int lport)
+int bmd_phy_init(int unit, int lport)
 {
     int rv = CDK_E_NONE;
 
@@ -490,8 +506,7 @@ bmd_phy_init(int unit, int lport)
     return rv;
 }
 
-int
-bmd_phy_attach(int unit, int lport)
+int bmd_phy_attach(int unit, int lport)
 {
     int rv;
 
@@ -507,12 +522,16 @@ bmd_phy_attach(int unit, int lport)
 
     return rv;
 }
-
-int
-bmd_phy_probe(int unit, int lport)
+/**PHY探测phy
+ * 对于53334 unit的值为0
+ * lport为逻辑端口号
+*/
+int bmd_phy_probe(int unit, int lport)
 {
+    /**设置总线的驱动程序*/
     BMD_PORT_PHY_BUS(unit, lport) = bcm5333xmdk_phy_bus;
-    switch (hr2_sw_info.devid) {
+    switch (hr2_sw_info.devid) 
+    {
         case BCM53333_DEVICE_ID:
         case BCM53334_DEVICE_ID:
             return bmd_phy_probe_default(unit, lport, phy_drv_list_bcm95333x);
@@ -528,8 +547,7 @@ bmd_phy_probe(int unit, int lport)
     return CDK_E_NONE;
 }
 
-int
-bmd_phy_mode_set(int unit, int lport, char *name, int mode, int enable)
+int bmd_phy_mode_set(int unit, int lport, char *name, int mode, int enable)
 {
     int rv = CDK_E_NONE;
 

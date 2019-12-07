@@ -69,7 +69,7 @@
 #define BCM54282_LED4_SEL(_pc)          0x6
 #define BCM54282_LEDCTRL(_pc)           0x8
 #define BCM54282_LEDSELECT(_pc)         0x0
-
+/**根据PHY的地址判断PHY是否是54282*/
 #define PHY_IS_BCM54282(pc) \
                 ((phyid0 == BCM54282_PHY_ID0) && \
                  ((phyid1 & ~PHY_ID1_REV_MASK) == BCM54282_PHY_ID1) && \
@@ -101,8 +101,7 @@
  * Returns:
  *      PHY instance
  */
-static int
-_bcm54282_inst(phy_ctrl_t *pc)
+static int _bcm54282_inst(phy_ctrl_t *pc)
 {
     int inst = PHY_CTRL_PHY_INST(pc);
 
@@ -211,8 +210,8 @@ extern cdk_symbols_t bcm54282_symbols;
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_probe(phy_ctrl_t *pc)
+/**PHY探测*/
+static int bcm54282_phy_probe(phy_ctrl_t *pc)
 {
     uint32_t phyid0, phyid1;
     int ioerr = 0;
@@ -221,7 +220,8 @@ bcm54282_phy_probe(phy_ctrl_t *pc)
 
     ioerr += PHY_BUS_READ(pc, MII_PHY_ID0_REG, &phyid0);
     ioerr += PHY_BUS_READ(pc, MII_PHY_ID1_REG, &phyid1);
-    if (PHY_IS_BCM54282(pc) || PHY_IS_BCM54292(pc)) {
+    if (PHY_IS_BCM54282(pc) || PHY_IS_BCM54292(pc)) 
+    {
 #if PHY_CONFIG_INCLUDE_CHIP_SYMBOLS == 1
         PHY_CTRL_SYMBOLS(pc) = &bcm54282_symbols;
 #endif

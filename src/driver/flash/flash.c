@@ -61,24 +61,29 @@ extern flash_dev_t current_flash_dev;
  *             SYS_OK : there is no error
  *                
  */
+/**flash的初始化程序*/
+sys_error_t flash_init(flash_dev_t *dev) 
+{
 
-sys_error_t flash_init(flash_dev_t *dev) {
-
-     if (dev == NULL) {                  
+     if (dev == NULL) 
+     {                  
          dev = &current_flash_dev;         
          dev->funs->flash_init(NULL);         
          sal_printf("Flash detected: %s \n", dev->name);  
-     } else {
+     } 
+     else 
+     {
          dev->funs->flash_init(dev);              
          sal_memcpy(&current_flash_dev, dev, sizeof(flash_dev_t));
 //     	 sal_printf("The device name is %s",current_flash_dev.name);
-//         sal_printf("The flash end address is %d",current_flash_dev.end);     
-// 	 sal_printf("The demo name is %s",dev->name);
-//	 sal_printf("The demo flash end address is %d",dev->end);
-//         return SYS_OK;
+//       sal_printf("The flash end address is %d",current_flash_dev.end);     
+// 	     sal_printf("The demo name is %s",dev->name);
+//	     sal_printf("The demo flash end address is %d",dev->end);
+//       return SYS_OK;
      }
-     
-     if (sal_strcmp(current_flash_dev.name, "Unknown Flash")==0) {
+     /**对于未知flash的处理*/
+     if (sal_strcmp(current_flash_dev.name, "Unknown Flash")==0) 
+     {
          sal_printf("ID: %x %x %x %x\n", current_flash_dev.jedec_id[0], current_flash_dev.jedec_id[1],current_flash_dev.jedec_id[2],current_flash_dev.jedec_id[3]);
          sal_printf("Please check the flash supporting table\n");         
      } 
@@ -92,10 +97,12 @@ sys_error_t flash_init(flash_dev_t *dev) {
  * @return flash_dev_t* the pointer of the current flash driver instance 
  *             NULL : for Unknown flash driver to forbid any write to flash   
  */
+/**获取当前的flash设备*/
+flash_dev_t *flash_dev_get(void) 
+{
 
-flash_dev_t *flash_dev_get(void) {
-
-    if (sal_strcmp(current_flash_dev.name, "Unknown Flash")==0) {
+    if (sal_strcmp(current_flash_dev.name, "Unknown Flash")==0) 
+    {
         return NULL;
     }
 
@@ -104,8 +111,8 @@ flash_dev_t *flash_dev_get(void) {
 /*
  *  Return the size of the block which is at the given address
  */
-size_t
-flash_block_size(const hsaddr_t addr)
+/**获取设备的块大小*/
+size_t flash_block_size(const hsaddr_t addr)
 {
   int16 i;
   size_t offset;
@@ -132,8 +139,8 @@ flash_block_size(const hsaddr_t addr)
  * in terms of its block size. So we have to be careful and use
  * offsets.
  */
-STATICFN hsaddr_t
-flash_block_begin(hsaddr_t addr, flash_dev_t *dev)
+/***/
+STATICFN hsaddr_t flash_block_begin(hsaddr_t addr, flash_dev_t *dev)
 {
   size_t block_size;
   hsaddr_t offset;
@@ -145,8 +152,7 @@ flash_block_begin(hsaddr_t addr, flash_dev_t *dev)
   return offset + dev->start;
 }
 
-sys_error_t
-flash_erase(hsaddr_t flash_base, size_t len)
+sys_error_t flash_erase(hsaddr_t flash_base, size_t len)
 {
     hsaddr_t block, end_addr;
     flash_dev_t * dev;
@@ -154,11 +160,13 @@ flash_erase(hsaddr_t flash_base, size_t len)
     sys_error_t rv = SYS_OK;
 
     dev = board_get_flash_dev();
-    if (!dev) {
+    if (!dev) 
+    {
         return SYS_ERR;
     }
 
-    if (flash_base < dev->start || (flash_base + len -1) > dev->end) {
+    if (flash_base < dev->start || (flash_base + len -1) > dev->end) 
+    {
         return SYS_ERR_PARAMETER;
     }
     /*
@@ -166,26 +174,32 @@ flash_erase(hsaddr_t flash_base, size_t len)
      * to the next one. If so the next device will be handled by a
      * recursive call later on.
      */
-    if (len > (dev->end + 1 - flash_base)) {
+    if (len > (dev->end + 1 - flash_base)) 
+    {
         end_addr = dev->end;
-    } else {
+    } 
+    else 
+    {
         end_addr = flash_base + len - 1;
     }
     /* erase can only happen on a block boundary, so adjust for this */
     block         = flash_block_begin(flash_base, dev);
     erase_count   = (end_addr + 1) - block;
 
-    while (erase_count > 0) {
+    while (erase_count > 0) 
+    {
         size_t block_size = flash_block_size(block);
 
         /* Pad to the block boundary, if necessary */
-        if (erase_count < block_size) {
+        if (erase_count < block_size) 
+        {
             erase_count = block_size;
         }
 
         rv = (*dev->funs->flash_erase_block)(dev,block);
 
-        if (SYS_OK != rv) {
+        if (SYS_OK != rv) 
+        {
             break;
         }
         block       += block_size;
@@ -195,8 +209,7 @@ flash_erase(hsaddr_t flash_base, size_t len)
     return rv;
 }
 
-sys_error_t
-flash_program(hsaddr_t flash_base, const void *ram_base, size_t len)
+sys_error_t flash_program(hsaddr_t flash_base, const void *ram_base, size_t len)
 {
     flash_dev_t * dev;
     hsaddr_t addr, end_addr, block;
@@ -207,18 +220,23 @@ flash_program(hsaddr_t flash_base, const void *ram_base, size_t len)
 
 
     dev = board_get_flash_dev();
-    if (!dev) {
+    if (!dev) 
+    {
         return SYS_ERR;
     }
 
-    if (flash_base < dev->start || (flash_base + len - 1) > dev->end) {
+    if (flash_base < dev->start || (flash_base + len - 1) > dev->end) 
+    {
         return SYS_ERR_PARAMETER;
     }
 
     addr = flash_base;
-    if (len > (dev->end + 1 - flash_base)) {
+    if (len > (dev->end + 1 - flash_base)) 
+    {
       end_addr = dev->end;
-    } else {
+    } 
+    else 
+    {
       end_addr = flash_base + len - 1;
     }
     write_count = (end_addr + 1) - flash_base;
@@ -229,18 +247,25 @@ flash_program(hsaddr_t flash_base, const void *ram_base, size_t len)
      * adjustment here rather than inside the loop.
      */
     block = flash_block_begin(flash_base, dev);
-    if (addr == block) {
+    if (addr == block) 
+    {
         offset = 0;
-    } else {
+    } 
+    else 
+    {
         offset = addr - block;
     }
 
-    while (write_count > 0) {
+    while (write_count > 0) 
+    {
         size_t block_size = flash_block_size(addr);
         size_t this_write;
-        if (write_count > (block_size - offset)) {
+        if (write_count > (block_size - offset)) 
+        {
             this_write = block_size - offset;
-        } else {
+        } 
+        else 
+        {
             this_write = write_count;
         }
         /* Only the first block may need the offset. */
@@ -256,9 +281,8 @@ flash_program(hsaddr_t flash_base, const void *ram_base, size_t len)
     }
     return rv;
 }
-
-sys_error_t
-flash_read(hsaddr_t flash_base, void *ram_base, size_t len)
+/**读flash*/
+sys_error_t flash_read(hsaddr_t flash_base, void *ram_base, size_t len)
 {
     flash_dev_t * dev;
     hsaddr_t addr, end_addr;

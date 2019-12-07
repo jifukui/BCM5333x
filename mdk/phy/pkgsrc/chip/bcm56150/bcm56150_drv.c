@@ -120,18 +120,18 @@ _bcm56150_inst(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_probe(phy_ctrl_t *pc)
+/**PHY的探测*/
+static int bcm56150_phy_probe(phy_ctrl_t *pc)
 {
     uint32_t phyid0, phyid1;
     int ioerr = 0;
-
+    /**判断PC值是否是有效的PC值*/
     PHY_CTRL_CHECK(pc);
-
+    /**读取设备的OUI*/
     ioerr += PHY_BUS_READ(pc, MII_PHY_ID0_REG, &phyid0);
     ioerr += PHY_BUS_READ(pc, MII_PHY_ID1_REG, &phyid1);
-    if ((phyid0 == BCM56150_PHY_ID0 && 
-        (phyid1 & ~PHY_ID1_REV_MASK) == BCM56150_PHY_ID1)) {
+    if ((phyid0 == BCM56150_PHY_ID0 && (phyid1 & ~PHY_ID1_REV_MASK) == BCM56150_PHY_ID1)) 
+    {
         return ioerr ? CDK_E_IO : CDK_E_NONE;
     }
     return CDK_E_NOT_FOUND;
@@ -148,8 +148,7 @@ bcm56150_phy_probe(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_notify(phy_ctrl_t *pc, phy_event_t event)
+static int bcm56150_phy_notify(phy_ctrl_t *pc, phy_event_t event)
 {
     return bcm54282_drv.pd_notify(pc, event);
 }
@@ -180,8 +179,8 @@ bcm56150_phy_reset(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_init(phy_ctrl_t *pc)
+/**PHY的初始化*/
+static int bcm56150_phy_init(phy_ctrl_t *pc)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;

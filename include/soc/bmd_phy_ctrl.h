@@ -82,9 +82,9 @@ extern phy_driver_t *bmd_phy_drv_list[];
 typedef int (*bmd_phy_probe_func_t)(int, int, phy_driver_t **);
 
 #define BMD_PHY_INFO(_u) bmd_phy_info[_u]
-
+/**bmd_phy_info[_u].phy_port_info[_p]*/
 #define BMD_PHY_PORT_INFO(_u,_p) BMD_PHY_INFO(_u).phy_port_info[_p]
-
+/**bmd_phy_info[_u].phy_port_info[_p].phy_bus*/
 #define BMD_PORT_PHY_BUS(_u,_p) BMD_PHY_PORT_INFO(_u,_p).phy_bus
 #define BMD_PORT_PHY_CTRL(_u,_p) BMD_PHY_PORT_INFO(_u,_p).phy_ctrl
 

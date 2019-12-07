@@ -255,7 +255,68 @@ void GetMonth()
 	else
 		BUILD_DATE= ((__DATE__[4]-'0')*10+(__DATE__[5]-'0'));
 }
+#ifdef JIFUKUI_DEBUG
+#define MAX_CLI_COMMANDS        (26+26+10)  /* Lower + upper + digit */
+STATIC CLI_CMD_FUNC cmds[MAX_CLI_COMMANDS];
+APISTATIC void
+APIFUNC(cli_cmd_list_commands)(CLI_CMD_OP op) REENTRANT
+{
+    if (op == CLI_CMD_OP_HELP) {
+        sal_printf("Help - List all available commands\n");
+    } else if (op == CLI_CMD_OP_DESC) {
+        sal_printf("List all commands");
+    } else {
+        uint8 i;
+        CLI_CMD_FUNC *pcmd = &cmds[0];
+        for(i=0; i<MAX_CLI_COMMANDS; i++, pcmd++) {
+            if (*pcmd) {
+                char c = i < 26 ? 
+                    ('a' + i) : (i < 52? ('A' + i - 26) : '0' + i - 52);
+                sal_printf("  %c - ", c);
+                (*(*pcmd))(CLI_CMD_OP_DESC);
+                sal_printf("\n");
+            }
+        }
+    }
+}
 
+APISTATIC void
+APIFUNC(cli_cmd_command_help)(CLI_CMD_OP op) REENTRANT
+{
+    if (op == CLI_CMD_OP_HELP) {
+        sal_printf("Help - Show help information for a command\n");
+    } else if (op == CLI_CMD_OP_DESC) {
+        sal_printf("Help for a command");
+    } else {
+        char cmd;
+        CLI_CMD_FUNC *pcmd;
+
+        sal_printf("Command: ");
+        cmd = sal_getchar();
+        sal_printf("\n");
+        if (cmd >= 'a' && cmd <= 'z') {
+            pcmd = &cmds[cmd - 'a'];
+        } else if (cmd >= 'A' && cmd <= 'Z') {
+            pcmd = &cmds[26 + cmd - 'A'];
+        } else if (cmd >= '0' && cmd <= '9') {
+            pcmd = &cmds[52 + cmd - '0'];
+        } else if (cmd == '\r' || cmd == '\n') {
+            return;
+        } else {
+            sal_printf("Invalid command\n");
+            return;
+        }
+        
+        if (*pcmd == NULL) {
+            sal_printf("Command not available\n");
+            return;
+        }
+
+        sal_printf("\n");
+        (*(*pcmd))(CLI_CMD_OP_HELP);
+    }
+}
+#endif
 void APIFUNC(cli)(void) REENTRANT
 {
 #ifdef JIFUKUI_DEBUG

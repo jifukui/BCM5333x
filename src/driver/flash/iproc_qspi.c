@@ -184,7 +184,7 @@ spi_transaction(uint8 *w_buf,
 
 static int
 spi_program(uint32 base, uint8 *buf, uint8 len)  __attribute__((section(".2ram")));
-
+/**设置mx25l的函数*/
 struct flash_dev_funs mx25l_funs = {
     mspi_init,
     m25lxx_erase_block,
@@ -193,7 +193,7 @@ struct flash_dev_funs mx25l_funs = {
 };
 
 
-
+/**定义当前使用的flash*/
 flash_dev_t current_flash_dev = { {MANUFACTURER_ID_UNKNOWN,  0x0, 0x0, 0x0}, {0x00, 0x0, 0x0, 0x0}, &mx25l_funs, 0, CFG_FLASH_START_ADDRESS, 0, 1, &uniform_4K_64Mb_info, "Unknow Flash", NULL};
 flash_dev_t flashtest={{MANUFACTURER_ID_MICRON,0x71,0x15,0x10},{0xff,0xff,0xff,0x0},&mx25l_funs,0,CFG_FLASH_START_ADDRESS,0x1c25f000,1,&uniform_4K_16Mb_info,"M25PX16jfk",NULL};
 static void
@@ -208,11 +208,12 @@ bspi_flush_prefetch_buffers(void)
 /*
  * Strips out any device address offset to give address within device.
  */
-static
-BOOL flash_to_local_addr(flash_dev_t* dev, hsaddr_t* addr)
+
+static BOOL flash_to_local_addr(flash_dev_t* dev, hsaddr_t* addr)
 {
     /* Range check address before modifying it. */
-    if ((*addr >= dev->start) && (*addr <= dev->end)) {
+    if ((*addr >= dev->start) && (*addr <= dev->end)) 
+    {
         *addr -= dev->start;
         return TRUE;
     }
@@ -246,7 +247,7 @@ void *spi_memcpy(void *dest,const void *src,size_t cnt)
 
     return dest;
 }
-
+/**读取flash的jedec*/
 sys_error_t  spi_read_jedec_id(uint8* jedec_id, uint8 len) {
 
     uint8 cmd[4];
@@ -259,15 +260,18 @@ sys_error_t  spi_read_jedec_id(uint8* jedec_id, uint8 len) {
 
     /* Wait for previous write operation done */  
     cmd[0] = SPI_RDSR_CMD;
-    do {
-       if (spi_transaction(cmd,1,&status,1) != SYS_OK) {
+    do 
+    {
+       if (spi_transaction(cmd,1,&status,1) != SYS_OK) 
+       {
            goto out;
        }
     } while(status & 0x1);
 
     /* Read real ID */  
     cmd[0] = SPI_RDID_CMD;
-    if (spi_transaction(cmd,1,jedec_id, len) != SYS_OK) {
+    if (spi_transaction(cmd,1,jedec_id, len) != SYS_OK) 
+    {
         spi_memset(jedec_id, 0, len);
         goto out;
     }
@@ -359,9 +363,8 @@ spi_program(uint32 base, uint8 *buf, uint8 len)
 
     return SYS_OK;
 }
-
-sys_error_t
-mspi_init(flash_dev_t *dev)
+/***flash 的初始化*/
+sys_error_t mspi_init(flash_dev_t *dev)
 {
     uint32 lval;
     uint8 jedec_id[4];
@@ -392,21 +395,26 @@ mspi_init(flash_dev_t *dev)
     SYS_REG_WRITE32(BCHP_BSPI_MAST_N_BOOT_CTRL,0);
     ENTER_BSPI_DELAY(10);
 
-    if (dev == NULL) { /* Auto probe */
+    if (dev == NULL) 
+    { /* Auto probe */
         /* read jedec id through spi driver */
         spi_read_jedec_id(jedec_id, sizeof(jedec_id));
         
-        for (j=0; j<(sizeof(flash_dev_support_table)/sizeof(flash_dev_t)); j++) {
-              for (i=0; i<sizeof(jedec_id); i++) {
+        for (j=0; j<(sizeof(flash_dev_support_table)/sizeof(flash_dev_t)); j++) 
+        {
+              for (i=0; i<sizeof(jedec_id); i++) 
+              {
                    if ((flash_dev_support_table[j].jedec_id[i] & flash_dev_support_table[j].jedec_id_mask[i]) != 
                        (jedec_id[i] & flash_dev_support_table[j].jedec_id_mask[i])) 
                    {
                        break;
                    }
               }
-              if (i == sizeof(jedec_id)) {
+              if (i == sizeof(jedec_id)) 
+              {
                   spi_memcpy(&current_flash_dev, &flash_dev_support_table[j], sizeof(flash_dev_t));
-                  if ((j+1) == (sizeof(flash_dev_support_table)/sizeof(flash_dev_t))) {
+                  if ((j+1) == (sizeof(flash_dev_support_table)/sizeof(flash_dev_t))) 
+                  {
                         spi_memcpy(current_flash_dev.jedec_id, jedec_id, sizeof(current_flash_dev.jedec_id));
                   }
                   break;
@@ -418,7 +426,8 @@ mspi_init(flash_dev_t *dev)
 
     dev->end = dev->start;
 
-    for (i=0; i < dev->num_block_infos; i++) {
+    for (i=0; i < dev->num_block_infos; i++) 
+    {
         dev->end += ((hsaddr_t) dev->block_info[i].block_size *
                      (hsaddr_t) dev->block_info[i].blocks);
     }
@@ -670,8 +679,7 @@ out:
     return rv;
 }
 
-static
-sys_error_t m25lxx_read(flash_dev_t *dev,
+static sys_error_t m25lxx_read(flash_dev_t *dev,
                         const hsaddr_t base,
                         void* data, size_t len)
 {
@@ -682,7 +690,8 @@ sys_error_t m25lxx_read(flash_dev_t *dev,
     sys_error_t rv = SYS_OK;
 
     /* Fix up the block address. */
-    if (!flash_to_local_addr (dev, &local_base)) {
+    if (!flash_to_local_addr (dev, &local_base)) 
+    {
         return SYS_ERR_PARAMETER;
     }
 
@@ -691,12 +700,14 @@ sys_error_t m25lxx_read(flash_dev_t *dev,
 
     cmd[0] = SPI_READ_CMD;
     /* Perform page program operations. */
-    while (rx_bytes_left) {
+    while (rx_bytes_left) 
+    {
         cmd[1] = (uint8)(local_base >> 16);
         cmd[2] = (uint8)(local_base >> 8);
         cmd[3] = (uint8)local_base;
 
-        if (spi_transaction(cmd,4,rx_ptr,1) != SYS_OK) {
+        if (spi_transaction(cmd,4,rx_ptr,1) != SYS_OK) 
+        {
             rv = SYS_ERR;
             goto out;
         }

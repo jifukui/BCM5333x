@@ -1,0 +1,556 @@
+HR2 umweb-3.4.7
+Build Date: Jan 24 2018
+Flash detected: Unknown Flash 
+ID: 20 71 15 10
+Please check the flash supporting table
+
+devid = 0x8334, revid = 0x1
+Set used default phy lport is 2
+miim_int pport is 9 addr is 513
+2 miim_int pport is 9 
+2 miim_int pport is 9 
+2 miim_int pport is 9 
+external PHY and serdes are attached
+Set used default phy lport is 3
+miim_int pport is 8 addr is 514
+2 miim_int pport is 8 
+2 miim_int pport is 8 
+2 miim_int pport is 8 
+external PHY and serdes are attached
+Set used default phy lport is 4
+miim_int pport is 7 addr is 515
+2 miim_int pport is 7 
+2 miim_int pport is 7 
+2 miim_int pport is 7 
+external PHY and serdes are attached
+Set used default phy lport is 5
+miim_int pport is 6 addr is 516
+2 miim_int pport is 6 
+2 miim_int pport is 6 
+2 miim_int pport is 6 
+external PHY and serdes are attached
+Set used default phy lport is 6
+miim_int pport is 5 addr is 518
+2 miim_int pport is 5 
+2 miim_int pport is 5 
+2 miim_int pport is 5 
+external PHY and serdes are attached
+Set used default phy lport is 7
+miim_int pport is 4 addr is 519
+2 miim_int pport is 4 
+2 miim_int pport is 4 
+2 miim_int pport is 4 
+external PHY and serdes are attached
+Set used default phy lport is 8
+miim_int pport is 3 addr is 520
+2 miim_int pport is 3 
+2 miim_int pport is 3 
+2 miim_int pport is 3 
+external PHY and serdes are attached
+Set used default phy lport is 9
+miim_int pport is 2 addr is 521
+2 miim_int pport is 2 
+2 miim_int pport is 2 
+2 miim_int pport is 2 
+external PHY and serdes are attached
+Set used default phy lport is 10
+miim_int pport is 10 addr is 523
+2 miim_int pport is 10 
+2 miim_int pport is 10 
+2 miim_int pport is 10 
+external PHY and serdes are attached
+Set used default phy lport is 11
+miim_int pport is 11 addr is 524
+2 miim_int pport is 11 
+2 miim_int pport is 11 
+2 miim_int pport is 11 
+external PHY and serdes are attached
+Set used default phy lport is 12
+miim_int pport is 12 addr is 525
+2 miim_int pport is 12 
+2 miim_int pport is 12 
+2 miim_int pport is 12 
+external PHY and serdes are attached
+Set used default phy lport is 13
+miim_int pport is 13 addr is 526
+2 miim_int pport is 13 
+2 miim_int pport is 13 
+2 miim_int pport is 13 
+external PHY and serdes are attached
+Set used default phy lport is 14
+miim_int pport is 14 addr is 528
+2 miim_int pport is 14 
+2 miim_int pport is 14 
+2 miim_int pport is 14 
+external PHY and serdes are attached
+Set used default phy lport is 15
+miim_int pport is 15 addr is 529
+2 miim_int pport is 15 
+2 miim_int pport is 15 
+2 miim_int pport is 15 
+external PHY and serdes are attached
+Set used default phy lport is 16
+miim_int pport is 16 addr is 530
+2 miim_int pport is 16 
+2 miim_int pport is 16 
+2 miim_int pport is 16 
+external PHY and serdes are attached
+Set used default phy lport is 17
+miim_int pport is 17 addr is 531
+2 miim_int pport is 17 
+2 miim_int pport is 17 
+2 miim_int pport is 17 
+external PHY and serdes are attached
+Set used default phy lport is 18
+miim_int pport is 18 addr is 593
+miim_int pport is 18 addr is 593
+miim_int pport is 18 addr is 593
+26 miim_int pport is 18 addr is 22
+26 miim_int pport is 18 addr is 22
+external PHY and serdes are attached
+Set used default phy lport is 19
+miim_int pport is 19 addr is 593
+miim_int pport is 19 addr is 593
+miim_int pport is 19 addr is 593
+26 miim_int pport is 19 addr is 23
+26 miim_int pport is 19 addr is 23
+external PHY and serdes are attached
+Set used default phy lport is 20
+miim_int pport is 20 addr is 593
+miim_int pport is 20 addr is 593
+miim_int pport is 20 addr is 593
+26 miim_int pport is 20 addr is 24
+26 miim_int pport is 20 addr is 24
+external PHY and serdes are attached
+Set used default phy lport is 21
+miim_int pport is 21 addr is 593
+miim_int pport is 21 addr is 593
+miim_int pport is 21 addr is 593
+26 miim_int pport is 21 addr is 25
+26 miim_int pport is 21 addr is 25
+external PHY and serdes are attached
+Set used default phy lport is 22
+miim_int pport is 22 addr is 593
+miim_int pport is 22 addr is 593
+miim_int pport is 22 addr is 593
+26 miim_int pport is 22 addr is 27
+26 miim_int pport is 22 addr is 27
+external PHY and serdes are attached
+Set used default phy lport is 23
+miim_int pport is 23 addr is 593
+miim_int pport is 23 addr is 593
+miim_int pport is 23 addr is 593
+26 miim_int pport is 23 addr is 28
+26 miim_int pport is 23 addr is 28
+external PHY and serdes are attached
+Set used default phy lport is 24
+miim_int pport is 24 addr is 593
+miim_int pport is 24 addr is 593
+miim_int pport is 24 addr is 593
+26 miim_int pport is 24 addr is 29
+26 miim_int pport is 24 addr is 29
+external PHY and serdes are attached
+Set used default phy lport is 25
+miim_int pport is 25 addr is 593
+miim_int pport is 25 addr is 593
+miim_int pport is 25 addr is 593
+26 miim_int pport is 25 addr is 30
+26 miim_int pport is 25 addr is 30
+external PHY and serdes are attached
+TX/RX support enabled.
+SRL: Serializer qos (1c098149) registered.
+SRL: Serializer rate (1c098239) registered.
+SRL: Serializer storm (1c098341) registered.
+SRL: Serializer mirror (1c0977d5) registered.
+SRL: Serializer vlan (1c0752a9) registered.
+SRL: Serializer pvid (1c07565d) registered.
+SRL: Serializer mcast (1c0976c1) registered.
+SRL: Serializer igmpsnoop (1c097735) registered.
+SRL: Serializer lag (1c075755) registered.
+SRL: Serializer ethconfig (1c0978f5) registered.
+SRL: Serializer password (1c097a89) registered.
+SRL: Serializer name (1c0758e9) registered.
+SRL: Serializer registration (1c075b55) registered.
+SRL: Serializer autoip (1c097e41) registered.
+SRL: Serializer mdns (1c0958c1) registered.
+SRL: Serializer ipv6 (1c097ee9) registered.
+SRL: Serializer loopdetect (1c075879) registered.
+SRL: Serializer portdesc (1c075971) registered.
+SRL: Serializer portenable (1c075a79) registered.
+SRL: Serializer accesscontrol (1c097fed) registered.
+SRL: Serializer adminpriv (1c0980d1) registered.
+start serialize_medium_for_validation
+SRL: BEGIN serialize_medium_for_validation: medium=FLASH
+SRL:  Open medium with write=0
+Some of current saved settings are invalid. Loading factory defaults.....
+SRL: BEGIN serialize_by_groups: groups=ffffffff, op=LOAD_DEFAULTS, medium=FLASH
+SRL:  Matched: qos
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: rate
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: storm
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: mirror
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: vlan
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: pvid
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: mcast
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: igmpsnoop
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: lag
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: ethconfig
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: password
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: name
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: registration
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: autoip
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: mdns
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: ipv6
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: loopdetect
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: portdesc
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: portenable
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: accesscontrol
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL:  Matched: adminpriv
+SRL:   Calling serializer for LOAD_DEFAULTS
+SRL: END serialize_by_groups: count=0, error=0
+SRL: BEGIN serialize_by_groups: groups=ffffffff, op=LOAD, medium=FLASH
+SRL:  Open medium with write=0
+SRL: BEGIN serialize_by_groups: groups=ffffffff, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+The User port number is 24
+CMD> 
+lport 3 (P:8), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 4 (P:7), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 5 (P:6), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 6 (P:5), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 7 (P:4), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 8 (P:3), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 9 (P:2), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 10 (P:10), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 12 (P:12), speed = 100, duplex = 1, tx_pause = 1, rx_pause = 1 speed=100, an=1 bcm56150
+
+lport 18 (P:18), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 19 (P:19), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 20 (P:20), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 21 (P:21), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 22 (P:22), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 23 (P:23), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 24 (P:24), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 25 (P:25), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 11 (P:11), speed = 1000, duplex = 1, tx_pause = 0, rx_pause = 0 speed=1000, an=1 bcm56150
+
+lport 2 (P:9), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+System IP : 192.168.1.112 netmask : 255.255.255.0 gateway : 192.168.11.1
+IPv6 address: fe80:0:0:0:210:18ff:fe55:444b
+
+lport 3 (P:8), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 4 (P:7), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 6 (P:5), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 8 (P:3), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 7 (P:4), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 24 (P:24), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 25 (P:25), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 23 (P:23), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 22 (P:22), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 21 (P:21), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 20 (P:20), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 19 (P:19), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+
+lport 18 (P:18), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 9 (P:2), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 9 (P:2), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+
+lport 5 (P:6), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 9 (P:2), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 8 (P:3), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 7 (P:4), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 6 (P:5), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 5 (P:6), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 4 (P:7), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 3 (P:8), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 2 (P:9), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 10 (P:10), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm56150
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 18 (P:18), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 19 (P:19), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 20 (P:20), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 21 (P:21), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 22 (P:22), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 23 (P:23), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 24 (P:24), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=pvid, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portdesc, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+SRL: BEGIN serialize_by_name: name=portenable, op=SAVE, medium=FLASH
+SRL:  Open medium with write=1
+
+lport 25 (P:25), speed = 100, duplex = 1, tx_pause = 0, rx_pause = 0 speed=100, an=1 bcm5428(9)2

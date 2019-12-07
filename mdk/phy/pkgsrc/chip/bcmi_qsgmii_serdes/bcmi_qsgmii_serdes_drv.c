@@ -77,8 +77,7 @@
  * Returns:
  *      Lane number or -1 if lane is unknown
  */
-static int
-bcmi_qsgmii_serdes_lane(phy_ctrl_t *pc)
+static int bcmi_qsgmii_serdes_lane(phy_ctrl_t *pc)
 {
     uint32_t inst = PHY_CTRL_INST(pc);
 
@@ -98,8 +97,7 @@ bcmi_qsgmii_serdes_lane(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_stop(phy_ctrl_t *pc)
+static int bcmi_qsgmii_serdes_stop(phy_ctrl_t *pc)
 {
     int ioerr = 0;
     MIICNTLr_t mii_ctrl;
@@ -150,8 +148,8 @@ extern cdk_symbols_t bcmi_qsgmii_serdes_symbols;
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_probe(phy_ctrl_t *pc)
+/**PHY探测*/
+static int bcmi_qsgmii_serdes_probe(phy_ctrl_t *pc)
 {
     uint32_t phyid0, phyid1;
     SERDES_ID0r_t serdesid0;
@@ -162,7 +160,8 @@ bcmi_qsgmii_serdes_probe(phy_ctrl_t *pc)
 
     phyid1 &= ~PHY_ID1_REV_MASK;
 
-    if (phyid0 == BCM_SERDES_PHY_ID0 && phyid1 == BCM_SERDES_PHY_ID1) {
+    if (phyid0 == BCM_SERDES_PHY_ID0 && phyid1 == BCM_SERDES_PHY_ID1) 
+    {
         /* Common PHY ID found - read specific SerDes ID */
         ioerr += READ_SERDES_ID0r(pc, &serdesid0);
         model = SERDES_ID0r_MODELf_GET(serdesid0);
@@ -245,8 +244,7 @@ bcmi_qsgmii_serdes_notify(phy_ctrl_t *pc, phy_event_t event)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_reset(phy_ctrl_t *pc)
+static int bcmi_qsgmii_serdes_reset(phy_ctrl_t *pc)
 {
     return CDK_E_NONE;
 }
@@ -261,8 +259,7 @@ bcmi_qsgmii_serdes_reset(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_NONE
  */
-static int
-bcmi_qsgmii_serdes_init(phy_ctrl_t *pc)
+static int bcmi_qsgmii_serdes_init(phy_ctrl_t *pc)
 {
     int rv = CDK_E_NONE;
     int ioerr = 0;
@@ -311,8 +308,7 @@ bcmi_qsgmii_serdes_init(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
+static int bcmi_qsgmii_serdes_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
 {
     int ioerr = 0;
     MIISTATr_t miistat;

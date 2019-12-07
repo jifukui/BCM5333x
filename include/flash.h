@@ -53,7 +53,14 @@
 struct flash_dev_s;
 
 /* Structure of pointers to functions in the device driver */
-struct flash_dev_funs {
+/**flash的驱动程序包括
+ * flash初始化
+ * 块擦除
+ * 编程
+ * 读取
+ * */
+struct flash_dev_funs 
+{
   sys_error_t (*flash_init) (struct flash_dev_s *dev) REENTRANT;
   sys_error_t (*flash_erase_block) (struct flash_dev_s *dev, 
                                     hsaddr_t block_base) REENTRANT;
@@ -64,7 +71,7 @@ struct flash_dev_funs {
                              const hsaddr_t base, 
                              void* ram_base, size_t len) REENTRANT;
 };
-
+/**flash的块信息*/
 typedef struct flash_block_info_s 
 {
   size_t  block_size;
@@ -82,6 +89,18 @@ typedef struct {
 /* 
  * flash device class
  */
+/**flash对象
+ * jedec_id：flash的jedec的值
+ * jedec_id_mask：掩码
+ * flash_dev_funs：驱动程序
+ * flags：标记
+ * start：flash的起始地址
+ * end：flash的结束地址
+ * num_block_infos：块的数量
+ * block_info：块信息
+ * name：设备名称
+ * priv：
+*/
 typedef struct flash_dev_s{
   uint8 jedec_id[4];                          /* JEDEC ID for flash probe */
   uint8 jedec_id_mask[4];                     /* JEDEC ID mask to mask unwant field of JEDEC ID */ 

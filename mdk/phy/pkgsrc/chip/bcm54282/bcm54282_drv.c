@@ -305,8 +305,7 @@ bcm54282_phy_reset(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_init(phy_ctrl_t *pc)
+static int bcm54282_phy_init(phy_ctrl_t *pc)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -522,8 +521,7 @@ bcm54282_phy_init(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
+static int bcm54282_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -574,8 +572,7 @@ bcm54282_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_duplex_set(phy_ctrl_t *pc, int duplex)
+static int bcm54282_phy_duplex_set(phy_ctrl_t *pc, int duplex)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -1208,24 +1205,34 @@ bcm54282_phy_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_config_get(phy_ctrl_t *pc, phy_config_t cfg, uint32_t *val, void *cd)
+/**获取PHY的配置状态
+ * pc为PHY的控制结构体
+ * PHY的配置结构体
+ * val参数值
+ * 
+*/
+static int bcm54282_phy_config_get(phy_ctrl_t *pc, phy_config_t cfg, uint32_t *val, void *cd)
 {
     EEE_803Dr_t eee_803d;
 
     PHY_CTRL_CHECK(pc);
 
-    switch (cfg) {
-    case PhyConfig_Enable: {
+    switch (cfg) 
+    {
+    case PhyConfig_Enable: 
+    {
             int ioerr = 0;
             MII_CTRLr_t mii_ctrl;
             int en;
     
             ioerr += READ_MII_CTRLr(pc, &mii_ctrl);
             en = MII_CTRLr_POWER_DOWNf_GET(mii_ctrl);
-            if (en) {
+            if (en) 
+            {
                 *val = 0;
-            } else {
+            } 
+            else 
+            {
                 *val = 1;
             }
             return ioerr;
