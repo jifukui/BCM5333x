@@ -201,7 +201,7 @@ static void phy_ctrl_free(phy_ctrl_t *pc)
 /*
  * Probe all PHY buses associated with BMD device
  */
-/**使用默认值键PHY的驱动*/
+/**使用默认值键PHY的驱动，传入的端口为逻辑端口*/
 int bmd_phy_probe_default(int unit, int lport, phy_driver_t **phy_drv)
 {
     phy_bus_t **bus;
@@ -528,7 +528,7 @@ int bmd_phy_attach(int unit, int lport)
 */
 int bmd_phy_probe(int unit, int lport)
 {
-    /**设置总线的驱动程序*/
+    /**设置此端口的总线程序*/
     BMD_PORT_PHY_BUS(unit, lport) = bcm5333xmdk_phy_bus;
     switch (hr2_sw_info.devid) 
     {
@@ -553,9 +553,11 @@ int bmd_phy_mode_set(int unit, int lport, char *name, int mode, int enable)
 
     phy_ctrl_t *pc = BMD_PORT_PHY_CTRL(unit, lport);
 
-    while (pc != NULL) {
+    while (pc != NULL) 
+    {
         if (name && pc->drv && pc->drv->drv_name &&
-            (sal_strcmp(pc->drv->drv_name, name) != 0)) {
+            (sal_strcmp(pc->drv->drv_name, name) != 0)) 
+        {
             pc = pc->next;
             continue;
         }
@@ -590,8 +592,7 @@ int bmd_phy_mode_set(int unit, int lport, char *name, int mode, int enable)
     return rv;
 }
 
-int
-bmd_phy_fw_base_set(int unit, int lport, char *name, uint32_t fw_base)
+int bmd_phy_fw_base_set(int unit, int lport, char *name, uint32_t fw_base)
 {
     int rv = CDK_E_NONE;
 
@@ -625,8 +626,7 @@ bmd_phy_fw_helper_set(int unit, int lport,
     return CDK_E_NONE;
 }
 
-int
-bmd_phy_line_interface_set(int unit, int lport, int intf)
+int bmd_phy_line_interface_set(int unit, int lport, int intf)
 {
     int pref_intf;
 

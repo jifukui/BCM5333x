@@ -66,7 +66,7 @@
  *               QSGMII2X inst 2 : 11
  */
 
-
+/**配置BCN53334的地址*/
 static const uint16 _phy_addr_bcm5333x[] = {
     0xFF,  /* Port  0 (cmic) N/A */
     0xFF,  /* Port  1        N/A */
@@ -169,7 +169,7 @@ static const uint16 _phy_addr_bcm5339x[] = {
     0x07 + CDK_XGSM_MIIM_IBUS(1), /* Port 32 IntBus=1 Addr=0x07 */
     0x08 + CDK_XGSM_MIIM_IBUS(1)  /* Port 33 IntBus=1 Addr=0x08 */
 };
-
+/**获取根据端口的地址*/
 static uint32_t _phy_addr(int pport)
 {
     if (pport <= BCM5333X_PORT_MAX) 

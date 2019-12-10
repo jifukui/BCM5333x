@@ -105,7 +105,8 @@ static int _bcm54282_inst(phy_ctrl_t *pc)
 {
     int inst = PHY_CTRL_PHY_INST(pc);
 
-    if (inst < 0) {
+    if (inst < 0) 
+    {
         uint32_t addr = PHY_CTRL_PHY_ADDR(pc);
 
         while (addr > 8) {
@@ -127,8 +128,7 @@ static int _bcm54282_inst(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-_bcm54282_abiliby_remote_get(phy_ctrl_t *pc, uint32_t *ability)
+static int _bcm54282_abiliby_remote_get(phy_ctrl_t *pc, uint32_t *ability)
 {
     int ioerr = 0;
     MII_ANPr_t mii_anp;
@@ -245,8 +245,7 @@ static int bcm54282_phy_probe(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_notify(phy_ctrl_t *pc, phy_event_t event)
+static int bcm54282_phy_notify(phy_ctrl_t *pc, phy_event_t event)
 {
     int rv = CDK_E_NONE;
 
@@ -280,15 +279,15 @@ bcm54282_phy_notify(phy_ctrl_t *pc, phy_event_t event)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_reset(phy_ctrl_t *pc)
+static int bcm54282_phy_reset(phy_ctrl_t *pc)
 {
     int rv;
 
     rv = ge_phy_reset(pc);
 
     /* Call up the PHY chain */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         rv = PHY_RESET(PHY_CTRL_NEXT(pc));
     }
 
@@ -305,8 +304,8 @@ bcm54282_phy_reset(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_init(phy_ctrl_t *pc)
+/**PHY的初始化*/
+static int bcm54282_phy_init(phy_ctrl_t *pc)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -1018,10 +1017,13 @@ bcm54282_phy_loopback_get(phy_ctrl_t *pc, int *enable)
 
     PHY_CTRL_CHECK(pc);
 
-    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) {
+    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) 
+    {
         ioerr += READ_MII_1000X_CTRLr(pc, &mii_1000x_ctrl);
         *enable = MII_1000X_CTRLr_LOOPBACKf_GET(mii_1000x_ctrl) ? 1 : 0;
-    } else {
+    } 
+    else 
+    {
         ioerr += ge_phy_loopback_get(pc, enable);
 
         if (!*enable) {
@@ -1044,8 +1046,7 @@ bcm54282_phy_loopback_get(phy_ctrl_t *pc, int *enable)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_ability_get(phy_ctrl_t *pc, uint32_t *abil)
+static int bcm54282_phy_ability_get(phy_ctrl_t *pc, uint32_t *abil)
 {
     PHY_CTRL_CHECK(pc);
 

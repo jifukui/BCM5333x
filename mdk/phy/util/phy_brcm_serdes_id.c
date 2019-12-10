@@ -51,15 +51,15 @@
  */
 
 #include <phy/phy_brcm_serdes_id.h>
-
-int
-phy_brcm_serdes_id(phy_ctrl_t *pc, uint32_t *phyid0, uint32_t *phyid1)
+/**读取4倍串行内置PHY的id*/
+int phy_brcm_serdes_id(phy_ctrl_t *pc, uint32_t *phyid0, uint32_t *phyid1)
 {
     int ioerr = 0;
 
     PHY_CTRL_CHECK(pc);
 
-    if (phyid0 == NULL || phyid1 == 0) {
+    if (phyid0 == NULL || phyid1 == 0) 
+    {
         return -1;
     }
 

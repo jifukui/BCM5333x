@@ -945,7 +945,7 @@ soc_chip_type_t bcm5333x_chip_type(void)
 {
     return SOC_TYPE_SWITCH_XGS;
 }
-
+/**返回端口的数量*/
 uint8 bcm5333x_port_count(uint8 unit)
 {
     if (unit > 0) 
@@ -2692,26 +2692,37 @@ sys_error_t bcm5333x_sw_init(void)
     /* Probe PHYs */
     /**检测PHY从最小的逻辑端口号到最大的逻辑端口号，且定义为有效的端口*/
     SOC_LPORT_ITER(lport) {
+        /**获取端口探测的结果*/
         rv = bmd_phy_probe(unit, lport);
-        if (CDK_SUCCESS(rv)) {
-            if (IS_XL_PORT(lport)) {
+        if (CDK_SUCCESS(rv)) 
+        {
+            /**判断端口是否是有效的端口*/
+            if (IS_XL_PORT(lport)) 
+            {
+                /**根据逻辑端口获取*/
                 int lanes = soc_port_num_lanes(unit, lport);
-                if (lanes == 4) {
+                if (lanes == 4) 
+                {
                     rv = bmd_phy_mode_set(unit, lport, "bcmi_tsc_xgxs",
                                             BMD_PHY_MODE_SERDES, 0);
-                } else if (lanes == 2) {
+                } 
+                else if (lanes == 2) 
+                {
                     rv = bmd_phy_mode_set(unit, lport, "bcmi_tsc_xgxs",
                                             BMD_PHY_MODE_SERDES, 1);
                     rv = bmd_phy_mode_set(unit, lport, "bcmi_tsc_xgxs", 
                                             BMD_PHY_MODE_2LANE, 1);
-                } else { /* lanes = 1 */
+                } 
+                else 
+                { /* lanes = 1 */
                     rv = bmd_phy_mode_set(unit, lport, "bcmi_tsc_xgxs",
                                             BMD_PHY_MODE_SERDES, 1);
                     rv = bmd_phy_mode_set(unit, lport, "bcmi_tsc_xgxs", 
                                             BMD_PHY_MODE_2LANE, 0);
                 }
 
-                if (SOC_PORT_BLOCK_INDEX(lport) == 0) {
+                if (SOC_PORT_BLOCK_INDEX(lport) == 0) 
+                {
                     rv = bmd_phy_fw_base_set(unit, lport, "bcmi_tsc_xgxs", 0xee0);
                     rv = bmd_phy_fw_helper_set(unit, lport, _firmware_helper);
                 }
@@ -2720,7 +2731,8 @@ sys_error_t bcm5333x_sw_init(void)
     }
 
     /* Init PHYs */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         rv = bmd_phy_staged_init(unit);
     }
 #ifdef CFG_VENDOR_CONFIG_SUPPORT_INCLUDED 
@@ -2778,11 +2790,13 @@ sys_error_t bcm5333x_sw_init(void)
     SOC_XLPORT_ITER(lport) {
         phy_ctrl_t *pc = NULL;
 
-        if (SOC_PORT_BLOCK_INDEX(lport) == 0) {
+        if (SOC_PORT_BLOCK_INDEX(lport) == 0) 
+        {
             rv = bmd_phy_laneswap_set(unit, lport);
         }
 
-        switch (hr2_sw_info.devid) {
+        switch (hr2_sw_info.devid) 
+        {
             case BCM53393_DEVICE_ID:
             case BCM53394_DEVICE_ID:
 

@@ -120,18 +120,18 @@ _bcm56150_inst(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_probe(phy_ctrl_t *pc)
+/**探测设备*/
+static int bcm56150_phy_probe(phy_ctrl_t *pc)
 {
     uint32_t phyid0, phyid1;
     int ioerr = 0;
 
     PHY_CTRL_CHECK(pc);
-
+    /***读取端口的OUI数据*/
     ioerr += PHY_BUS_READ(pc, MII_PHY_ID0_REG, &phyid0);
     ioerr += PHY_BUS_READ(pc, MII_PHY_ID1_REG, &phyid1);
-    if ((phyid0 == BCM56150_PHY_ID0 && 
-        (phyid1 & ~PHY_ID1_REV_MASK) == BCM56150_PHY_ID1)) {
+    if ((phyid0 == BCM56150_PHY_ID0 && (phyid1 & ~PHY_ID1_REV_MASK) == BCM56150_PHY_ID1)) 
+    {
         return ioerr ? CDK_E_IO : CDK_E_NONE;
     }
     return CDK_E_NOT_FOUND;

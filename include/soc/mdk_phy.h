@@ -479,6 +479,13 @@ typedef struct phy_port_cable_diag_s {
  * external PHYs will be board-specific because the PHY address typically
  * is strappable.
  */
+/**phy总线
+ * 驱动的名字
+ * 获取PHY地址
+ * 读数据
+ * 写数据
+ * 获取实例
+*/
 typedef struct phy_bus_s {
 
     /* String to identify PHY bus driver */

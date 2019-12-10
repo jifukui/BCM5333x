@@ -55,7 +55,7 @@ uint32_t phy_ctrl_addr(phy_ctrl_t *pc, int adjust)
     uint32_t phy_addr;
 
     /* Initialize PHY address if necessary */
-
+    /**检测地址是否是有效的地址*/
     if ((PHY_CTRL_FLAGS(pc) & PHY_F_ADDR_VALID) == 0) 
     {
         if (pc->bus->phy_addr != NULL) 

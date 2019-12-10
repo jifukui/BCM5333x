@@ -62,11 +62,13 @@ extern int (*phy_reset_cb)(phy_ctrl_t *pc);
 
 /* Callback used by bmd_phy_init() */
 extern int (*phy_init_cb)(phy_ctrl_t *pc);
-
+/**PHY端口信息*/
 typedef struct bmd_phy_port_info_s {
     /* List of default PHY buses available for this port */
+    /**列出端口的可用的PHY*/
     phy_bus_t **phy_bus;
     /* Pointer to first (outermost) PHY */
+    /***/
     phy_ctrl_t *phy_ctrl;
 } bmd_phy_port_info_t;
 

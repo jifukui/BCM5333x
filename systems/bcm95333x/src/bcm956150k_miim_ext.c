@@ -133,14 +133,12 @@ static uint32_t _phy_addr(int pport)
     return 0xFF;
 }
 
-static int
-_read(int unit, uint32_t addr, uint32_t reg, uint32_t *val)
+static int _read(int unit, uint32_t addr, uint32_t reg, uint32_t *val)
 {
     return cdk_xgsm_miim_read(unit, addr, reg, val);
 }
 
-static int
-_write(int unit, uint32_t addr, uint32_t reg, uint32_t val)
+static int _write(int unit, uint32_t addr, uint32_t reg, uint32_t val)
 {
     return cdk_xgsm_miim_write(unit, addr, reg, val);
 }
