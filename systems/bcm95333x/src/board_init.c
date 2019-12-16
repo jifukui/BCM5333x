@@ -209,7 +209,7 @@ int board_phy_init_callback(phy_ctrl_t *pc) {
 #if CFG_CONSOLE_ENABLED
 #define UART_READREG(r)    SYS_REG_READ8((CFG_UART_BASE+(r)))
 #define UART_WRITEREG(r,v) SYS_REG_WRITE8((CFG_UART_BASE+(r)), v)
-/**设备控制端口初始化 */
+/**设备控制串口的初始化 */
 void board_console_init(uint32 baudrate, uint32 clk_hz)
 {
     uint32 brtc;
@@ -586,8 +586,7 @@ sys_error_t board_init(void)
  * Returns:
  *   None
  */
-void
-board_late_init(void) {
+void board_late_init(void) {
 
 #if !(defined(__BOOTLOADER__) || !defined(CFG_SWITCH_STAT_INCLUDED))
     board_port_stat_clear_all();

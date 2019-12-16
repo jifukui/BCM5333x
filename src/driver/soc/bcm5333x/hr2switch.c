@@ -559,9 +559,12 @@ void bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags
 
         MAC_PAUSE_SET(hr2_sw_info.p_mac[lport], unit, lport, tx_pause, rx_pause);
 
-        if (hr2_sw_info.loopback[lport] == PORT_LOOPBACK_MAC) {
+        if (hr2_sw_info.loopback[lport] == PORT_LOOPBACK_MAC) 
+        {
             MAC_LOOPBACK_SET(hr2_sw_info.p_mac[lport], unit, lport, TRUE);
-        } else {
+        } 
+        else 
+        {
             MAC_LOOPBACK_SET(hr2_sw_info.p_mac[lport], unit, lport, FALSE);
         }
 
@@ -599,7 +602,9 @@ void bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags
             }
         }
 #endif /* CFG_SWITCH_EEE_INCLUDED */
-    } else {
+    } 
+    else 
+    {
         /* Port stays in link up state */
 #if defined(CFG_SWITCH_EEE_INCLUDED)
         int eee_support;
@@ -940,7 +945,7 @@ void soc_reset(void)
 
     sal_usleep(to_usec);
 }
-
+/**获取芯片的类型*/
 soc_chip_type_t bcm5333x_chip_type(void)
 {
     return SOC_TYPE_SWITCH_XGS;
@@ -1525,8 +1530,7 @@ static void soc_init_port_mapping(void)
 
 
 #if CFG_PCIE_SERDES_POWERDOWN_ENABLED
-static int
-ccb_mii_write(int phy_addr, int reg_off, uint16 data)
+static int ccb_mii_write(int phy_addr, int reg_off, uint16 data)
 {
     int timeout;
     uint32 val;
@@ -1617,6 +1621,7 @@ static int soc_port_num_lanes(int unit, int lport)
     }
     return lanes;
 }
+/**设置MISC的值*/
 static void soc_misc_init(void)
 {
 #define NUM_XLPORT 4
@@ -1650,9 +1655,11 @@ static void soc_misc_init(void)
     ccb_mii_write(0x2, 0x19, 0x7F7F);
 #endif /* CFG_PCIE_SERDES_POWERDOWN_ENABLED */
 
-    if (SOC_IS_FOXHOUND(0)) {
+    if (SOC_IS_FOXHOUND(0)) 
+    {
         /* Enable clock gating for XLPORT core for power saving. */
-        for (i = 5; i < 7; i++) {
+        for (i = 5; i < 7; i++) 
+        {
             /* XLPORT block number: 5 and 6 */
             bcm5333x_reg_set(0, i, R_XLPORT_POWER_SAVE, 0x1);
         }
@@ -1790,7 +1797,7 @@ static void soc_misc_init(void)
         bcm5333x_reg_set(0, R_EGR_PORT_BUFFER_CLK_SHUTDOWN, 0x7f8);
     }
 }
-
+/**内存管理单元初始化*/
 static void soc_mmu_init(void)
 {
     int i, j;

@@ -104,7 +104,7 @@ lag_group_t lag_group[BOARD_MAX_NUM_OF_LAG];
 #endif /* CFG_SWITCH_LAG_INCLUDED */
 
 extern void um_launch(hsaddr_t entry);
-
+/**获取设备的名称*/
 const char * board_name(void)
 {
     return um_boardname;
@@ -115,7 +115,7 @@ const char * board_name(void)
  * @return the number of user ports
  *    
  */
-
+/**获取设备的端口数*/
 uint8 board_uport_count(void)
 {
     return bcm5333x_port_count(0);
@@ -203,7 +203,7 @@ sys_error_t board_uport_to_lport(uint16 uport, uint8 *unit, uint8 *lport)
  *     SYS_ERR_PARAMETER : fail, because parameter is invalid
  *   
  */
-
+/**设备的逻辑端口转换为用户端口*/
 sys_error_t board_lport_to_uport(uint8 unit, uint8 lport, uint16 *uport)
 {
 
@@ -222,28 +222,37 @@ sys_error_t board_lport_to_uport(uint8 unit, uint8 lport, uint16 *uport)
     
     SOC_PPORT_ITER(idx) {
         temp_lport = SOC_PORT_P2L_MAPPING(idx);
-        if (!lport_active[temp_lport]) {
+        if (!lport_active[temp_lport]) 
+        {
             continue;
         }
 
         /* In Wolfhound ref platform, TSC ports are Even-Odd swapped (TSC physical port start from 26)*/ 
         /*  To simply HR2 QGPHY(2~9) port swapping  we use physical port instead of logical port*/
-         if (!SOC_IS_DEERHOUND(unit) && idx < 10) {
-            if (lport == idx) {
+         if (!SOC_IS_DEERHOUND(unit) && idx < 10) 
+         {
+            if (lport == idx) 
+            {
                  find = 1;
                  break;
             }
-         } else {
-            if (lport == SOC_PORT_P2L_MAPPING(idx)) {
+         } 
+         else 
+         {
+            if (lport == SOC_PORT_P2L_MAPPING(idx)) 
+            {
                  find = 1;
                  break;
             }
          }
          count++;
      }
-     if (find == 1) {
+     if (find == 1) 
+     {
          *uport = count;
-     } else {
+     } 
+     else 
+     {
          *uport = -1;
          return SYS_ERR_NOT_FOUND;
      }
@@ -269,15 +278,18 @@ sys_error_t board_uplist_to_lpbmp(uint8 *uplist, uint8 unit, pbmp_t *lpbmp)
     uint8 val, lport;
     uint16 uport;
     
-    if (uplist == NULL || lpbmp == NULL || unit > 0) {
+    if (uplist == NULL || lpbmp == NULL || unit > 0) 
+    {
         return SYS_ERR_PARAMETER;
     }
 
     *lpbmp = 0;
 
     SAL_UPORT_ITER(uport) {
-        if (uplist_port_matched(uplist, uport) == SYS_OK) {
-            if (board_uport_to_lport(uport, &val, &lport) == SYS_OK) {
+        if (uplist_port_matched(uplist, uport) == SYS_OK) 
+        {
+            if (board_uport_to_lport(uport, &val, &lport) == SYS_OK) 
+            {
                 *lpbmp |= (1 << lport);
             }
         }
@@ -285,18 +297,19 @@ sys_error_t board_uplist_to_lpbmp(uint8 *uplist, uint8 unit, pbmp_t *lpbmp)
 
     return SYS_OK;
 }
-
-sys_error_t
-board_uport_to_lpbmp(uint8 uport, uint8 unit, pbmp_t *lpbmp)
+/**用户端口转换为逻辑端口*/
+sys_error_t board_uport_to_lpbmp(uint8 uport, uint8 unit, pbmp_t *lpbmp)
 {
     uint8 lport;
 
-    if (lpbmp == NULL || unit > 0) {
+    if (lpbmp == NULL || unit > 0) 
+    {
         return SYS_ERR_PARAMETER;
     }
 
     BCM_PBMP_CLEAR(*lpbmp);
-	if (board_uport_to_lport(uport, &unit, &lport) == SYS_OK) {
+	if (board_uport_to_lport(uport, &unit, &lport) == SYS_OK) 
+    {
 	    *lpbmp |= (1 << lport);
 	}
     return SYS_OK;
@@ -348,7 +361,8 @@ sys_error_t board_lpbmp_to_uplist(uint8 unit, pbmp_t lpbmp, uint8 *uplist)
 
 soc_switch_t * board_get_soc_by_unit(uint8 unit)
 {
-    if (unit > 0) {
+    if (unit > 0) 
+    {
         return NULL;
     }
     return &soc_switch_bcm5333x;
@@ -600,27 +614,28 @@ void board_load_program(hsaddr_t entry)
     (*funcptr)();
 
 }
-
-loader_mode_t
-board_loader_mode_get(bookkeeping_t *data, BOOL reset)
+/**获取加载模式*/
+loader_mode_t board_loader_mode_get(bookkeeping_t *data, BOOL reset)
 {
     bookkeeping_t *pdata = (bookkeeping_t *)BOARD_BOOKKEEPING_ADDR;
 
-    if (pdata->magic == UM_BOOKKEEPING_SEAL) {
+    if (pdata->magic == UM_BOOKKEEPING_SEAL) 
+    {
         /* Firmware notify looader to do firmware upgrade */
-        if (data) {
+        if (data) 
+        {
             sal_memcpy(data, pdata, sizeof(bookkeeping_t));
         }
-        if (reset) {
+        if (reset) 
+        {
             pdata->magic = 0x0;
         }
         return LM_UPGRADE_FIRMWARE;
     }
     return LM_NORMAL;
 }
-
-void
-board_loader_mode_set(loader_mode_t mode, bookkeeping_t *data)
+/**设置加载模式*/
+void board_loader_mode_set(loader_mode_t mode, bookkeeping_t *data)
 {
     bookkeeping_t *pdata = (bookkeeping_t *)BOARD_BOOKKEEPING_ADDR;
 #ifdef CFG_DUAL_IMAGE_INCLUDED
@@ -841,8 +856,7 @@ board_qvlan_get_by_index(uint16  index, uint16 *vlan_id, uint8 *uplist, uint8 *t
 }
 #endif /* CFG_SWITCH_VLAN_INCLUDED */
 
-sys_error_t
-board_port_mode_get(uint16 uport, port_mode_t *mode)
+sys_error_t board_port_mode_get(uint16 uport, port_mode_t *mode)
 {
     int rv = SYS_OK;
     uint8 unit, lport;
@@ -1301,8 +1315,7 @@ board_mirror_port_get(uint16 uport, uint8 *enable)
 #endif /* CFG_SWITCH_MIRROR_INCLUDED */
 
 #ifdef CFG_SWITCH_QOS_INCLUDED
-sys_error_t
-board_qos_type_set(qos_type_t type)
+sys_error_t board_qos_type_set(qos_type_t type)
 {
     sys_error_t rv = SYS_OK;
     uint32 port_field_sel_entry[5];
@@ -1402,15 +1415,13 @@ board_qos_type_set(qos_type_t type)
     return rv;
 }
 
-sys_error_t
-board_qos_type_get(qos_type_t *type)
+sys_error_t board_qos_type_get(qos_type_t *type)
 {
     *type = qos_info;
     return SYS_OK;
 }
 
-sys_error_t
-board_untagged_priority_set(uint16 uport, uint8 priority)
+sys_error_t board_untagged_priority_set(uint16 uport, uint8 priority)
 {
     sys_error_t rv = SYS_OK;
     uint8 unit, lport;
@@ -1463,8 +1474,7 @@ board_untagged_priority_set(uint16 uport, uint8 priority)
     return rv;
 }
 
-sys_error_t
-board_untagged_priority_get(uint16 uport, uint8 *priority)
+sys_error_t board_untagged_priority_get(uint16 uport, uint8 *priority)
 {
     sys_error_t rv = SYS_OK;
     uint8 unit, lport;
@@ -1483,9 +1493,8 @@ board_untagged_priority_get(uint16 uport, uint8 *priority)
 #endif /* CFG_SWITCH_QOS_INCLUDED */
 
 #ifdef CFG_SWITCH_RATE_INCLUDED
-
-sys_error_t
-board_port_rate_ingress_set(uint16 uport, uint32 bits_sec)
+/**获取端口入的速率*/
+sys_error_t board_port_rate_ingress_set(uint16 uport, uint32 bits_sec)
 {
     sys_error_t rv = SYS_OK;
     uint8 unit, lport;
@@ -2517,9 +2526,8 @@ board_igmp_snoop_enable_set(uint8 enable)
 
     return rv;
 }
-
-sys_error_t
-board_igmp_snoop_enable_get(uint8 *enable)
+/**获取IGMP SNOOP的状态*/
+sys_error_t board_igmp_snoop_enable_get(uint8 *enable)
 {
     uint32 val;
     sys_error_t rv = SYS_OK;
@@ -2535,8 +2543,7 @@ board_igmp_snoop_enable_get(uint8 *enable)
     }
     return rv;
 }
-sys_error_t
-board_block_unknown_mcast_set(uint8 enable)
+sys_error_t board_block_unknown_mcast_set(uint8 enable)
 {
     uint32 val;
     int i;
@@ -2567,8 +2574,7 @@ board_block_unknown_mcast_set(uint8 enable)
     return rv;
 }
 
-sys_error_t
-board_block_unknown_mcast_get(uint8 *enable)
+sys_error_t board_block_unknown_mcast_get(uint8 *enable)
 {
     uint32 val;
     int rv;
@@ -2623,13 +2629,11 @@ board_port_loopback_enable_set(uint16 uport, int loopback_mode)
 }
 
 #ifdef CFG_ZEROCONF_MDNS_INCLUDED
-sys_error_t
-board_mdns_enable_set(BOOL enable)
+sys_error_t board_mdns_enable_set(BOOL enable)
 {
     return bcm5333x_mdns_enable_set(0, enable);
 }
-sys_error_t
-board_mdns_enable_get(BOOL *enable){
+sys_error_t board_mdns_enable_get(BOOL *enable){
     return bcm5333x_mdns_enable_get(0, enable);
 }
 #endif /* CFG_ZEROCONF_MDNS_INCLUDED */

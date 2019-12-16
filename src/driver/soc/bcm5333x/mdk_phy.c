@@ -301,20 +301,22 @@ int soc_phyctrl_notify(phy_ctrl_t *pc, phy_event_t event, uint32 value)
 
     PHY_CTRL_CHECK(pc);
 
-    if (!(pc->next)) {
+    if (!(pc->next)) 
+    {
         /* No serdes driver */
         return CDK_E_NONE;
     }
 
-    switch (event) {
-    case PhyEvent_Speed:
-        rv = PHY_SPEED_SET(pc->next, value);
-        break;
-    case PhyEvent_Duplex:
-        rv = PHY_DUPLEX_SET(pc->next, value);
-        break;
-    default:
-        return CDK_E_NONE;
+    switch (event) 
+    {
+        case PhyEvent_Speed:
+            rv = PHY_SPEED_SET(pc->next, value);
+            break;
+        case PhyEvent_Duplex:
+            rv = PHY_DUPLEX_SET(pc->next, value);
+            break;
+        default:
+            return CDK_E_NONE;
     }
 
     return rv;
@@ -326,7 +328,8 @@ sys_error_t phy_reg_read(uint8 lport, uint16 reg_addr, uint16 *p_value)
     uint32 value;
     phy_ctrl_t *pc;
     /**逻辑端口到物理端口的映射*/
-    if ((SOC_PORT_L2P_MAPPING(lport) == -1) || (lport > BCM5333X_LPORT_MAX)) {
+    if ((SOC_PORT_L2P_MAPPING(lport) == -1) || (lport > BCM5333X_LPORT_MAX)) 
+    {
         return SYS_ERR;
     }
 
@@ -379,10 +382,12 @@ sys_error_t phy_reg_write(uint8 lport, uint16 reg_addr, uint16 value)
 
     rv = PHY_BUS_WRITE(pc, (uint32)reg_addr, (uint32)value);
 
-    if (!rv) {
+    if (!rv) 
+    {
         return SYS_OK;
     }
-    else {
+    else 
+    {
         return SYS_ERR;
     }
 }
@@ -397,52 +402,57 @@ int cdk_xgsm_miim_read(int unit, uint32_t phy_addr, uint32_t reg, uint32_t *val)
      * Use clause 45 access if DEVAD specified.
      * Note that DEVAD 32 (0x20) can be used to access special DEVAD 0.
      */
-    if (reg & 0x003f0000) {
+    if (reg & 0x003f0000) 
+    {
         phy_addr |= CDK_XGSM_MIIM_CLAUSE45;
         reg &= 0x001fffff;
     }
 
     phy_param = (phy_addr << MIIM_PARAM_ID_OFFSET);
 
-
+    /**设置编程寄存器*/
     WRITECSR(CMIC_CMC1_MIIM_PARAM, phy_param);
-
+    /**设置读地址寄存器*/
     WRITECSR(CMIC_CMC1_MIIM_ADDRESS, reg);
 
     /* Tell CMIC to start */
+    /**设置读取数据*/
     WRITECSR(CMIC_CMC1_MIIM_CTRL, CMIC_MIIM_RD_START);
 
-    /* Poll for completion */
-    for (polls = 0; polls < CDK_CONFIG_MIIM_MAX_POLLS; polls++) {
+    /* 轮询读取操作状态 */
+    for (polls = 0; polls < CDK_CONFIG_MIIM_MAX_POLLS; polls++) 
+    {
         data = READCSR(CMIC_CMC1_MIIM_STAT);
-        if (data & CMIC_MIIM_OPN_DONE) {
+        if (data & CMIC_MIIM_OPN_DONE) 
+        {
             break;
         }
     }
 
     /* Check for timeout and error conditions */
-    if (polls == CDK_CONFIG_MIIM_MAX_POLLS) {
+    /**判断是否超时*/
+    if (polls == CDK_CONFIG_MIIM_MAX_POLLS) 
+    {
         rv = -1;
         CDK_DEBUG_MIIM
             (("cdk_xgsm_miim_read[%d]: Timeout at phy_addr=0x%08x"
-              "reg_addr=%08x\n",
-              unit, phy_addr, reg));
+            "reg_addr=%08x\n",unit, phy_addr, reg));
     }
 
     WRITECSR(CMIC_CMC1_MIIM_CTRL, 0x0);
-
-    if (rv >= 0) {
+    /**对于没有超时的处理*/
+    if (rv >= 0) 
+    {
         *val = READCSR(CMIC_CMC1_MIIM_READ_DATA);
         CDK_DEBUG_MIIM
             (("cdk_xgsm_miim_read[%d]: phy_addr=0x%08x"
-              "reg_addr=%08x data: 0x%08x\n",
+            "reg_addr=%08x data: 0x%08x\n",
               unit, phy_addr, reg, *val));
     }
     return rv;
 }
 
-int
-cdk_xgsm_miim_write(int unit, uint32_t phy_addr, uint32_t reg, uint32_t val)
+int cdk_xgsm_miim_write(int unit, uint32_t phy_addr, uint32_t reg, uint32_t val)
 {
     int rv = CDK_E_NONE;
     uint32 polls, data, phy_param;
@@ -451,7 +461,8 @@ cdk_xgsm_miim_write(int unit, uint32_t phy_addr, uint32_t reg, uint32_t val)
      * Use clause 45 access if DEVAD specified.
      * Note that DEVAD 32 (0x20) can be used to access special DEVAD 0.
      */
-    if (reg & 0x003f0000) {
+    if (reg & 0x003f0000) 
+    {
         phy_addr |= CDK_XGSM_MIIM_CLAUSE45;
         reg &= 0x001fffff;
     }
@@ -466,15 +477,18 @@ cdk_xgsm_miim_write(int unit, uint32_t phy_addr, uint32_t reg, uint32_t val)
     WRITECSR(CMIC_CMC1_MIIM_CTRL, CMIC_MIIM_WR_START);
 
     /* Poll for completion */
-    for (polls = 0; polls < CDK_CONFIG_MIIM_MAX_POLLS; polls++) {
+    for (polls = 0; polls < CDK_CONFIG_MIIM_MAX_POLLS; polls++) 
+    {
         data = READCSR(CMIC_CMC1_MIIM_STAT);
-        if (data & CMIC_MIIM_OPN_DONE) {
+        if (data & CMIC_MIIM_OPN_DONE) 
+        {
             break;
         }
     }
 
     /* Check for timeout and error conditions */
-    if (polls == CDK_CONFIG_MIIM_MAX_POLLS) {
+    if (polls == CDK_CONFIG_MIIM_MAX_POLLS) 
+    {
         rv = -1;
         CDK_DEBUG_MIIM
             (("cdk_xgsm_miim_read[%d]: Timeout at phy_addr=0x%08x"
@@ -486,20 +500,24 @@ cdk_xgsm_miim_write(int unit, uint32_t phy_addr, uint32_t reg, uint32_t val)
 
     return rv;
 }
-
+/**PHY的初始化*/
 int bmd_phy_init(int unit, int lport)
 {
     int rv = CDK_E_NONE;
 
-    if (BMD_PORT_PHY_CTRL(unit, lport)) {
+    if (BMD_PORT_PHY_CTRL(unit, lport)) 
+    {
         rv = PHY_RESET(BMD_PORT_PHY_CTRL(unit, lport));
-        if (CDK_SUCCESS(rv) && phy_reset_cb) {
+        if (CDK_SUCCESS(rv) && phy_reset_cb) 
+        {
             rv = phy_reset_cb(BMD_PORT_PHY_CTRL(unit, lport));
         }
-        if (CDK_SUCCESS(rv)) {
+        if (CDK_SUCCESS(rv)) 
+        {
             rv = PHY_INIT(BMD_PORT_PHY_CTRL(unit, lport));
         }
-        if (CDK_SUCCESS(rv) && phy_init_cb) {
+        if (CDK_SUCCESS(rv) && phy_init_cb) 
+        {
             rv = phy_init_cb(BMD_PORT_PHY_CTRL(unit, lport));
         }
     }
@@ -516,7 +534,8 @@ int bmd_phy_attach(int unit, int lport)
 
     rv = bmd_phy_probe_default(unit, lport, bmd_phy_drv_list);
 
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         rv = bmd_phy_init(unit, lport);
     }
 

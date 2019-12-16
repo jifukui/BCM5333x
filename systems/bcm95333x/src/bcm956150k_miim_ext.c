@@ -116,9 +116,13 @@ static uint32_t _phy_addr(int pport)
                 /* BCM953344R */
                 if (pport >= 2 && pport < 18) {
                     return 0xFF;
-                } else if (pport < 26) {
+                } 
+                else if (pport < 26) 
+                {
                     return (pport - 18) + CDK_XGSM_MIIM_EBUS(0);
-                } else if (pport < 34) {
+                } 
+                else if (pport < 34) 
+                {
                     return 0x01 + (pport - 26) + CDK_XGSM_MIIM_EBUS(1);
                 }
                 break;

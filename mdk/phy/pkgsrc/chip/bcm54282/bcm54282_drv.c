@@ -52,6 +52,7 @@
 #include <phy/chip/bcm54282_defs.h>
 
 #define BCM54282_PHY_ID0                0x600d
+/**实际读回来的参数是845b*/
 #define BCM54282_PHY_ID1                0x8450
 
 #define BCM54292_PHY_ID0                0x600d
@@ -101,15 +102,16 @@
  * Returns:
  *      PHY instance
  */
-static int
-_bcm54282_inst(phy_ctrl_t *pc)
+static int _bcm54282_inst(phy_ctrl_t *pc)
 {
     int inst = PHY_CTRL_PHY_INST(pc);
 
-    if (inst < 0) {
+    if (inst < 0) 
+    {
         uint32_t addr = PHY_CTRL_PHY_ADDR(pc);
 
-        while (addr > 8) {
+        while (addr > 8) 
+        {
             addr -= 8;
         }
         inst = addr - 1;
@@ -128,8 +130,7 @@ _bcm54282_inst(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-_bcm54282_abiliby_remote_get(phy_ctrl_t *pc, uint32_t *ability)
+static int _bcm54282_abiliby_remote_get(phy_ctrl_t *pc, uint32_t *ability)
 {
     int ioerr = 0;
     MII_ANPr_t mii_anp;
@@ -144,10 +145,14 @@ _bcm54282_abiliby_remote_get(phy_ctrl_t *pc, uint32_t *ability)
     pause = MII_ANPr_PAUSEf_GET(mii_anp);
 
     /* retrieve "pause" abilities */
-    if (asym_pause) {
-        if (pause) {
+    if (asym_pause) 
+    {
+        if (pause) 
+        {
             *ability |= PHY_ABIL_PAUSE_RX;
-        } else {
+        } 
+        else 
+        {
             *ability |= PHY_ABIL_PAUSE_TX;
         }
     } else {
@@ -211,8 +216,7 @@ extern cdk_symbols_t bcm54282_symbols;
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_probe(phy_ctrl_t *pc)
+static int bcm54282_phy_probe(phy_ctrl_t *pc)
 {
     uint32_t phyid0, phyid1;
     int ioerr = 0;
@@ -280,15 +284,15 @@ bcm54282_phy_notify(phy_ctrl_t *pc, phy_event_t event)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_reset(phy_ctrl_t *pc)
+static int bcm54282_phy_reset(phy_ctrl_t *pc)
 {
     int rv;
 
     rv = ge_phy_reset(pc);
 
     /* Call up the PHY chain */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         rv = PHY_RESET(PHY_CTRL_NEXT(pc));
     }
 
@@ -613,8 +617,7 @@ static int bcm54282_phy_duplex_set(phy_ctrl_t *pc, int duplex)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_duplex_get(phy_ctrl_t *pc, int *duplex)
+static int bcm54282_phy_duplex_get(phy_ctrl_t *pc, int *duplex)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -658,8 +661,7 @@ bcm54282_phy_duplex_get(phy_ctrl_t *pc, int *duplex)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
+static int bcm54282_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -745,8 +747,7 @@ bcm54282_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
+static int bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -756,41 +757,52 @@ bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
 
     PHY_CTRL_CHECK(pc);
 
-    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) {
+    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) 
+    {
         ioerr  += READ_OPER_MODE_STATUSr(pc, &oper_mode_status);
-        if (ioerr) {
+        if (ioerr) 
+        {
             return CDK_E_IO;
         }
         sp_mode = OPER_MODE_STATUSr_SERDES_SPEEDf_GET(oper_mode_status);
-        switch(sp_mode) {
-        case 0: /* SERDES_SPEED_10 */
-            *speed = 10;
-            break;
-        case 1: /* SERDES_SPEED_100 */
-            *speed = 100;
-            break;
-        case 2: /* SERDES_SPEED_1000 */
-            *speed = 1000;
-            break;
-        default:
-            return CDK_E_UNAVAIL;
+        switch(sp_mode) 
+        {
+            case 0: /* SERDES_SPEED_10 */
+                *speed = 10;
+                break;
+            case 1: /* SERDES_SPEED_100 */
+                *speed = 100;
+                break;
+            case 2: /* SERDES_SPEED_1000 */
+                *speed = 1000;
+                break;
+            default:
+                return CDK_E_UNAVAIL;
         }
-    } else {
+    } 
+    else 
+    {
         ioerr += PHY_BUS_READ(pc, MII_CTRL_REG, &ctrl);
         ioerr += READ_MII_AUX_STATUSr(pc, &mii_aux_status);
-        if (ioerr) {
+        if (ioerr) 
+        {
             return CDK_E_IO;
         }
 
-        if (ctrl & MII_CTRL_AE) {
+        if (ctrl & MII_CTRL_AE) 
+        {
             /* Auto-negotiation enabled */
             anc = MII_AUX_STATUSr_ANCf_GET(mii_aux_status);
-            if (!anc) {
+            if (!anc) 
+            {
                 /* Auto-neg NOT complete */
                 *speed = 0;
-            } else {
+            } 
+            else 
+            {
                 hcd = MII_AUX_STATUSr_HCDf_GET(mii_aux_status);
-                switch(hcd) {
+                switch(hcd) 
+                {
                 case 7: /* HCD_FD_1000 */
                 case 6: /* HCD_HD_1000 */
                     *speed = 1000;
@@ -809,7 +821,9 @@ bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
                     break;
                 }
             }
-        } else {
+        } 
+        else 
+        {
             /* Auto-negotiation disabled. Simply pick up the values we force in CTRL register. */
             switch (MII_CTRL_SS(ctrl)) {
             case MII_CTRL_SS_10:
