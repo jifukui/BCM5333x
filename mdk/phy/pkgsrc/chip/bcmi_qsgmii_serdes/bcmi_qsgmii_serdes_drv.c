@@ -77,7 +77,8 @@
  * Returns:
  *      Lane number or -1 if lane is unknown
  */
-static int bcmi_qsgmii_serdes_lane(phy_ctrl_t *pc)
+static int
+bcmi_qsgmii_serdes_lane(phy_ctrl_t *pc)
 {
     uint32_t inst = PHY_CTRL_INST(pc);
 
@@ -97,7 +98,8 @@ static int bcmi_qsgmii_serdes_lane(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int bcmi_qsgmii_serdes_stop(phy_ctrl_t *pc)
+static int
+bcmi_qsgmii_serdes_stop(phy_ctrl_t *pc)
 {
     int ioerr = 0;
     MIICNTLr_t mii_ctrl;
@@ -148,7 +150,6 @@ extern cdk_symbols_t bcmi_qsgmii_serdes_symbols;
  * Returns:
  *      CDK_E_xxx
  */
-/**PHY探测*/
 static int bcmi_qsgmii_serdes_probe(phy_ctrl_t *pc)
 {
     uint32_t phyid0, phyid1;
@@ -165,7 +166,8 @@ static int bcmi_qsgmii_serdes_probe(phy_ctrl_t *pc)
         /* Common PHY ID found - read specific SerDes ID */
         ioerr += READ_SERDES_ID0r(pc, &serdesid0);
         model = SERDES_ID0r_MODELf_GET(serdesid0);
-        if (model == SERDES_ID0_QSGMII) {
+        if (model == SERDES_ID0_QSGMII) 
+        {
             /* All lanes are accessed from the same PHY address */
             PHY_CTRL_FLAGS(pc) |= PHY_F_ADDR_SHARE | PHY_F_SERDES_MODE;
             PHY_CTRL_LANE_MASK(pc) = LANE_NUM_MASK;
@@ -244,7 +246,8 @@ bcmi_qsgmii_serdes_notify(phy_ctrl_t *pc, phy_event_t event)
  * Returns:
  *      CDK_E_xxx
  */
-static int bcmi_qsgmii_serdes_reset(phy_ctrl_t *pc)
+static int
+bcmi_qsgmii_serdes_reset(phy_ctrl_t *pc)
 {
     return CDK_E_NONE;
 }
@@ -259,7 +262,8 @@ static int bcmi_qsgmii_serdes_reset(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_NONE
  */
-static int bcmi_qsgmii_serdes_init(phy_ctrl_t *pc)
+static int
+bcmi_qsgmii_serdes_init(phy_ctrl_t *pc)
 {
     int rv = CDK_E_NONE;
     int ioerr = 0;
@@ -308,7 +312,8 @@ static int bcmi_qsgmii_serdes_init(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int bcmi_qsgmii_serdes_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
+static int
+bcmi_qsgmii_serdes_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
 {
     int ioerr = 0;
     MIISTATr_t miistat;

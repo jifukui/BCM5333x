@@ -52,7 +52,6 @@
 #include <phy/chip/bcm54282_defs.h>
 
 #define BCM54282_PHY_ID0                0x600d
-/**实际读回来的参数是845b*/
 #define BCM54282_PHY_ID1                0x8450
 
 #define BCM54292_PHY_ID0                0x600d
@@ -70,7 +69,7 @@
 #define BCM54282_LED4_SEL(_pc)          0x6
 #define BCM54282_LEDCTRL(_pc)           0x8
 #define BCM54282_LEDSELECT(_pc)         0x0
-
+/**根据PHY的地址判断PHY是否是54282*/
 #define PHY_IS_BCM54282(pc) \
                 ((phyid0 == BCM54282_PHY_ID0) && \
                  ((phyid1 & ~PHY_ID1_REV_MASK) == BCM54282_PHY_ID1) && \
@@ -110,8 +109,7 @@ static int _bcm54282_inst(phy_ctrl_t *pc)
     {
         uint32_t addr = PHY_CTRL_PHY_ADDR(pc);
 
-        while (addr > 8) 
-        {
+        while (addr > 8) {
             addr -= 8;
         }
         inst = addr - 1;
@@ -145,14 +143,10 @@ static int _bcm54282_abiliby_remote_get(phy_ctrl_t *pc, uint32_t *ability)
     pause = MII_ANPr_PAUSEf_GET(mii_anp);
 
     /* retrieve "pause" abilities */
-    if (asym_pause) 
-    {
-        if (pause) 
-        {
+    if (asym_pause) {
+        if (pause) {
             *ability |= PHY_ABIL_PAUSE_RX;
-        } 
-        else 
-        {
+        } else {
             *ability |= PHY_ABIL_PAUSE_TX;
         }
     } else {
@@ -216,6 +210,7 @@ extern cdk_symbols_t bcm54282_symbols;
  * Returns:
  *      CDK_E_xxx
  */
+/**PHY探测*/
 static int bcm54282_phy_probe(phy_ctrl_t *pc)
 {
     uint32_t phyid0, phyid1;
@@ -225,7 +220,8 @@ static int bcm54282_phy_probe(phy_ctrl_t *pc)
 
     ioerr += PHY_BUS_READ(pc, MII_PHY_ID0_REG, &phyid0);
     ioerr += PHY_BUS_READ(pc, MII_PHY_ID1_REG, &phyid1);
-    if (PHY_IS_BCM54282(pc) || PHY_IS_BCM54292(pc)) {
+    if (PHY_IS_BCM54282(pc) || PHY_IS_BCM54292(pc)) 
+    {
 #if PHY_CONFIG_INCLUDE_CHIP_SYMBOLS == 1
         PHY_CTRL_SYMBOLS(pc) = &bcm54282_symbols;
 #endif
@@ -249,8 +245,7 @@ static int bcm54282_phy_probe(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_notify(phy_ctrl_t *pc, phy_event_t event)
+static int bcm54282_phy_notify(phy_ctrl_t *pc, phy_event_t event)
 {
     int rv = CDK_E_NONE;
 
@@ -309,6 +304,7 @@ static int bcm54282_phy_reset(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
+/**PHY的初始化*/
 static int bcm54282_phy_init(phy_ctrl_t *pc)
 {
     int ioerr = 0;
@@ -525,7 +521,8 @@ static int bcm54282_phy_init(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int bcm54282_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
+static int
+bcm54282_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -576,7 +573,8 @@ static int bcm54282_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
  * Returns:
  *      CDK_E_xxx
  */
-static int bcm54282_phy_duplex_set(phy_ctrl_t *pc, int duplex)
+static int
+bcm54282_phy_duplex_set(phy_ctrl_t *pc, int duplex)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -617,7 +615,8 @@ static int bcm54282_phy_duplex_set(phy_ctrl_t *pc, int duplex)
  * Returns:
  *      CDK_E_xxx
  */
-static int bcm54282_phy_duplex_get(phy_ctrl_t *pc, int *duplex)
+static int
+bcm54282_phy_duplex_get(phy_ctrl_t *pc, int *duplex)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -661,7 +660,8 @@ static int bcm54282_phy_duplex_get(phy_ctrl_t *pc, int *duplex)
  * Returns:
  *      CDK_E_xxx
  */
-static int bcm54282_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
+static int
+bcm54282_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -747,7 +747,8 @@ static int bcm54282_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
  * Returns:
  *      CDK_E_xxx
  */
-static int bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
+static int
+bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -757,52 +758,41 @@ static int bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
 
     PHY_CTRL_CHECK(pc);
 
-    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) 
-    {
+    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) {
         ioerr  += READ_OPER_MODE_STATUSr(pc, &oper_mode_status);
-        if (ioerr) 
-        {
+        if (ioerr) {
             return CDK_E_IO;
         }
         sp_mode = OPER_MODE_STATUSr_SERDES_SPEEDf_GET(oper_mode_status);
-        switch(sp_mode) 
-        {
-            case 0: /* SERDES_SPEED_10 */
-                *speed = 10;
-                break;
-            case 1: /* SERDES_SPEED_100 */
-                *speed = 100;
-                break;
-            case 2: /* SERDES_SPEED_1000 */
-                *speed = 1000;
-                break;
-            default:
-                return CDK_E_UNAVAIL;
+        switch(sp_mode) {
+        case 0: /* SERDES_SPEED_10 */
+            *speed = 10;
+            break;
+        case 1: /* SERDES_SPEED_100 */
+            *speed = 100;
+            break;
+        case 2: /* SERDES_SPEED_1000 */
+            *speed = 1000;
+            break;
+        default:
+            return CDK_E_UNAVAIL;
         }
-    } 
-    else 
-    {
+    } else {
         ioerr += PHY_BUS_READ(pc, MII_CTRL_REG, &ctrl);
         ioerr += READ_MII_AUX_STATUSr(pc, &mii_aux_status);
-        if (ioerr) 
-        {
+        if (ioerr) {
             return CDK_E_IO;
         }
 
-        if (ctrl & MII_CTRL_AE) 
-        {
+        if (ctrl & MII_CTRL_AE) {
             /* Auto-negotiation enabled */
             anc = MII_AUX_STATUSr_ANCf_GET(mii_aux_status);
-            if (!anc) 
-            {
+            if (!anc) {
                 /* Auto-neg NOT complete */
                 *speed = 0;
-            } 
-            else 
-            {
+            } else {
                 hcd = MII_AUX_STATUSr_HCDf_GET(mii_aux_status);
-                switch(hcd) 
-                {
+                switch(hcd) {
                 case 7: /* HCD_FD_1000 */
                 case 6: /* HCD_HD_1000 */
                     *speed = 1000;
@@ -821,9 +811,7 @@ static int bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
                     break;
                 }
             }
-        } 
-        else 
-        {
+        } else {
             /* Auto-negotiation disabled. Simply pick up the values we force in CTRL register. */
             switch (MII_CTRL_SS(ctrl)) {
             case MII_CTRL_SS_10:
@@ -1029,10 +1017,13 @@ bcm54282_phy_loopback_get(phy_ctrl_t *pc, int *enable)
 
     PHY_CTRL_CHECK(pc);
 
-    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) {
+    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) 
+    {
         ioerr += READ_MII_1000X_CTRLr(pc, &mii_1000x_ctrl);
         *enable = MII_1000X_CTRLr_LOOPBACKf_GET(mii_1000x_ctrl) ? 1 : 0;
-    } else {
+    } 
+    else 
+    {
         ioerr += ge_phy_loopback_get(pc, enable);
 
         if (!*enable) {
@@ -1055,8 +1046,7 @@ bcm54282_phy_loopback_get(phy_ctrl_t *pc, int *enable)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_ability_get(phy_ctrl_t *pc, uint32_t *abil)
+static int bcm54282_phy_ability_get(phy_ctrl_t *pc, uint32_t *abil)
 {
     PHY_CTRL_CHECK(pc);
 
@@ -1219,34 +1209,24 @@ bcm54282_phy_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd
  * Returns:
  *      CDK_E_xxx
  */
-/**获取PHY的配置状态
- * pc为PHY的控制结构体
- * PHY的配置结构体
- * val参数值
- * 
-*/
-static int bcm54282_phy_config_get(phy_ctrl_t *pc, phy_config_t cfg, uint32_t *val, void *cd)
+static int
+bcm54282_phy_config_get(phy_ctrl_t *pc, phy_config_t cfg, uint32_t *val, void *cd)
 {
     EEE_803Dr_t eee_803d;
 
     PHY_CTRL_CHECK(pc);
 
-    switch (cfg) 
-    {
-    case PhyConfig_Enable: 
-    {
+    switch (cfg) {
+    case PhyConfig_Enable: {
             int ioerr = 0;
             MII_CTRLr_t mii_ctrl;
             int en;
     
             ioerr += READ_MII_CTRLr(pc, &mii_ctrl);
             en = MII_CTRLr_POWER_DOWNf_GET(mii_ctrl);
-            if (en) 
-            {
+            if (en) {
                 *val = 0;
-            } 
-            else 
-            {
+            } else {
                 *val = 1;
             }
             return ioerr;

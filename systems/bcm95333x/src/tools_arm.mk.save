@@ -87,9 +87,9 @@ TOOLCHAIN_DIR ?= /projects/ntsw-tools/gnu/$(MACHINE)-linux-gnu/$(ARMEB)-elf
 TOOLPREFIX ?= $(ARMEB)-elf-
 GCC_VERSION = 4.7.0
 else
-TOOLCHAIN_DIR ?= /projects/ntsw-tools/gnu/gcc-arm-none-eabi-4_8-2014q1
+TOOLCHAIN_DIR ?= /projects/ntsw-tools/gnu/gcc-arm-none-eabi-5_4-2016q3
 TOOLPREFIX ?= $(ARMEB)-none-eabi-
-GCC_VERSION = 4.8.3
+GCC_VERSION = 5.4.1
 endif
 TOOLS ?= $(TOOLCHAIN_DIR)/bin
 
