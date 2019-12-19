@@ -72,8 +72,7 @@ static nvram_header_t nv_header;
 static nvram_tuple_t *hashtab[HASH_SIZE];
 
 /* Local hash function (simplistic for now) */
-static uint32
-nvram_hash(const char *name)
+static uint32 nvram_hash(const char *name)
 {
 #if HASH_SIZE != 1
     const char *p;
@@ -88,16 +87,18 @@ nvram_hash(const char *name)
 #endif
 }
 
-
-static nvram_tuple_t *
-nvram_lookup(const char *name, size_t len)
+/**在hash表中查找此name*/
+static nvram_tuple_t * nvram_lookup(const char *name, size_t len)
 {
     nvram_tuple_t *p;
     uint32 hash = nvram_hash(name);
     
-    for (p = hashtab[hash]; p != NULL; p = p->next) {
+    for (p = hashtab[hash]; p != NULL; p = p->next) 
+    {
         if (sal_memcmp(name, p->binding, len) == 0 && p->binding[len] == '=')
-            return p;           
+        {
+            return p;  
+        }         
     }
     return NULL;
 }
@@ -195,8 +196,8 @@ nvram_enum(sys_error_t (*proc)(const char *tuple))
     }
     return SYS_OK;
 }
-sys_error_t 
-nvram_show_tuple(const char *tuple) {
+sys_error_t  nvram_show_tuple(const char *tuple) 
+{
      extern int um_console_print(const char *s);
      um_console_print(tuple);
      um_console_print("\n");
@@ -216,30 +217,34 @@ nvram_show_tuple(const char *tuple) {
     *  Return value:
     *      error code (0 for success)
     ********************************************************************* */
-
-sys_error_t
-nvram_init (void)
+/**nvram的初始化*/
+sys_error_t nvram_init (void)
 {
     int i;
     uint32 *wp;
-
-	for (i = 0; i < HASH_SIZE; i++) {
+    /**初始哈hasn表*/
+	for (i = 0; i < HASH_SIZE; i++) 
+    {
         hashtab[i] = NULL;
     }
 
-    if (flash_read((hsaddr_t)NVRAM_BASE + NVRAM_OFFSET, &nv_header, sizeof(nvram_header_t)) != SYS_OK) {
+    if (flash_read((hsaddr_t)NVRAM_BASE + NVRAM_OFFSET, &nv_header, sizeof(nvram_header_t)) != SYS_OK) 
+    {
         return SYS_ERR;
     }
 
     /* the nvram data is little endian on storage */
     wp = (uint32 *) &nv_header;    
-    for (i = 0; i < sizeof(nvram_header_t); i += 4) {
+    for (i = 0; i < sizeof(nvram_header_t); i += 4) 
+    {
         *wp = htol32(*wp);
         wp++;
     }	
 	
-    if (nv_header.magic == NVRAM_MAGIC) {
-        if (nvram_internalize(&nv_header) == SYS_OK) {
+    if (nv_header.magic == NVRAM_MAGIC) 
+    {
+        if (nvram_internalize(&nv_header) == SYS_OK) 
+        {
             return SYS_OK;
 		};
     } 
@@ -254,15 +259,15 @@ nvram_init (void)
     return SYS_OK;
 #endif /* __BOOTLOADER__ */	
 }
-
-const char *
-nvram_get(const char *name)
+/**在ram中获取这个的键名*/
+const char *nvram_get(const char *name)
 {
     size_t len = sal_strlen(name);
     nvram_tuple_t *p;
 
     p = nvram_lookup(name, len);
-    if (p != NULL) {
+    if (p != NULL) 
+    {
         return &p->binding[len + 1]; /* "value" */
     }
     return NULL;

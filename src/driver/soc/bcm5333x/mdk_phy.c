@@ -145,6 +145,7 @@ int (*phy_init_cb)(phy_ctrl_t *pc);
 /*
  * Register PHY init callback function
  */
+/**设置PHY*/
 int bmd_phy_init_cb_register(int (*init_cb)(phy_ctrl_t *pc))
 {
     phy_init_cb = init_cb;
@@ -185,14 +186,16 @@ static phy_ctrl_t * phy_ctrl_alloc(void)
     int idx;
     phy_ctrl_t *pc;
 
-    for (idx = 0, pc = &_phy_ctrl[0]; idx < PHY_CTRL_NUM_MAX; idx++, pc++) {
-        if (pc->bus == 0) {
+    for (idx = 0, pc = &_phy_ctrl[0]; idx < PHY_CTRL_NUM_MAX; idx++, pc++) 
+    {
+        if (pc->bus == 0) 
+        {
             return pc;
         }
     }
     return NULL;
 }
-
+/***/
 static void phy_ctrl_free(phy_ctrl_t *pc)
 {
     pc->bus = 0;
@@ -288,7 +291,7 @@ int bmd_phy_probe_default(int unit, int lport, phy_driver_t **phy_drv)
 
     return CDK_E_NONE;
 }
-
+/***/
 int soc_phyctrl_notify(phy_ctrl_t *pc, phy_event_t event, uint32 value)
 {
     int rv = CDK_E_NONE;
@@ -366,6 +369,7 @@ sys_error_t phy_reg_read(uint8 lport, uint16 reg_addr, uint16 *p_value)
  *      SYS_ERR : failed to access the MII register
  *
  */
+/**向PHY的寄存器写数据*/
 sys_error_t phy_reg_write(uint8 lport, uint16 reg_addr, uint16 value)
 {
     int rv = CDK_E_NONE;
@@ -565,7 +569,7 @@ int bmd_phy_probe(int unit, int lport)
     }
     return CDK_E_NONE;
 }
-
+/**PHY的模式设置*/
 int bmd_phy_mode_set(int unit, int lport, char *name, int mode, int enable)
 {
     int rv = CDK_E_NONE;
@@ -632,8 +636,7 @@ int bmd_phy_fw_base_set(int unit, int lport, char *name, uint32_t fw_base)
     return rv;
 }
 
-int
-bmd_phy_fw_helper_set(int unit, int lport,
+int bmd_phy_fw_helper_set(int unit, int lport,
                       int (*fw_helper)(void *, uint32_t, uint32_t, void *))
 {
     phy_ctrl_t *pc = BMD_PORT_PHY_CTRL(unit, lport);
@@ -674,18 +677,18 @@ int bmd_phy_line_interface_set(int unit, int lport, int intf)
     }
     return CDK_E_NONE;
 }
-
-int
-bmd_phy_ability_set(int unit, int lport, char *name, int ability)
+/**PHY的能力设置*/
+int bmd_phy_ability_set(int unit, int lport, char *name, int ability)
 {
     int rv = CDK_E_NONE;
 
     phy_ctrl_t *pc = BMD_PORT_PHY_CTRL(unit, lport);
     int phy_abil = 0;
     
-    while (pc != NULL) {
-        if (name && pc->drv && pc->drv->drv_name &&
-            (sal_strcmp(pc->drv->drv_name, "bcmi_tsc_xgxs") != 0)) {
+    while (pc != NULL) 
+    {
+        if (name && pc->drv && pc->drv->drv_name &&(sal_strcmp(pc->drv->drv_name, "bcmi_tsc_xgxs") != 0)) 
+        {
             pc = pc->next;
             continue;
         }
@@ -693,10 +696,13 @@ bmd_phy_ability_set(int unit, int lport, char *name, int ability)
         /* Add more phy abilities besides those in the initialization */
 
         if (ability & BMD_PHY_ABIL_10GB)
+        {
             phy_abil |= PHY_ABIL_10GB;
+        }
 
         rv = PHY_CONFIG_SET(pc, PhyConfig_AdvLocal, phy_abil, NULL);
-        if (rv == CDK_E_UNAVAIL) {
+        if (rv == CDK_E_UNAVAIL) 
+        {
             rv = CDK_E_NONE;
         }
         break;
@@ -704,9 +710,8 @@ bmd_phy_ability_set(int unit, int lport, char *name, int ability)
     return rv;
 }
 
-
-int
-bmd_phy_eee_set(int unit, int lport, int mode)
+/**节能以太网的设置*/
+int bmd_phy_eee_set(int unit, int lport, int mode)
 {
     if (BMD_PORT_PHY_CTRL(unit, lport)) {
         uint32_t eee_mode = PHY_EEE_NONE;
@@ -730,8 +735,7 @@ bmd_phy_eee_set(int unit, int lport, int mode)
     return CDK_E_NONE;
 }
 
-int
-bmd_phy_eee_get(int unit, int lport, int *mode)
+int bmd_phy_eee_get(int unit, int lport, int *mode)
 {
     *mode = PHY_EEE_NONE;
 
@@ -751,10 +755,10 @@ bmd_phy_eee_get(int unit, int lport, int *mode)
     return CDK_E_NONE;
 }
 
-int
-bmd_phy_laneswap_set(int unit, int lport)
+int bmd_phy_laneswap_set(int unit, int lport)
 {
-    if (BMD_PORT_PHY_CTRL(unit, lport)) {
+    if (BMD_PORT_PHY_CTRL(unit, lport)) 
+    {
         int rv;
 
         rv = PHY_CONFIG_SET(BMD_PORT_PHY_CTRL(unit, lport), PhyConfig_XauiTxLaneRemap, 0x3210, NULL);
@@ -776,8 +780,7 @@ typedef struct _bcast_sig_s {
 #define MAX_BCAST_SIG   8
 #define MAX_INIT_STAGE  8
 
-int
-bmd_phy_staged_init(int unit)
+int bmd_phy_staged_init(int unit)
 {
     int rv = CDK_E_NONE;
     int lport, idx, found;
@@ -925,8 +928,7 @@ phy_tsc_iblk_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data);
 #define SOC_PA_PAUSE_TX        (1 << 0)       /* TX pause capable */
 #define SOC_PA_PAUSE_RX        (1 << 1)       /* RX pause capable */
 
-int
-phy_pause_get(uint8 unit, uint8 lport, BOOL *tx_pause, BOOL *rx_pause)
+int phy_pause_get(uint8 unit, uint8 lport, BOOL *tx_pause, BOOL *rx_pause)
 {
     int rv;
     phy_ctrl_t *pc = BMD_PORT_PHY_CTRL(unit, lport);
@@ -934,10 +936,13 @@ phy_pause_get(uint8 unit, uint8 lport, BOOL *tx_pause, BOOL *rx_pause)
 
     PHY_CTRL_CHECK(pc);
 
-    if (!sal_strcmp(pc->drv->drv_name,"bcmi_tsc_xgxs")) {
+    if (!sal_strcmp(pc->drv->drv_name,"bcmi_tsc_xgxs")) 
+    {
         /* Assume CL73 AN Bit[11:10] */
         rv = phy_tsc_iblk_read(pc, BCMI_TSC_AN_ABIL_RESOLUTION_STATUSr, &anp);
-    } else {
+    } 
+    else 
+    {
         rv = PHY_BUS_READ(pc, BCM54282_MII_ANPr, &anp);
     }
 

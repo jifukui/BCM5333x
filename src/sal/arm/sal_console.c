@@ -50,8 +50,9 @@
 #include "system.h"
 #include "bsp_config.h"
 #include "ns16550.h"
-
+/**串口寄存器读取8位数据*/
 #define UART_READREG(r)    SYS_REG_READ8((CFG_UART_BASE+(r)))
+/**串口寄存器写8位数据*/
 #define UART_WRITEREG(r,v) SYS_REG_WRITE8((CFG_UART_BASE+(r)), v)
 
 #if CFG_CONSOLE_ENABLED
@@ -69,23 +70,25 @@ extern void sal_debugf(const char *fmt, ...);
     *  put_char and get_char 
     *
     ********************************************************************* */
+/**串口输出字符*/
+char put_char(char c) 
+{
 
-char
-put_char(char c) {
-
-   while ((UART_READREG(R_UART_LSR) & LSR_TXRDY) == 0) {
+   while ((UART_READREG(R_UART_LSR) & LSR_TXRDY) == 0) 
+   {
          ;
    };
    UART_WRITEREG(R_UART_DATA, c);
 
    return c;   
 }
-
+/**串口得到数据*/
 char get_char(void){
 
   char c;
 
-  do {
+  do 
+  {
      POLL();
   } while (!(UART_READREG(R_UART_LSR) & LSR_RXRDY));
 
@@ -100,13 +103,13 @@ char get_char(void){
     *  Console output function
     *
     ********************************************************************* */
-
-static int 
-um_console_write(const char *buffer,int length)
+/**串口写数据*/
+static int um_console_write(const char *buffer,int length)
 {
     int blen = length;
     const char *bptr = buffer;
-    while (blen > 0) {            
+    while (blen > 0) 
+    {            
         put_char(*bptr);
         bptr++;
         blen--;
@@ -122,8 +125,8 @@ um_console_write(const char *buffer,int length)
     *  Console output function
     *
     ********************************************************************* */
-int
-um_console_print(const char *str)
+/**串口读取输出数据*/
+int um_console_print(const char *str)
 {
     int count = 0;
     int len;
@@ -143,15 +146,14 @@ um_console_print(const char *str)
 
     return count;
 }
-
-void
-sal_console_init(void)
+/**串口的初始化*/
+void sal_console_init(void)
 {
 
 }
 
 #endif /* CFG_CONSOLE_ENABLED */
-
+/**串口输出数据用户接口函数*/
 void sal_printf(const char *fmt, ...)
 {
 //	return;
@@ -170,8 +172,7 @@ void sal_printf(const char *fmt, ...)
 }
 
 
-int
-cdk_printf(const char *fmt, ...)
+int cdk_printf(const char *fmt, ...)
 {
 #if CFG_CONSOLE_ENABLED
     va_list arg_ptr;
@@ -188,8 +189,7 @@ cdk_printf(const char *fmt, ...)
     return SYS_OK;
 }
 
-void
-sal_debugf(const char *fmt, ...)
+void sal_debugf(const char *fmt, ...)
 {
 #if CFG_CONSOLE_ENABLED
     va_list arg_ptr;
@@ -202,26 +202,24 @@ sal_debugf(const char *fmt, ...)
     um_console_print(buf);
 #endif /* CFG_CONSOLE_ENABLED */
 }
-void
-sal_assert(const char *expr, const char *file, uint16 line) REENTRANT
+void sal_assert(const char *expr, const char *file, uint16 line) REENTRANT
 {
 #if CFG_CONSOLE_ENABLED
     sal_printf("ERROR: Assertion failed: (%s) at %s:%u\n", expr, file, line);
 #endif /* CFG_CONSOLE_ENABLED */
     for(;;);
 }
-BOOL
-sal_char_avail(void)
+BOOL sal_char_avail(void)
 {
 #if CFG_CONSOLE_ENABLED
+    /**如果定义串口使能根据串口的线状态寄存器的状态是否准备好返回此参数*/
     return (UART_READREG(R_UART_LSR) & LSR_RXRDY) ? 1 : 0;
 #else
     return FALSE;
 #endif
 }
 
-char
-sal_getchar(void)
+char sal_getchar(void)
 {
 #if CFG_CONSOLE_ENABLED
 
@@ -235,7 +233,8 @@ sal_getchar(void)
             um_console_write("\r\n",2);
             break;
         default:
-            if (lastchar >= ' ') {
+            if (lastchar >= ' ') 
+            {
                 um_console_write(&lastchar,1);
             }
             break;
@@ -243,16 +242,16 @@ sal_getchar(void)
 
     return lastchar;
 #else
-    for(;;) {
+    for(;;) 
+    {
         POLL();
     }
     return 0;
 #endif
 }
 
-
-char
-sal_get_last_char(void)
+/**获取串口得到的最后一个数据*/
+char sal_get_last_char(void)
 {
 #if CFG_CONSOLE_ENABLED
     return lastchar;
@@ -261,8 +260,7 @@ sal_get_last_char(void)
 #endif
 }
 
-char
-sal_putchar(char c)
+char sal_putchar(char c)
 {
 #if CFG_CONSOLE_ENABLED
     switch (c) {

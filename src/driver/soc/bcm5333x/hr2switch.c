@@ -819,7 +819,7 @@ static void soc_hr2_tsc_reset(void)
 
     }
 }
-
+/**芯片复位*/
 void soc_reset(void)
 {
     uint32 val, to_usec;
@@ -1630,16 +1630,18 @@ static void soc_misc_init(void)
 
 #if CFG_PCIE_SERDES_POWERDOWN_ENABLED
     /* Power down PCIE serdes(PHY addr 2) through ChipcommonB MDIO chain */
+    /**读取*/
     val = READCSR(CCB_MII_MGMT_CTRL);
     /* Internal MDIO */
     val &= ~MII_MGMT_CTRL_EXT;
     /* Enable preamble sequence */
+    /**使能前导序列*/
     val |= MII_MGMT_CTRL_PRE;
 
     /* Configure MDIO Clock, ChipCommonB clock = 12.5 MHz by default */
     val &= ~(MII_MGMT_CTRL_MDCDIV_MASK);
     val |= (12 & MII_MGMT_CTRL_MDCDIV_MASK);
-
+    /**设置分频器*/
     WRITECSR(CCB_MII_MGMT_CTRL, val);
 
     ccb_mii_write(0x2, 0x1F, 0x8010);
@@ -1666,13 +1668,14 @@ static void soc_misc_init(void)
     }
 
     soc_pipe_mem_clear();
-
+    /**初始化端口映射*/
     soc_init_port_mapping();
 
     /* Bump up core clock to 135 MHz if any TSC port is > 1G */
     /* All TSC ports */
     SOC_XLPORT_ITER(lport) {
-        if (SOC_PORT_SPEED_MAX(lport) > 1) {
+        if (SOC_PORT_SPEED_MAX(lport) > 1) 
+        {
             bcm5333x_reg_get(0, R_TOP_MISC_CONTROL_1, &val);
             val |= 0x00000800;
             bcm5333x_reg_set(0, R_TOP_MISC_CONTROL_1, val);
@@ -1701,20 +1704,24 @@ static void soc_misc_init(void)
 
     /* Egress Enable */
     val = 0x1;
-    for (i = 0; i <= BCM5333X_PORT_MAX; i++) {
-        if (i == 1) {
+    for (i = 0; i <= BCM5333X_PORT_MAX; i++) 
+    {
+        if (i == 1) 
+        {
             continue;
         }
         bcm5333x_mem_set(0, M_EGR_ENABLE(i), &val, 1);
     }
 
     /* GMAC init */
-    for (i = 2; i < 5; i++) {
+    for (i = 2; i < 5; i++) 
+    {
         /* Clear counter and enable gport */
         bcm5333x_reg_set(0, i, R_GPORT_CONFIG, 0x3);
     }
 
-    for (i = 2; i < 5; i++) {
+    for (i = 2; i < 5; i++) 
+    {
         /* Enable gport */
         bcm5333x_reg_set(0, i, R_GPORT_CONFIG, 0x1);
     }
@@ -1730,14 +1737,18 @@ static void soc_misc_init(void)
     /* GMAC init */
 
     SOC_LPORT_ITER(lport) {
-        if (IS_XL_PORT(lport) && (SOC_PORT_BLOCK_INDEX(lport) == 0)) {
+        if (IS_XL_PORT(lport) && (SOC_PORT_BLOCK_INDEX(lport) == 0)) 
+        {
             i = SOC_PORT_L2P_MAPPING(lport);
-            if (SOC_PORT_P2L_MAPPING(i) == -1) {
+            if (SOC_PORT_P2L_MAPPING(i) == -1) 
+            {
                 continue;
             }
             rst_val = 0;
-            for (bindex = 0; bindex < NUM_XLPORT; bindex++) {
-                if (SOC_PORT_P2L_MAPPING(i + bindex) != -1) {
+            for (bindex = 0; bindex < NUM_XLPORT; bindex++) 
+            {
+                if (SOC_PORT_P2L_MAPPING(i + bindex) != -1) 
+                {
                     rst_val |= (0x1 << bindex);
                 }
             }
@@ -1746,9 +1757,12 @@ static void soc_misc_init(void)
 
             mode = SOC_HU2_PORT_MODE_QUAD;
             lanes = soc_port_num_lanes(0, lport);
-            if (lanes == 2) {
+            if (lanes == 2) 
+            {
                 mode = SOC_HU2_PORT_MODE_DUAL;
-            } else if (lanes == 4) {
+            } 
+            else if (lanes == 4) 
+            {
                 mode = SOC_HU2_PORT_MODE_SINGLE;
             }
             bcm5333x_reg_get(0, SOC_PORT_BLOCK(lport), R_XLPORT_MODE_REG, &val);
@@ -1779,8 +1793,10 @@ static void soc_misc_init(void)
      * causes the outer tag to be removed from packets that don't have
      * a hit in the egress vlan tranlation table. Set to 0 to disable this.
      */
-    for (i = 0; i <= BCM5333X_LPORT_MAX; i++) {
-        if (i == 1) {
+    for (i = 0; i <= BCM5333X_LPORT_MAX; i++) 
+    {
+        if (i == 1) 
+        {
             continue;
         }
         bcm5333x_reg_set(0, R_EGR_VLAN_CONTROL_1(i), 0x0);
@@ -1792,7 +1808,8 @@ static void soc_misc_init(void)
 
     /* Directed Mirroring ON by default */
 
-    if (SOC_IS_FOXHOUND(unit)){
+    if (SOC_IS_FOXHOUND(unit))
+    {
         /* Clock gate the xlport buffers in EDATABUF: XP0~7[Bit10~3] = 1 */
         bcm5333x_reg_set(0, R_EGR_PORT_BUFFER_CLK_SHUTDOWN, 0x7f8);
     }
@@ -2215,7 +2232,8 @@ static void bcm5333x_system_init(void)
 	uint16 index = 0;
 
     /* Configurations to guarantee no packet modifications */
-    for (i = BCM5333X_LPORT_MIN; i <= BCM5333X_LPORT_MAX; i++) {
+    for (i = BCM5333X_LPORT_MIN; i <= BCM5333X_LPORT_MAX; i++) 
+    {
         /* ING_OUTER_TPID[0] for allowed outer TPID values */
         entry[0] = 0x1;
         bcm5333x_mem_set(0, M_SYSTEM_CONFIG_TABLE(i), entry, 1);
@@ -2244,11 +2262,13 @@ static void bcm5333x_system_init(void)
         bcm5333x_reg_set(0, R_ING_EGRMSKBMAP_64(i), 0x0);
     }
 
-    for (i = 0; i <= BCM5333X_LPORT_MAX; i++) {
+    for (i = 0; i <= BCM5333X_LPORT_MAX; i++) 
+    {
         /*
          * ING_PRI_CNG_MAP: Unity priority mapping and CNG = 0 or 1
          */
-        for (j = 0; j < 16; j++) {
+        for (j = 0; j < 16; j++) 
+        {
             bcm5333x_mem_set(0, M_ING_PRI_CNG_MAP(i*16+j), &dot1pmap[j], 1);
         }
     }
@@ -2262,7 +2282,8 @@ static void bcm5333x_system_init(void)
     entry[0] = 0x0;
     entry[1] = 0x0;
 
-    for (i = 0; i < 32; i++) {
+    for (i = 0; i < 32; i++) 
+    {
         bcm5333x_mem_set(0, M_TRUNK32_CONFIG_TABLE(i), &val, 1);
         bcm5333x_mem_set(0, M_TRUNK32_PORT_TABLE(i), entry, 2);
     }
@@ -2438,12 +2459,16 @@ static int  _bmd_post_init(int unit)
     port_idx = 0;
 
     SOC_XLPORT_ITER(lport) {
-        if (IS_HG_PORT(lport)) {
+        if (IS_HG_PORT(lport)) 
+        {
             /* Add port to HiGig trunk members */
-            if ((port_idx % 2) == 0) {
+            if ((port_idx % 2) == 0) 
+            {
                 /* HIGIG_TRUNK_PORT0[7:3], HIGIG_TRUNK_PORT2[17:13] */
                 hg_trunk_grp |= (lport << 3) | (lport << 13);
-            } else {
+            } 
+            else 
+            {
                 /* HIGIG_TRUNK_PORT1[12:8], HIGIG_TRUNK_PORT3[22:18] */
                 hg_trunk_grp |= (lport << 8) | (lport << 18);
             }
@@ -2452,17 +2477,23 @@ static int  _bmd_post_init(int unit)
         port_idx++;      
     }
 
-    if (port_idx == 0)  {
+    if (port_idx == 0)  
+    {
         /* Check if higig ports enabled in the SKU */
         return SYS_OK;
     }
 
     /* We assume that units 0 and 1 are used */
-    if (unit == 0) {
+    if (unit == 0) 
+    {
         dest_unit = 1;
-    } else if (unit == 1) {
+    } 
+    else if (unit == 1) 
+    {
         dest_unit = 0;
-    } else {
+    } 
+    else 
+    {
         return SYS_ERR_PARAMETER;
     }
     dest_modid = BMD_MODID(dest_unit);
@@ -2479,8 +2510,10 @@ static int  _bmd_post_init(int unit)
     /* Bit0 = port26 Bit1 = port27 Bit2 = port28 Bit3 = port29. */
     bcm5333x_mem_set(myunit, M_MODPORT_MAP(dest_modid), &hg_pbmp, 1);
 
-    for (lport = 0; lport <= BCM5333X_LPORT_MAX; lport++) {
-        if (SOC_PORT_L2P_MAPPING(lport) == -1) {
+    for (lport = 0; lport <= BCM5333X_LPORT_MAX; lport++) 
+    {
+        if (SOC_PORT_L2P_MAPPING(lport) == -1) 
+        {
             continue;
         }
 
@@ -2656,6 +2689,7 @@ sys_error_t bcm5333x_sw_init(void)
     sal_usleep(1000);
 
     /* Get chip revision */
+    /**获取芯片版本*/
     bcm5333x_chip_revision(unit, &hr2_sw_info.devid, &hr2_sw_info.revid);
 
 #if CFG_CONSOLE_ENABLED
@@ -2664,16 +2698,18 @@ sys_error_t bcm5333x_sw_init(void)
 
 #ifdef CFG_VENDOR_CONFIG_SUPPORT_INCLUDED 
     sal_config_rv = sal_config_uint16_get(SAL_CONFIG_SKU_DEVID, &hr2_sw_info.devid);
-    if (sal_config_rv == SYS_OK) {
+    if (sal_config_rv == SYS_OK) 
+    {
         sal_printf("Vendor Config : Overwrite SKU device ID with value 0x%x.\n", hr2_sw_info.devid);
     }
 
     sal_config_rv = sal_config_uint8_get(SAL_CONFIG_SKU_OPTION, &config_id);
-    if (sal_config_rv == SYS_OK) {
+    if (sal_config_rv == SYS_OK) 
+    {
         sal_printf("Vendor Config : Overwrite SKU option with value %d.\n", config_id);
     }
 #endif /* CFG_VENDOR_CONFIG_SUPPORT_INCLUDED */
-
+    /**根据设备的ID进行判断是否支持此设备*/
     if ((hr2_sw_info.devid != BCM53333_DEVICE_ID) &&
         (hr2_sw_info.devid != BCM53334_DEVICE_ID) &&
         (hr2_sw_info.devid != BCM53393_DEVICE_ID) &&
@@ -2685,15 +2721,15 @@ sys_error_t bcm5333x_sw_init(void)
         sal_printf("\nERROR : devid 0x%x is not supported in UM software !\n", hr2_sw_info.devid);
         return SYS_ERR_NOT_FOUND;
     }
-
+    /**设备复位*/
     soc_reset();
-
+    /**misc初始化*/
     soc_misc_init();
-
+    /**内存管理单元初始化*/
     soc_mmu_init();
-
+    /**系统的初始化*/
     bcm5333x_system_init();
-
+    /***/
 	sal_memset(counter_val, 0 ,sizeof(uint32) * BCM5333X_LPORT_MAX *(R_MAX * 2));	
 
     /* Probe PHYs */
@@ -2744,13 +2780,17 @@ sys_error_t bcm5333x_sw_init(void)
     }
 #ifdef CFG_VENDOR_CONFIG_SUPPORT_INCLUDED 
     sal_config_rv = sal_config_pbmp_get(SAL_CONFIG_VALID_PORTS, &active_pbmp);
-    if (sal_config_rv == SYS_OK) {
+    if (sal_config_rv == SYS_OK) 
+    {
         sal_printf("Vendor Config : Set valid logical pbmp with value 0x%x.\n", active_pbmp);
         SOC_LPORT_ITER(lport) {
-            if (active_pbmp & (0x1 << lport)) {
+            if (active_pbmp & (0x1 << lport)) 
+            {
                 port_cnt ++;
                 lport_active[lport] = 1; 
-            } else {
+            } 
+            else 
+            {
                 lport_active[lport] = 0; 
             }
         }
@@ -2761,7 +2801,8 @@ sys_error_t bcm5333x_sw_init(void)
     if (sal_config_rv == SYS_OK) {
         sal_printf("Vendor Config : Set speed (1G) logical pbmp with value 0x%x.\n", speed_1000_pbmp);
         SOC_LPORT_ITER(lport) {
-            if ((speed_1000_pbmp & (0x1 << lport)) && (SOC_PORT_SPEED_MAX(lport) >= 1)){
+            if ((speed_1000_pbmp & (0x1 << lport)) && (SOC_PORT_SPEED_MAX(lport) >= 1))
+            {
                SOC_PORT_SPEED_MAX(lport) = 1;
             }
         }
@@ -2771,24 +2812,28 @@ sys_error_t bcm5333x_sw_init(void)
     if (sal_config_rv == SYS_OK) {
         sal_printf("Vendor Config : Set speed (10G) logical pbmp with value 0x%x.\n", speed_10000_pbmp);
         SOC_LPORT_ITER(lport) {
-            if ((speed_10000_pbmp & (0x1 << lport)) && (SOC_PORT_SPEED_MAX(lport) >= 10)){
+            if ((speed_10000_pbmp & (0x1 << lport)) && (SOC_PORT_SPEED_MAX(lport) >= 10))
+            {
                SOC_PORT_SPEED_MAX(lport)= 10;
             }
         }
     }
 
     an_rv = sal_config_pbmp_get(SAL_CONFIG_PHY_AN_PORTS, &phy_an_pbmp);
-    if (an_rv == SYS_OK) {
+    if (an_rv == SYS_OK) 
+    {
         sal_printf("Vendor Config : Set AN logical pbmp with value 0x%x.\n", phy_an_pbmp);
     }
 
     cl73_rv = sal_config_pbmp_get(SAL_CONFIG_PHY_CL73_PORTS, &phy_cl73_pbmp);
-    if (cl73_rv == SYS_OK) {
+    if (cl73_rv == SYS_OK) 
+    {
         sal_printf("Vendor Config : Set CL73 logical pbmp with value 0x%x.\n", phy_cl73_pbmp);
     }
     
     cl37_rv = sal_config_pbmp_get(SAL_CONFIG_PHY_CL37_PORTS, &phy_cl37_pbmp);
-    if (cl37_rv == SYS_OK) {
+    if (cl37_rv == SYS_OK) 
+    {
         sal_printf("Vendor Config : Set CL37 logical pbmp with value 0x%x.\n", phy_cl37_pbmp);
     }
 
@@ -2810,30 +2855,43 @@ sys_error_t bcm5333x_sw_init(void)
                 pc = BMD_PORT_PHY_CTRL(unit, lport);
 
                 speed = SOC_PORT_SPEED_MAX(lport)*1000;
-                if (speed == 11000) {
+                if (speed == 11000) 
+                {
                     speed = 10000;
                 }
 
-                if (speed == 1000) {
+                if (speed == 1000) 
+                {
                     an = CFG_CONFIG_1G_PORT_AN;
-                    if (an == 2) {
+                    if (an == 2) 
+                    {
                         PHY_CTRL_FLAGS(pc) |= PHY_F_CLAUSE37;
-                    } else if (an == 1) {
+                    } 
+                    else if (an == 1) 
+                    {
                         PHY_CTRL_FLAGS(pc) |= PHY_F_CLAUSE73;
                     }
                     
 #ifdef CFG_VENDOR_CONFIG_SUPPORT_INCLUDED
-                    if (an_rv == SYS_OK){
-                        if (phy_an_pbmp & (0x1 << lport)) {
+                    if (an_rv == SYS_OK)
+                    {
+                        if (phy_an_pbmp & (0x1 << lport)) 
+                        {
                             /* Set or clear CL37 flag */
-                            if (cl37_rv == SYS_OK) {
-                                if (!(PHY_CTRL_FLAGS(pc) & PHY_F_CLAUSE37)) {
-                                    if  (phy_cl37_pbmp & (0x1 << lport)) {
+                            if (cl37_rv == SYS_OK) 
+                            {
+                                if (!(PHY_CTRL_FLAGS(pc) & PHY_F_CLAUSE37)) 
+                                {
+                                    if  (phy_cl37_pbmp & (0x1 << lport)) 
+                                    {
                                         /* set cl37 flag*/
                                         PHY_CTRL_FLAGS(pc) |= PHY_F_CLAUSE37;
                                     }
-                                } else {
-                                    if  (!(phy_cl37_pbmp & (0x1 << lport))) {
+                                } 
+                                else 
+                                {
+                                    if  (!(phy_cl37_pbmp & (0x1 << lport))) 
+                                    {
                                         /* clear cl37 flag*/
                                         PHY_CTRL_FLAGS(pc) &= ~PHY_F_CLAUSE37;
                                     }
@@ -2841,14 +2899,20 @@ sys_error_t bcm5333x_sw_init(void)
                             }
                             
                             /* Set or clear CL73 flag */
-                            if (cl73_rv == SYS_OK) {
-                                if (!(PHY_CTRL_FLAGS(pc) & PHY_F_CLAUSE73)) {
-                                    if  (phy_cl73_pbmp & (0x1 << lport)) {
+                            if (cl73_rv == SYS_OK) 
+                            {
+                                if (!(PHY_CTRL_FLAGS(pc) & PHY_F_CLAUSE73)) 
+                                {
+                                    if  (phy_cl73_pbmp & (0x1 << lport)) 
+                                    {
                                         /* set cl73 flag*/
                                         PHY_CTRL_FLAGS(pc) |= PHY_F_CLAUSE73;
                                     }
-                                } else {
-                                    if  (!(phy_cl73_pbmp & (0x1 << lport))) {
+                                } 
+                                else 
+                                {
+                                    if  (!(phy_cl73_pbmp & (0x1 << lport))) 
+                                    {
                                         /* clear cl73 flag*/
                                         PHY_CTRL_FLAGS(pc) &= ~PHY_F_CLAUSE73;
                                     }
@@ -2865,32 +2929,42 @@ sys_error_t bcm5333x_sw_init(void)
             
                     rv = PHY_SPEED_SET(BMD_PORT_PHY_CTRL(unit, lport), 1000);   
                     rv = PHY_AUTONEG_SET(BMD_PORT_PHY_CTRL(unit, lport), an);
-                    if (!SOC_SUCCESS(rv)) {
+                    if (!SOC_SUCCESS(rv)) 
+                    {
                         sal_printf("bcm5333x_sw_init set phy autoneg %d on lport %d failed\n", an, lport);
                     }
             
-                    if (!an) {
+                    if (!an) 
+                    {
                         rv = PHY_SPEED_SET(BMD_PORT_PHY_CTRL(unit, lport), 1000);
-                        if (!SOC_SUCCESS(rv)) {
+                        if (!SOC_SUCCESS(rv)) 
+                        {
                             sal_printf("bcm5333x_sw_init set phy speed %d on lport %d failed\n", 1000, lport);
                         }
                     }         
-                } else if(speed == 10000) {
+                } 
+                else if(speed == 10000) 
+                {
                     /* Add 10G ability */
                     ability = PHY_ABIL_10GB;
                     rv = bmd_phy_ability_set(unit, lport, "bcmi_tsc_xgxs", ability);
-                    if (!SOC_SUCCESS(rv)) {
+                    if (!SOC_SUCCESS(rv)) 
+                    {
                         sal_printf("bcm5343x_sw_init set phy ability 0x%x on lport %d failed\n", ability, lport);
                     }
 
                     an = CFG_CONFIG_10G_PORT_AN;
                     PHY_CTRL_FLAGS(pc) |= PHY_F_CLAUSE73;
 #ifdef CFG_VENDOR_CONFIG_SUPPORT_INCLUDED
-                     if (an_rv == SYS_OK){
-                        if (phy_an_pbmp & (0x1 << lport)) {
+                     if (an_rv == SYS_OK)
+                     {
+                        if (phy_an_pbmp & (0x1 << lport)) 
+                        {
                             /* Clause 73 */
                             an = 1;
-                        } else {
+                        } 
+                        else 
+                        {
                             an = 0;
                         }
                      }
@@ -2899,64 +2973,83 @@ sys_error_t bcm5333x_sw_init(void)
                     an = an ? TRUE : FALSE;
                     
                     rv = PHY_AUTONEG_SET(BMD_PORT_PHY_CTRL(unit, lport), an);
-                    if (!SOC_SUCCESS(rv)) {
+                    if (!SOC_SUCCESS(rv)) 
+                    {
                         sal_printf("bcm5333x_sw_init set phy autoneg %d on lport %d failed\n", an, lport);
                     }
                     
-                    if (!an) {
+                    if (!an) 
+                    {
                         rv = PHY_SPEED_SET(BMD_PORT_PHY_CTRL(unit, lport), 10000);
-                        if (!SOC_SUCCESS(rv)) {
+                        if (!SOC_SUCCESS(rv)) 
+                        {
                             sal_printf("bcm5333x_sw_init set phy speed %d on lport %d failed\n", 10000, lport);
                         }
                     }  
-                } else {
+                } 
+                else 
+                {
                     sal_printf("\nERROR : speed % is not supported in bcm5339x_xlport_mode_set with lport !\n", speed, lport);
                 }
                 break;
             case BCM53343_DEVICE_ID:
             case BCM53344_DEVICE_ID:
             case BCM53346_DEVICE_ID:
-                if (IS_HG_PORT(lport)) {                    
+                if (IS_HG_PORT(lport)) 
+                {                    
                     an = FALSE;
 
                     rv = bmd_phy_line_interface_set(unit, lport, BMD_PHY_IF_HIGIG);
 
                     rv = PHY_AUTONEG_SET(BMD_PORT_PHY_CTRL(unit, lport), an);
-                    if (!an) {
+                    if (!an) 
+                    {
                         speed = SOC_PORT_SPEED_MAX(lport)*1000;
-                        if (speed == 11000) {
+                        if (speed == 11000) 
+                        {
                             speed = 10000;
                         }
 
                         rv = PHY_SPEED_SET(BMD_PORT_PHY_CTRL(unit, lport), speed);
-                        if (!SOC_SUCCESS(rv)) {
+                        if (!SOC_SUCCESS(rv)) 
+                        {
                             sal_printf("bcm5334x_xlport_mode_set set phy speed %d on lport %d failed %d\n", speed, lport, rv);
                         }
                     }
-                } else {
+                } 
+                else 
+                {
                     pc = BMD_PORT_PHY_CTRL(unit, lport);
 
                     speed = SOC_PORT_SPEED_MAX(lport)*1000;
-                    if (speed == 11000) {
+                    if (speed == 11000) 
+                    {
                         speed = 10000;
                     }
     
-                    if (speed == 1000) {
+                    if (speed == 1000) 
+                    {
                         an = 0;
                         
 #ifdef CFG_VENDOR_CONFIG_SUPPORT_INCLUDED
-                        if (an_rv == SYS_OK){
-                            if (phy_an_pbmp & (0x1 << lport)) {
+                        if (an_rv == SYS_OK)
+                        {
+                            if (phy_an_pbmp & (0x1 << lport)) 
+                            {
                                 /* set cl37 flag*/
-                                if (cl37_rv == SYS_OK) {
-                                    if  (phy_cl37_pbmp & (0x1 << lport)) {
+                                if (cl37_rv == SYS_OK) 
+                                {
+                                    if  (phy_cl37_pbmp & (0x1 << lport)) 
+                                    {
                                         PHY_CTRL_FLAGS(pc) |= PHY_F_CLAUSE37;
                                     }
                                 }
                                 
                                 /* set cl73 flag*/
-                                if (cl73_rv == SYS_OK) {
-                                    if  (phy_cl73_pbmp & (0x1 << lport)) {
+                                if (cl73_rv == SYS_OK) 
+                                {
+                                    if  (phy_cl73_pbmp & (0x1 << lport)) 
+                                    {
                                         PHY_CTRL_FLAGS(pc) |= PHY_F_CLAUSE73;
                                     }
                                 }
@@ -3022,11 +3115,14 @@ sys_error_t bcm5333x_sw_init(void)
     }
 
     /* Init MACs */
-    SOC_LPORT_ITER(lport) {
-        if (IS_XL_PORT(lport)) {
+    SOC_LPORT_ITER(lport) 
+    {
+        if (IS_XL_PORT(lport)) 
+        {
             hr2_sw_info.p_mac[lport] = &soc_mac_xl;
         }
-        else {
+        else 
+        {
             hr2_sw_info.p_mac[lport] = &soc_mac_uni;
         }
         MAC_INIT(hr2_sw_info.p_mac[lport], unit, lport);

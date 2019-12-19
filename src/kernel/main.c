@@ -124,24 +124,28 @@ main(void)
    	   sal_printf("bde module init fail\n");
    } 
 #endif
+    /**主要是串口、计时器、flash的初始化过程*/
     board_early_init();
-
+    /**主要是堆空间的初始化*/
     sal_init();	
 
-
+    /**初始化任务列表为空*/
     background_init();
-#if CFG_TIMER_CALLBACK_SUPPORT    
+#if CFG_TIMER_CALLBACK_SUPPORT  
+    /**系统的计时器任务初始化，清除所有的定时器处理任务，项任务队列中添加计时器任务处理*/
     sys_timer_init();
 #endif /* CFG_TIMER_CALLBACK_SUPPORT */
 
 
 #if CFG_LINKCHANGE_CALLBACK_SUPPORT
+    /**初始化连接状态变化的处理函数，设置默认的连接状态为未连接，向计时器任务处理添加连接状态的处理*/
     sys_linkchange_init();
 #endif /* CFG_LINKCHANGE_CALLBACK_SUPPORT */
-    
+    /**系统单元初始化，即系统出厂设置相关信息*/
     system_utils_init();
 
 #if CFG_UIP_STACK_ENABLED
+    /**网络单元的初始化，即向端口连接变化时添加连接处理函数*/
     net_utils_init();
 #endif /* CFG_UIP_STACK_ENABLED */
 

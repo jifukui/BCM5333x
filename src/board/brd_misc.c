@@ -75,8 +75,7 @@
 #define     CD_NO_CABLE         0x0020 /* No cable connected */
 #endif /* CFG_HW_CABLE_DIAG_INCLUDED */
 
-sys_error_t
-_port_cable_diag(uint8 unit, uint8 lport, int16 *fault, int16 *length)
+sys_error_t _port_cable_diag(uint8 unit, uint8 lport, int16 *fault, int16 *length)
 {
 #if defined(CFG_HW_CABLE_DIAG_INCLUDED)
 
@@ -151,8 +150,7 @@ _port_cable_diag(uint8 unit, uint8 lport, int16 *fault, int16 *length)
 /*
  * Cable Diagnostics
  */
-sys_error_t
-brdimpl_port_cable_diag(uint16 uport, port_cable_diag_t *status)
+sys_error_t brdimpl_port_cable_diag(uint16 uport, port_cable_diag_t *status)
 {
     sys_error_t rv = SYS_OK;
 
@@ -198,8 +196,7 @@ brdimpl_port_cable_diag(uint16 uport, port_cable_diag_t *status)
 #ifdef CFG_RESET_BUTTON_INCLUDED
 static BOOL reset_button_detect = FALSE;
 
-void
-brdimpl_reset_button_detect(void *param) REENTRANT
+void brdimpl_reset_button_detect(void *param) REENTRANT
 {
     BOOL hard_reset;
 

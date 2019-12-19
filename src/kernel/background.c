@@ -78,15 +78,15 @@ STATIC uint8 bg_task_flag[CFG_MAX_BACKGROUND_TASKS];
     *  Return value:
     *      nothing
     ********************************************************************* */
-
-void
-APIFUNC(background_init)(void) REENTRANT
+/**初始化背景任务列表为空*/
+void APIFUNC(background_init)(void) REENTRANT
 {
 #if CFG_SAL_LIB_SUPPORT_ENABLED
     sal_memset(bg_tasklist, 0, sizeof(bg_tasklist));
 #else /* !CFG_SAL_LIB_SUPPORT_ENABLED */
     int i;
-    for (i=0; i < CFG_MAX_BACKGROUND_TASKS; i++) {
+    for (i=0; i < CFG_MAX_BACKGROUND_TASKS; i++) 
+    {
         bg_tasklist[i] = NULL;
         bg_task_flag[i] = 0;
     }

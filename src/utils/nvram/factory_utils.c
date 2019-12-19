@@ -49,32 +49,33 @@
 #include "utils/factory.h"
 
 #if (CFG_FLASH_SUPPORT_ENABLED && defined(CFG_FACTORY_CONFIG_INCLUDED))
-
-sys_error_t
-factory_config_get(factory_config_t *pcfg)
+/**获取出厂配置*/
+sys_error_t factory_config_get(factory_config_t *pcfg)
 {
     factory_config_t cfg;
     
     /*
      * Check block magic
      */
+    /**读取配置*/
     flash_read((hsaddr_t)FACTORY_CONFIG_BASE_ADDR+FACTORY_CONFIG_OFFSET,
                (void *)&cfg, sizeof(factory_config_t)); 
-
-    if (cfg.magic != FACTORY_CONFIG_MAGIC) {
+    /**判断是否是合法的配置信息，即此段文字为FACT*/
+    if (cfg.magic != FACTORY_CONFIG_MAGIC) 
+    {
         /* Block magic must be matched */
        return SYS_ERR;
     }
-
-    if (pcfg) {
+    /**对于是合法的配置信息的处理，设置配置信息*/
+    if (pcfg) 
+    {
         sal_memcpy(pcfg, &cfg, sizeof(factory_config_t));
     }
 
     return SYS_OK;
 }
-
-sys_error_t
-factory_config_set(factory_config_t *cfg)
+/**设置出厂配置*/
+sys_error_t factory_config_set(factory_config_t *cfg)
 {
     factory_config_t *pcfg;
     uint8 *buf;

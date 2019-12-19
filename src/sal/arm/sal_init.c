@@ -52,14 +52,14 @@ extern long mem_heapstart, mem_dmaheapstart;
 extern void sal_console_init(void);
 extern void sal_alloc_init(void *addr, uint16 len);
 extern void sal_dma_alloc_init(void *addr, uint16 len);
-
-void
-APIFUNC(sal_init)(void) REENTRANT
+/***/
+void APIFUNC(sal_init)(void) REENTRANT
 {
 #if CFG_CONSOLE_ENABLED
+    /**串口的初始化其实是个空函数*/
     sal_console_init();
 #endif /* CFG_CONSOLE_ENABLED */
-
+    /**设置堆空间*/
     sal_alloc_init((void *)mem_heapstart, ((CFG_HEAP_SIZE)*1024));
     sal_dma_alloc_init((void *)mem_dmaheapstart, CFG_DMA_HEAP_SIZE);
 }

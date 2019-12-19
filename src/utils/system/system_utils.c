@@ -87,9 +87,8 @@ static char product_serial_num[MAX_SERIAL_NUM_LEN + 1] = DEFAULT_SERIAL_NUMBER;
 #endif /* CFG_PRODUCT_REGISTRATION_INCLUDED */
 
 static int hexdigit_to_decimal(int digit);
-
-static int
-hexdigit_to_decimal(int digit)
+/**将十六进制数转换为十进制数*/
+static int hexdigit_to_decimal(int digit)
 {
     if (digit >= '0' && digit <= '9') return (digit - '0'     );
     if (digit >= 'a' && digit <= 'f') return (digit - 'a' + 10);
@@ -97,8 +96,7 @@ hexdigit_to_decimal(int digit)
     return 0;
 }
 
-sys_error_t
-parse_mac_address(const char *str, uint8 *macaddr)
+sys_error_t parse_mac_address(const char *str, uint8 *macaddr)
 {
     const char *s;
     int i;
@@ -137,8 +135,7 @@ parse_mac_address(const char *str, uint8 *macaddr)
 }
 
 #ifdef CFG_PRODUCT_REGISTRATION_INCLUDED
-sys_error_t
-set_registration_status(uint8 status)
+sys_error_t set_registration_status(uint8 status)
 {
     if (status > REGISTRATION_STATUS_REGISTERED) {
         return SYS_ERR_PARAMETER;
@@ -213,14 +210,15 @@ set_serial_num(uint8 valid, const char *serial_num)
 }
 #endif /* CFG_PRODUCT_REGISTRATION_INCLUDED */
 
-sys_error_t
-set_system_name(const char *name)
+sys_error_t set_system_name(const char *name)
 {
-    if (name == NULL) {
+    if (name == NULL) 
+    {
         return SYS_ERR_PARAMETER;
     }
 
-    if (sal_strlen(name) > MAX_SYSTEM_NAME_LEN) {
+    if (sal_strlen(name) > MAX_SYSTEM_NAME_LEN) 
+    {
         return SYS_ERR_PARAMETER;
     }
 
@@ -231,9 +229,8 @@ set_system_name(const char *name)
 
     return SYS_OK;
 }
-
-sys_error_t
-get_system_name(char *buf, uint8 len)
+/**获取系统名称*/
+sys_error_t get_system_name(char *buf, uint8 len)
 {
     if (buf == NULL || len == 0) {
         return SYS_ERR_PARAMETER;
@@ -247,23 +244,24 @@ get_system_name(char *buf, uint8 len)
 
     return SYS_OK;
 }
-
-sys_error_t
-get_system_mac(uint8 *mac_buf)
+/**获取系统的MAC地址*/
+sys_error_t get_system_mac(uint8 *mac_buf)
 {
-    if (mac_buf == NULL) {
+    if (mac_buf == NULL) 
+    {
         return SYS_ERR_PARAMETER;
     }
     sal_memcpy(mac_buf, system_mac, 6);
     return SYS_OK;
 }
-
-void
-system_utils_init()
+/**系统单元的初始化*/
+void system_utils_init()
 {
 #ifdef CFG_FACTORY_CONFIG_INCLUDED
     factory_config_t cfg;
-    if (factory_config_get(&cfg) == SYS_OK) {
+    /**获取出厂配置成功的处理*/
+    if (factory_config_get(&cfg) == SYS_OK) 
+    {
         sal_memcpy(system_mac, cfg.mac, 6);
 #ifdef CFG_PRODUCT_REGISTRATION_INCLUDED
         product_serial_num_magic = cfg.serial_num_magic;
@@ -274,10 +272,10 @@ system_utils_init()
 #ifdef CFG_NVRAM_SUPPORT_INCLUDED
     const char *str_ptr;
     uint8 mac_addr[6];
-
+    /**查找MAC地址的参数*/
     str_ptr = nvram_get("macaddr");
-    if (str_ptr &&
-        parse_mac_address(str_ptr, (uint8 *)&mac_addr) == SYS_OK) {
+    if (str_ptr &&parse_mac_address(str_ptr, (uint8 *)&mac_addr) == SYS_OK) 
+    {
         sal_memcpy(system_mac, mac_addr, 6);
     }
 #endif /* CFG_NVRAM_SUPPORT_INCLUDED */

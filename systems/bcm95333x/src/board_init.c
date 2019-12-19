@@ -209,7 +209,7 @@ int board_phy_init_callback(phy_ctrl_t *pc) {
 #if CFG_CONSOLE_ENABLED
 #define UART_READREG(r)    SYS_REG_READ8((CFG_UART_BASE+(r)))
 #define UART_WRITEREG(r,v) SYS_REG_WRITE8((CFG_UART_BASE+(r)), v)
-/**设备控制串口的初始化 */
+/**设备控制串口的初始化，这里应该使用的是串口1 */
 void board_console_init(uint32 baudrate, uint32 clk_hz)
 {
     uint32 brtc;
@@ -219,9 +219,9 @@ void board_console_init(uint32 baudrate, uint32 clk_hz)
     brtc = BRTC(clk_hz, baudrate);
     brtc /= 2;
 #endif
-
+    /**设置串口的中断使能寄存器复位*/
     UART_WRITEREG(R_UART_IER, 0x0);
-
+    /**设置串口的线控制寄存器，设置使能访问除数锁存器设置禁止间隔控制，无校验位，1停止位，8数据位*/
     UART_WRITEREG(R_UART_CFCR, CFCR_DLAB | CFCR_8BITS);
     UART_WRITEREG(R_UART_DATA, 0x0);
     UART_WRITEREG(R_UART_IER, 0x0);
@@ -253,12 +253,13 @@ void board_early_init(void)
 {
 #if CFG_CONSOLE_ENABLED
    /* Initialize UART using default clock */
-   /**串口的初始化*/
+   /**串口的初始化,设置串口的波特率和时钟*/
    board_console_init(CFG_UART_BAUDRATE, BOARD_CCA_UART_CLOCK);
 #endif /* CFG_CONSOLE_ENABLED */
    /* Initialize timer using default clock */
+   /**使能循环计数*/
    enable_arm_cyclecount();
-
+   /**初始化计时器*/
    sal_timer_init(BOARD_CPU_CLOCK, TRUE);
 
 
@@ -270,7 +271,8 @@ void board_early_init(void)
 #if CFG_FLASH_SUPPORT_ENABLED
    /* Flash driver init */
   // flash_init(NULL);
-     flash_init(&flashtest);
+    /**flash的初始化*/
+    flash_init(&flashtest);
 #endif /* CFG_FLASH_SUPPORT_ENABLED */
 
 }
@@ -453,6 +455,7 @@ static void bcm5333x_fp_init(void)
  * Returns:
  *   SYS_OK or SYS_XXX
  */
+/**设备初始化函数*/
 sys_error_t board_init(void)
 {
     sys_error_t rv = SYS_OK;
@@ -460,51 +463,54 @@ sys_error_t board_init(void)
 #ifdef __BOOTLOADER__
 #if __BOOTLOADER_UART_TRAP__
         sal_usleep(500000);
+        /**对于串口状态的时报的处理*/
         if (sal_char_avail() == FALSE)
 #endif /* __BOOTLODER_UART_TRAP__ */
 
-                {
-                    hsaddr_t loadaddr;
-                    /**获取加载模式 */
-                    if (board_loader_mode_get(NULL, FALSE) != LM_UPGRADE_FIRMWARE) 
-                    {
+        {
+            hsaddr_t loadaddr;
+            /**获取加载模式 */
+            if (board_loader_mode_get(NULL, FALSE) != LM_UPGRADE_FIRMWARE) 
+            {
 #ifdef CFG_DUAL_IMAGE_INCLUDED
-                        /* Determine which image to boot */
-                        /**获取加载地址 */
-                        if (board_select_boot_image(&loadaddr)) 
-                        {
+                /* Determine which image to boot */
+                /**获取加载地址 */
+                if (board_select_boot_image(&loadaddr)) 
+                {
 #else
-                        /* Validate firmware image if not requested to upgrade firmware */
-                        /**检测映像文件是否正确 */
-                        if (board_check_image(BOARD_FIRMWARE_ADDR, &loadaddr)) 
-                        {
+                /* Validate firmware image if not requested to upgrade firmware */
+                /**检测映像文件是否正确 */
+                if (board_check_image(BOARD_FIRMWARE_ADDR, &loadaddr)) 
+                {
 #endif /* CFG_DUAL_IMAGE_INCLUDED */
-                            /* launch firmware */
+                    /* launch firmware */
 #if CFG_CONSOLE_ENABLED
-                            sal_printf("Load program at 0x%08lX...\n", loadaddr);
+                    sal_printf("Load program at 0x%08lX...\n", loadaddr);
 #endif /* CFG_CONSOLE_ENABLED */
-                            /**加载映像文件 */
-                            board_load_program(loadaddr);
-                        }
-                        /* Stay in loader in case of invalid firmware */
-                    }
+                    /**加载映像文件 */
+                    board_load_program(loadaddr);
                 }
+                /* Stay in loader in case of invalid firmware */
+            }
+        }
 
 
 #endif /* __BOOTLOADER__ */
 
 #if CFG_FLASH_SUPPORT_ENABLED
 #if defined(CFG_NVRAM_SUPPORT_INCLUDED) || defined(CFG_VENDOR_CONFIG_SUPPORT_INCLUDED)
-       nvram_init();
+    /**ram的初始化*/
+    nvram_init();
 #endif /* defined(CFG_NVRAM_SUPPORT_INCLUDED) || defined(CFG_VENDOR_CONFIG_SUPPORT_INCLUDED)  */
 #endif /* CFG_FLASH_SUPPORT_ENABLED */
 
-
+    /**设置设备PHY初始化的回调函数*/
     bmd_phy_init_cb_register(board_phy_init_callback);
-
+    /**交换机的初始化*/
     rv = bcm5333x_sw_init();
 
-    if (rv != SYS_OK) {
+    if (rv != SYS_OK) 
+    {
         return rv;
     }
 
@@ -513,14 +519,17 @@ sys_error_t board_init(void)
 #endif /* CFG_TIMER_USE_INTERRUPT */
 
 #ifdef CFG_SWITCH_VLAN_INCLUDED
+    /**VLAN的初始化*/
     _brdimpl_vlan_init();
 #endif /* CFG_SWITCH_VLAN_INCLUDED */
 
 #ifdef CFG_SWITCH_QOS_INCLUDED
+    /**QoS的初始化*/
     bcm5333x_qos_init();
 #endif /* CFG_SWITCH_QOS_INCLUDED */
 
 #ifdef CFG_SWITCH_RATE_INCLUDED
+    /**速度的初始化*/
     bcm5333x_rate_init();
 #endif /* CFG_SWITCH_RATE_INCLUDED */
 #ifdef CFG_SWITCH_LAG_INCLUDED

@@ -76,12 +76,14 @@
 #define BRTC(clk,baud)      (((clk) + 8*(baud)) / (16*(baud)))
 
 /* interrupt enable register */
+/**中断使能寄存器*/
 #define IER_ERXRDY  0x1 /* int on rx ready */
 #define IER_ETXRDY  0x2 /* int on tx ready */
 #define IER_ERLS    0x4 /* int on line status change */
 #define IER_EMSC    0x8 /* int on modem status change */
 
 /* interrupt identification register */
+/**中断定义寄存器*/
 #define IIR_IMASK   0xf /* mask */
 #define IIR_RXTOUT  0xc /* receive timeout */
 #define IIR_RLS     0x6 /* receive line status */
@@ -92,6 +94,7 @@
 #define IIR_FIFO_MASK   0xc0    /* set if FIFOs are enabled */
 
 /* fifo control register */
+/**先入先出控制寄存器*/
 #define FIFO_ENABLE 0x01    /* enable fifo */
 #define FIFO_RCV_RST    0x02    /* reset receive fifo */
 #define FIFO_XMT_RST    0x04    /* reset transmit fifo */
@@ -102,6 +105,7 @@
 #define FIFO_TRIGGER_14 0xc0    /* trigger at 14 chars */
 
 /* character format control register */
+/**字符格式控制寄存器*/
 #define CFCR_DLAB   0x80    /* divisor latch */
 #define CFCR_SBREAK 0x40    /* send break */
 #define CFCR_PZERO  0x30    /* zero parity */
@@ -116,6 +120,7 @@
 #define CFCR_5BITS  0x00    /* 5 data bits */
 
 /* modem control register */
+/**模式控制寄存器*/
 #define MCR_LOOPBACK    0x10    /* loopback */
 #define MCR_IENABLE 0x08    /* output 2 = int enable */
 #define MCR_DRS     0x04    /* output 1 = xxx */
@@ -123,6 +128,7 @@
 #define MCR_DTR     0x01    /* enable DTR */
 
 /* line status register */
+/**现状态寄存器*/
 #define LSR_RCV_FIFO    0x80    /* error in receive fifo */
 #define LSR_TSRE    0x40    /* transmitter empty */
 #define LSR_TXRDY   0x20    /* transmitter ready */
@@ -134,6 +140,7 @@
 #define LSR_RCV_MASK    0x1f
 
 /* modem status register */
+/**模式状态寄存器*/
 #define MSR_DCD     0x80    /* DCD active */
 #define MSR_RI      0x40    /* RI  active */
 #define MSR_DSR     0x20    /* DSR active */

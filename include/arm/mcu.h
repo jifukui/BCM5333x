@@ -70,6 +70,7 @@
 #define CODE
 
 /* System register read/write */
+/**获取8位寄存器的数据*/
 #define SYS_REG_READ8(reg)       \
             (*(volatile uint8 *)(reg))
 #define SYS_REG_WRITE8(reg,val)  \

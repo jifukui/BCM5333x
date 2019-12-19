@@ -64,7 +64,14 @@ typedef uint32 uintptr_t;
     ********************************************************************* */
 
 typedef enum { memnode_free = 0, memnode_alloc } memnode_status_t;
-
+/**内存节点
+ * seal
+ * next
+ * length
+ * status
+ * data
+ * memnodeptr
+*/
 typedef struct memnode_s {
     uint32 seal;
     struct memnode_s *next;     /* pointer to next node */
@@ -73,7 +80,7 @@ typedef struct memnode_s {
     uint8  *data;               /* points to actual user data */
     void   *memnodeptr;         /* memnode back pointer (see comments) */
 } memnode_t;
-
+/**内存池结构体*/
 struct mempool_s {
     memnode_t *root;            /* pointer to root node */
     uint8     *base;            /* base of memory region */
@@ -90,9 +97,8 @@ typedef struct mempool_s mempool_t;
 
 static mempool_t kmempool;          /* default pool */
 static mempool_t dmamempool;        /* DMA pool */
-
-static void
-_sal_alloc_init(mempool_t *p, void *addr, uint16 len)
+/**堆空间的初始化*/
+static void _sal_alloc_init(mempool_t *p, void *addr, uint16 len)
 {
     p->root = (memnode_t *)addr;
     p->root->seal = MEMNODE_SEAL;
@@ -104,15 +110,13 @@ _sal_alloc_init(mempool_t *p, void *addr, uint16 len)
     p->base = (uint8 *)addr;
     p->length = len;
 }
-
-void
-sal_alloc_init(void *addr, uint16 len)
+/**普通堆空间的初始化*/
+void sal_alloc_init(void *addr, uint16 len)
 {
     _sal_alloc_init(&kmempool, addr, len);
 }
-
-void
-sal_dma_alloc_init(void *addr, uint16 len)
+/**DMA堆空间的初始化*/
+void sal_dma_alloc_init(void *addr, uint16 len)
 {
     _sal_alloc_init(&dmamempool, addr, len);
 }
