@@ -107,16 +107,17 @@ void APIFUNC(background_init)(void) REENTRANT
     *  Return value:
     *      nothing
     ********************************************************************* */
-
-void
-APIFUNC(task_add)(BACKGROUND_TASK_FUNC func, void *arg) REENTRANT
+/**添加任务，向任务数组中添加任务,func为任务函数,arg为任务的参数*/
+void APIFUNC(task_add)(BACKGROUND_TASK_FUNC func, void *arg) REENTRANT
 {
     int idx;
 
     SAL_ASSERT(func != NULL);
     SAL_DEBUGF(("task_add: %p\n", func));
-    for (idx = 0; idx < CFG_MAX_BACKGROUND_TASKS; idx++) {
-        if (bg_tasklist[idx] == NULL) {
+    for (idx = 0; idx < CFG_MAX_BACKGROUND_TASKS; idx++) 
+    {
+        if (bg_tasklist[idx] == NULL) 
+        {
             bg_tasklist[idx] = func;
             bg_args[idx] = arg;
             return;
@@ -138,16 +139,17 @@ APIFUNC(task_add)(BACKGROUND_TASK_FUNC func, void *arg) REENTRANT
     *  Return value:
     *      nothing
     ********************************************************************* */
-
-void
-APIFUNC(task_suspend)(BACKGROUND_TASK_FUNC func) REENTRANT
+/**设置任务为阻塞状态，设置任务的标记为阻塞状态*/
+void APIFUNC(task_suspend)(BACKGROUND_TASK_FUNC func) REENTRANT
 {
     int idx;
 
     SAL_ASSERT(func != NULL);
     SAL_DEBUGF(("task_suspend: %p\n", func));
-    for (idx = 0; idx < CFG_MAX_BACKGROUND_TASKS; idx++) {
-        if (bg_tasklist[idx] == func) {
+    for (idx = 0; idx < CFG_MAX_BACKGROUND_TASKS; idx++) 
+    {
+        if (bg_tasklist[idx] == func) 
+        {
             bg_task_flag[idx] |= TASK_FLAG_SUSPEND;
             return;
         }
@@ -166,16 +168,17 @@ APIFUNC(task_suspend)(BACKGROUND_TASK_FUNC func) REENTRANT
     *  Return value:
     *      nothing
     ********************************************************************* */
-
-void
-APIFUNC(task_resume)(BACKGROUND_TASK_FUNC func) REENTRANT
+/**设置任务处于恢复状态*/
+void APIFUNC(task_resume)(BACKGROUND_TASK_FUNC func) REENTRANT
 {
     int idx;
 
     SAL_ASSERT(func != NULL);
     SAL_DEBUGF(("task_resume: %p\n", func));
-    for (idx = 0; idx < CFG_MAX_BACKGROUND_TASKS; idx++) {
-        if (bg_tasklist[idx] == func) {
+    for (idx = 0; idx < CFG_MAX_BACKGROUND_TASKS; idx++) 
+    {
+        if (bg_tasklist[idx] == func) 
+        {
             bg_task_flag[idx] &= (~TASK_FLAG_SUSPEND);
             return;
         }
@@ -197,24 +200,28 @@ APIFUNC(task_resume)(BACKGROUND_TASK_FUNC func) REENTRANT
     ********************************************************************* */
 
 #ifndef __BOOTLOADER__
-void
-APIFUNC(task_remove)(BACKGROUND_TASK_FUNC func) REENTRANT
+/**删除任务*/
+void APIFUNC(task_remove)(BACKGROUND_TASK_FUNC func) REENTRANT
 {
     int idx;
 
     SAL_ASSERT(func);
     SAL_DEBUGF(("task_remove: %p\n", func));
-    for (idx = 0; idx < CFG_MAX_BACKGROUND_TASKS; idx++) {
-        if (bg_tasklist[idx] == func) {
+    for (idx = 0; idx < CFG_MAX_BACKGROUND_TASKS; idx++) 
+    {
+        if (bg_tasklist[idx] == func) 
+        {
             break;
         }
     }
 
-    if (idx == CFG_MAX_BACKGROUND_TASKS) {
+    if (idx == CFG_MAX_BACKGROUND_TASKS) 
+    {
         return;
     }
 
-    for (; idx < CFG_MAX_BACKGROUND_TASKS - 1; idx++) {
+    for (; idx < CFG_MAX_BACKGROUND_TASKS - 1; idx++) 
+    {
         bg_tasklist[idx] = bg_tasklist[idx + 1];
         bg_args[idx] = bg_args[idx + 1];
     }
@@ -236,19 +243,21 @@ APIFUNC(task_remove)(BACKGROUND_TASK_FUNC func) REENTRANT
     *  Return value:
     *      nothing
     ********************************************************************* */
-
-void
-APIFUNC(background)(void) REENTRANT
+/**任务的调用控制*/
+void APIFUNC(background)(void) REENTRANT
 {
     int idx;
     BACKGROUND_TASK_FUNC func;
 
-    for (idx = 0; idx < CFG_MAX_BACKGROUND_TASKS; idx++) {
+    for (idx = 0; idx < CFG_MAX_BACKGROUND_TASKS; idx++) 
+    {
         func = bg_tasklist[idx];
-        if (func == NULL) {
+        if (func == NULL) 
+        {
             break;
         }
-        if (bg_task_flag[idx] & TASK_FLAG_SUSPEND) {
+        if (bg_task_flag[idx] & TASK_FLAG_SUSPEND) 
+        {
             continue;
         }
         (*func)(bg_args[idx]);

@@ -44,7 +44,7 @@
 #
 # Addresses of things unless overridden
 #
-TOOLCHAIN_DIR :=/home/jifukui/toolchain/gcc-arm-none-eabi-4_8-2014q1
+TOOLCHAIN_DIR :=/home/jifukui/gcc_arm_embedded/gcc-arm-none-eabi-4_8-2014q1
 TOOLPREFIX :=arm-none-eabi-
 ifeq ($(strip ${CFG_GNU_TOOLCHAIN}),1)
 include ${BUILD_DIR}/src/tools_gnu.mk
