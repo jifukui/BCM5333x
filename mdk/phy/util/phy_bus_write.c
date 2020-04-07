@@ -51,10 +51,14 @@
 #include <phy/phy_xgs_iblk.h>
 #include <phy/phy_xaui_iblk.h>
 #include <phy/phy_aer_iblk.h>
-
-int
-phy_bus_write(phy_ctrl_t *pc, uint32_t reg, uint32_t data)
+/**PHY总线上写原始数据*/
+int phy_bus_write(phy_ctrl_t *pc, uint32_t reg, uint32_t data)
 {
-    /* Write raw PHY data */
+    /**设置PHY的原始值
+     * pc为设备的控制结构体
+     * 在只有一个芯片的情况下pc->unit的值为1.
+     * reg为寄存器的地址
+     * data为需要设置的数值
+     */
     return pc->bus->write(pc->unit, PHY_CTRL_BUS_ADDR(pc), reg, data);
 }

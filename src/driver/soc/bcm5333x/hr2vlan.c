@@ -68,9 +68,12 @@ static vlan_type_t hr2_vlan_type = VT_COUNT;
  *  Note :
  *
  */
-
-sys_error_t
-bcm5333x_pvlan_egress_set(uint8 unit, uint8 lport, pbmp_t lpbmp)
+/**对于基于Port的VLAN的出口数据设置
+ * unit为设备单元号
+ * lport为设备逻辑端口号
+ * lpbmp为
+*/
+sys_error_t bcm5333x_pvlan_egress_set(uint8 unit, uint8 lport, pbmp_t lpbmp)
 {
     sys_error_t rv = SYS_OK;
     uint32 entry, all_mask;
@@ -83,12 +86,14 @@ bcm5333x_pvlan_egress_set(uint8 unit, uint8 lport, pbmp_t lpbmp)
 
 #ifdef CFG_SWITCH_LOOPDETECT_INCLUDED
     /* In the same time, update redirect profile for the port */
+    /**更新端口的配置文件*/
     bcm5333x_mem_get(0, M_IFP_REDIRECTION_PROFILE(lport), redirection_entry, 2);
     redirection_entry[0] &= (entry & all_mask);
     bcm5333x_mem_set(0, M_IFP_REDIRECTION_PROFILE(lport), redirection_entry, 2);
 #endif /* CFG_SWITCH_LOOPDETECT_INCLUDED */
 
     entry = ~(entry & all_mask);
+    //设置对于未知的单播的屏蔽
     rv = bcm5333x_mem_set(0, M_EGR_MASK(lport), &entry, 1);
 
     return rv;
@@ -108,8 +113,7 @@ bcm5333x_pvlan_egress_set(uint8 unit, uint8 lport, pbmp_t lpbmp)
  *  Note :
  *
  */
-sys_error_t
-bcm5333x_pvlan_egress_get(uint8 unit, uint8 lport, pbmp_t *lpbmp)
+sys_error_t bcm5333x_pvlan_egress_get(uint8 unit, uint8 lport, pbmp_t *lpbmp)
 {
     sys_error_t rv = SYS_OK;
     uint32 entry;
@@ -533,8 +537,8 @@ bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
  *  Note :
  *
  */
-sys_error_t
-bcm5333x_vlan_reset(uint8 unit)
+/**交换机VLAN的复位*/
+sys_error_t bcm5333x_vlan_reset(uint8 unit)
 {
     sys_error_t rv = SYS_OK;
     int i;

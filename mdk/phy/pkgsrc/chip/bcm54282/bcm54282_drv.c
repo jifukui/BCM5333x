@@ -128,6 +128,7 @@ static int _bcm54282_inst(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
+/**获取远端phy的能力*/
 static int _bcm54282_abiliby_remote_get(phy_ctrl_t *pc, uint32_t *ability)
 {
     int ioerr = 0;
@@ -143,14 +144,21 @@ static int _bcm54282_abiliby_remote_get(phy_ctrl_t *pc, uint32_t *ability)
     pause = MII_ANPr_PAUSEf_GET(mii_anp);
 
     /* retrieve "pause" abilities */
-    if (asym_pause) {
-        if (pause) {
+    if (asym_pause) 
+    {
+        if (pause) 
+        {
             *ability |= PHY_ABIL_PAUSE_RX;
-        } else {
+        } 
+        else 
+        {
             *ability |= PHY_ABIL_PAUSE_TX;
         }
-    } else {
-        if (pause) {
+    } 
+    else 
+    {
+        if (pause) 
+        {
             *ability |= PHY_ABIL_PAUSE;
         }
     }

@@ -50,8 +50,7 @@
 #include <phy/phy_brcm_rdb.h>
 
 
-int
-phy_brcm_rdb_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
+int phy_brcm_rdb_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
 {
     int ioerr = 0;
     uint32_t regaddr = addr & 0xffff;

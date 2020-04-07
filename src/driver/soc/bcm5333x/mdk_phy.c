@@ -927,7 +927,7 @@ phy_tsc_iblk_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data);
 #define BCMI_TSC_AN_ABIL_RESOLUTION_STATUSr  (0x0000c1ab)
 #define SOC_PA_PAUSE_TX        (1 << 0)       /* TX pause capable */
 #define SOC_PA_PAUSE_RX        (1 << 1)       /* RX pause capable */
-
+/**获取PHY是否支持暂停*/
 int phy_pause_get(uint8 unit, uint8 lport, BOOL *tx_pause, BOOL *rx_pause)
 {
     int rv;
@@ -946,12 +946,14 @@ int phy_pause_get(uint8 unit, uint8 lport, BOOL *tx_pause, BOOL *rx_pause)
         rv = PHY_BUS_READ(pc, BCM54282_MII_ANPr, &anp);
     }
 
-    if (CDK_FAILURE(rv)) {
+    if (CDK_FAILURE(rv)) 
+    {
         PHY_WARN(pc, ("read remote ability failed!\n"));
         return rv;
     }
 
-    switch (anp & (MII_ANA_PAUSE | MII_ANA_ASYM_PAUSE)) {
+    switch (anp & (MII_ANA_PAUSE | MII_ANA_ASYM_PAUSE)) 
+    {
         case MII_ANA_PAUSE:
             remote_advert = SOC_PA_PAUSE_TX | SOC_PA_PAUSE_RX;
             break;

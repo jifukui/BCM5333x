@@ -82,20 +82,25 @@
  * Returns:
  *      PHY instance
  */
-static int
-_bcm56150_inst(phy_ctrl_t *pc)
+/**56150的初始化*/
+static int _bcm56150_inst(phy_ctrl_t *pc)
 {
     int inst = PHY_CTRL_PHY_INST(pc);
 
-    if (inst < 0) {
+    if (inst < 0) 
+    {
         uint32_t addr = PHY_CTRL_PHY_ADDR(pc) & 0x1f;
         addr -= 10;
         inst  = addr + ((addr > 0) ? (-1) : 1);
-    } else {
-        if ((inst >= 0) && (inst < 8)) {
+    } 
+    else 
+    {
+        if ((inst >= 0) && (inst < 8)) 
+        {
             inst &= LANE_NUM_MASK;
             inst  = 8 - (inst + inst / 4);
-        } else if (inst < 16) {
+        } else if (inst < 16) 
+        {
             inst &= LANE_NUM_MASK;
             inst  = 8 + (inst + inst / 4);
         }
@@ -120,7 +125,7 @@ _bcm56150_inst(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-/**探测设备*/
+/**探测设备，即判断这个设备是否是56150*/
 static int bcm56150_phy_probe(phy_ctrl_t *pc)
 {
     uint32_t phyid0, phyid1;
@@ -148,8 +153,8 @@ static int bcm56150_phy_probe(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_notify(phy_ctrl_t *pc, phy_event_t event)
+/**PHY状态变化的提示*/
+static int bcm56150_phy_notify(phy_ctrl_t *pc, phy_event_t event)
 {
     return bcm54282_drv.pd_notify(pc, event);
 }
@@ -164,8 +169,8 @@ bcm56150_phy_notify(phy_ctrl_t *pc, phy_event_t event)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_reset(phy_ctrl_t *pc)
+/**设置PHY复位*/
+static int bcm56150_phy_reset(phy_ctrl_t *pc)
 {
     return bcm54282_drv.pd_reset(pc);
 }
@@ -180,8 +185,8 @@ bcm56150_phy_reset(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_init(phy_ctrl_t *pc)
+/**驱动的初始化*/
+static int bcm56150_phy_init(phy_ctrl_t *pc)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -314,13 +319,17 @@ bcm56150_phy_init(phy_ctrl_t *pc)
     It can be used to get to the phy_addr associated with the phy
     base port */
 
-    if (PHY_CTRL_INST(pc) & PHY_INST_VALID) {
+    if (PHY_CTRL_INST(pc) & PHY_INST_VALID) 
+    {
         offset = PHY_CTRL_INST(pc) & LANE_NUM_MASK;
-    } else {
+    } 
+    else 
+    {
         offset = pc->addr & LANE_NUM_MASK;
     }
 
-    if (offset < 0) {
+    if (offset < 0) 
+    {
         return CDK_E_IO;
     }
 
@@ -328,7 +337,8 @@ bcm56150_phy_init(phy_ctrl_t *pc)
     orig_inst = _bcm56150_inst(pc);
 
     /* Switch to instance 0 for AutogrEEEn configuration */
-    if (phy_ctrl_change_inst(pc, 8, _bcm56150_inst) < 0) {
+    if (phy_ctrl_change_inst(pc, 8, _bcm56150_inst) < 0) 
+    {
         return CDK_E_FAIL;
     }
 
@@ -372,12 +382,14 @@ bcm56150_phy_init(phy_ctrl_t *pc)
     ioerr += WRITE_MII_ANAr(pc, mii_ana);
 
     /* Call up the PHY chain */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         rv = PHY_INIT(PHY_CTRL_NEXT(pc));
     }
 
     /* Set default medium */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         PHY_NOTIFY(pc, PhyEvent_ChangeToCopper);
     }
 
@@ -396,8 +408,8 @@ bcm56150_phy_init(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
+/**获取PHY的连接状态*/
+static int bcm56150_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
 {
     return bcm54282_drv.pd_link_get(pc, link, autoneg_done);
 }
@@ -413,8 +425,8 @@ bcm56150_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_duplex_set(phy_ctrl_t *pc, int duplex)
+/**设置双工模式*/
+static int bcm56150_phy_duplex_set(phy_ctrl_t *pc, int duplex)
 {
     return bcm54282_drv.pd_duplex_set(pc, duplex);
 }
@@ -431,8 +443,8 @@ bcm56150_phy_duplex_set(phy_ctrl_t *pc, int duplex)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_duplex_get(phy_ctrl_t *pc, int *duplex)
+/**获取双工模式*/
+static int bcm56150_phy_duplex_get(phy_ctrl_t *pc, int *duplex)
 {
     return bcm54282_drv.pd_duplex_get(pc, duplex);
 }
@@ -448,8 +460,8 @@ bcm56150_phy_duplex_get(phy_ctrl_t *pc, int *duplex)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
+/**设置速度*/
+static int bcm56150_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
 {
     return bcm54282_drv.pd_speed_set(pc, speed);
 }
@@ -466,8 +478,8 @@ bcm56150_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
+/**获取速度*/
+static int bcm56150_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
 {
     return bcm54282_drv.pd_speed_get(pc, speed);
 }
@@ -483,8 +495,8 @@ bcm56150_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_autoneg_set(phy_ctrl_t *pc, int autoneg)
+/**设置自适应状态*/
+static int bcm56150_phy_autoneg_set(phy_ctrl_t *pc, int autoneg)
 {
     return bcm54282_drv.pd_autoneg_set(pc, autoneg);
 }
@@ -500,8 +512,8 @@ bcm56150_phy_autoneg_set(phy_ctrl_t *pc, int autoneg)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_autoneg_get(phy_ctrl_t *pc, int *autoneg)
+/**获取自适应状态*/
+static int bcm56150_phy_autoneg_get(phy_ctrl_t *pc, int *autoneg)
 {
     return bcm54282_drv.pd_autoneg_get(pc, autoneg);
 }
@@ -517,8 +529,8 @@ bcm56150_phy_autoneg_get(phy_ctrl_t *pc, int *autoneg)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_loopback_set(phy_ctrl_t *pc, int enable)
+/**设置回环状态*/
+static int bcm56150_phy_loopback_set(phy_ctrl_t *pc, int enable)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -528,22 +540,29 @@ bcm56150_phy_loopback_set(phy_ctrl_t *pc, int enable)
 
     PHY_CTRL_CHECK(pc);
 
-    if (enable) {
+    if (enable) 
+    {
         enable = 1;
     }
 
-    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) {
+    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) 
+    {
         ioerr += READ_MII_1000X_CTRLr(pc, &mii_1000x_ctrl);
         MII_1000X_CTRLr_LOOPBACKf_SET(mii_1000x_ctrl, enable);
         ioerr += WRITE_MII_1000X_CTRLr(pc, mii_1000x_ctrl);
-    } else {
+    } 
+    else 
+    {
         rv = ge_phy_loopback_set(pc, enable);
 
-        if (CDK_SUCCESS(rv)) {
+        if (CDK_SUCCESS(rv)) 
+        {
             rv = PHY_SPEED_GET(pc, &speed);
-            if (CDK_SUCCESS(rv)) {
+            if (CDK_SUCCESS(rv)) 
+            {
                 /* When 10/100M mode, force link need to set this register */
-                if ((speed == 10) || (speed == 100)) {
+                if ((speed == 10) || (speed == 100)) 
+                {
                     force_link = enable;
                 }
                 ioerr += READ_TEST_1r(pc, &test_1);
@@ -567,8 +586,8 @@ bcm56150_phy_loopback_set(phy_ctrl_t *pc, int enable)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_loopback_get(phy_ctrl_t *pc, int *enable)
+/**获取回环模式*/
+static int bcm56150_phy_loopback_get(phy_ctrl_t *pc, int *enable)
 {
     return bcm54282_drv.pd_loopback_get(pc, enable);
 }
@@ -584,8 +603,7 @@ bcm56150_phy_loopback_get(phy_ctrl_t *pc, int *enable)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_ability_get(phy_ctrl_t *pc, uint32_t *abil)
+static int bcm56150_phy_ability_get(phy_ctrl_t *pc, uint32_t *abil)
 {
     return bcm54282_drv.pd_ability_get(pc, abil);
 }
@@ -603,8 +621,7 @@ bcm56150_phy_ability_get(phy_ctrl_t *pc, uint32_t *abil)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd)
+static int bcm56150_phy_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd)
 {
     return bcm54282_drv.pd_config_set(pc, cfg, val, cd);
 }

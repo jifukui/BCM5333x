@@ -57,11 +57,12 @@
 #include <phy/phy_brcm_xe.h>
 #include <phy/phy_tsc_iblk.h>
 #include <phy/phy_brcm_rdb.h>
-
-int
-phy_reg_write(phy_ctrl_t *pc, uint32_t addr, uint32_t data)
+/**设置PHY寄存器的值*/
+int phy_reg_write(phy_ctrl_t *pc, uint32_t addr, uint32_t data)
 {
+    /**根据寄存器的类型不同调用不同的寄存器设置接口*/
     switch (PHY_REG_ACCESS_METHOD(addr)) {
+    /**设置原始的数据*/
     case PHY_REG_ACC_RAW:
         return PHY_BUS_WRITE(pc, addr, data);
     case PHY_REG_ACC_BRCM_SHADOW:

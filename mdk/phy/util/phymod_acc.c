@@ -44,9 +44,11 @@
  */
 
 #include <phymod/phymod_acc.h>
-
-int
-phymod_acc_check(const phymod_access_t *pa)
+/**PHY寄存器的访问模式检测
+ * 判断寄存器访问模式结构体是否存在，
+ * 判断总线读写函数是否定义如果没有定义返回-1表示PHY访问模式校验失败。
+*/
+int phymod_acc_check(const phymod_access_t *pa)
 {
     if (pa == 0 ||
         PHYMOD_ACC_BUS(pa) == 0 ||
@@ -57,8 +59,7 @@ phymod_acc_check(const phymod_access_t *pa)
     return 0;
 }
 
-int
-phymod_bus_read(const phymod_access_t *pa, uint32_t reg, uint32_t *data)
+int phymod_bus_read(const phymod_access_t *pa, uint32_t reg, uint32_t *data)
 {
     /* Read raw PHY data */
     return PHYMOD_ACC_BUS(pa)->read(PHYMOD_ACC_USER_ACC(pa),
@@ -66,8 +67,7 @@ phymod_bus_read(const phymod_access_t *pa, uint32_t reg, uint32_t *data)
                                     reg, data);
 }
 
-int
-phymod_bus_write(const phymod_access_t *pa, uint32_t reg, uint32_t data)
+int phymod_bus_write(const phymod_access_t *pa, uint32_t reg, uint32_t data)
 {
     /* Write raw PHY data */
     return PHYMOD_ACC_BUS(pa)->write(PHYMOD_ACC_USER_ACC(pa),
@@ -75,8 +75,7 @@ phymod_bus_write(const phymod_access_t *pa, uint32_t reg, uint32_t data)
                                      reg, data);
 }
 
-int
-phymod_is_write_disabled(const phymod_access_t *pa, uint32_t *data)
+int phymod_is_write_disabled(const phymod_access_t *pa, uint32_t *data)
 {
     if (pa && PHYMOD_ACC_BUS(pa)) {
         if((PHYMOD_ACC_BUS(pa)->is_write_disabled) == NULL) { 

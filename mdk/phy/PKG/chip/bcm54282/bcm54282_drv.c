@@ -354,6 +354,7 @@ static int bcm54282_phy_init(phy_ctrl_t *pc)
     ioerr += WRITE_DSP_TAP10r(pc, dsp_tap10);
 
     /* Disable SuperIsolate */
+    /**设置禁能隔离*/
     ioerr += READ_POWER_MII_CTRLr(pc, &power_mii_ctrl);
     POWER_MII_CTRLr_SUPER_ISOLATEf_SET(power_mii_ctrl, 0);
     ioerr += WRITE_POWER_MII_CTRLr(pc, power_mii_ctrl);

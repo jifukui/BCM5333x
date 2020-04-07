@@ -53,8 +53,7 @@
 
 #include <phy/phy_aer_iblk.h>
 
-int
-phy_aer_iblk_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
+int phy_aer_iblk_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
 {
     int ioerr = 0;
     uint32_t devad = (addr >> 16) & 0xf;

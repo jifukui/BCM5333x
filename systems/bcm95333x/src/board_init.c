@@ -176,7 +176,8 @@ int board_phy_init_callback(phy_ctrl_t *pc) {
 #ifdef CFG_ETHERNET_WIRESPEED_INCLUDED
     if (sal_strcmp(pc->drv->drv_name, "bcm54880e")==0 ||
         sal_strcmp(pc->drv->drv_name, "bcm5428(9)2")==0 ||
-        sal_strcmp(pc->drv->drv_name, "bcm56150")==0){
+        sal_strcmp(pc->drv->drv_name, "bcm56150")==0)
+    {
         /* Disable retry for ethernet@wirespeed */
         /* phy_reg_ge_modify(unit, pc, 0x00, 0x0004, 0x1c, (retry_dis << 8), (0x1 << 8)); */
         ioerr += PHY_BUS_WRITE(pc, 0x1C, (0x0004 << 10));
@@ -561,22 +562,26 @@ sys_error_t board_init(void)
 #ifdef CFG_RESET_BUTTON_INCLUDED
 #ifdef CFG_VENDOR_CONFIG_SUPPORT_INCLUDED
     rv = sal_config_uint8_get(SAL_CONFIG_RESET_BUTTON_ENABLE, &reset_button_enable);
-    if ((rv == SYS_OK) && reset_button_enable) {
+    if ((rv == SYS_OK) && reset_button_enable) 
+    {
         sal_printf("Vendor Config : Change to enable the reset buton feature by configuration.\n");
     }
 
     rv = sal_config_uint8_get(SAL_CONFIG_RESET_BUTTON_GPIO_BIT, &reset_button_gpio_bit);
-    if (rv == SYS_OK) {
+    if (rv == SYS_OK) 
+    {
         sal_printf("Vendor Config : Change to use GPIO bit %d for reset button by configuration.\n", reset_button_gpio_bit);
     }
 
     rv = sal_config_uint8_get(SAL_CONFIG_RESET_BUTTON_POLARITY, &reset_button_active_high);
-    if (rv == SYS_OK) {
+    if (rv == SYS_OK) 
+    {
         sal_printf("Vendor Config : Change the reset button polarity to %d\n", reset_button_active_high);
         sal_printf("                (0:active low/1:active high) by configuration.\n");
     }
 #endif /* CFG_VENDOR_CONFIG_SUPPORT_INCLUDED */
-    if (reset_button_enable) {
+    if (reset_button_enable) 
+    {
         /* Detect reset button per 1 second */
         timer_add(brdimpl_reset_button_detect, NULL, (1 * 1000000));
     }
@@ -595,7 +600,8 @@ sys_error_t board_init(void)
  * Returns:
  *   None
  */
-void board_late_init(void) {
+void board_late_init(void) 
+{
 
 #if !(defined(__BOOTLOADER__) || !defined(CFG_SWITCH_STAT_INCLUDED))
     board_port_stat_clear_all();

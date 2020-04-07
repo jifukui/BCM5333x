@@ -61,8 +61,7 @@ mac_driver_t soc_mac_xl;
 #define SOC_XLMAC_SPEED_10000  0x4
 
 /* Forwards */
-static void
-soc_port_credit_reset(uint8 unit, uint8 lport)
+static void soc_port_credit_reset(uint8 unit, uint8 lport)
 {
     uint32 val;
 
@@ -93,8 +92,7 @@ soc_port_credit_reset(uint8 unit, uint8 lport)
     bcm5333x_reg_set(unit, SOC_PORT_BLOCK(lport), R_XLPORT_ENABLE_REG, val);
 }
 
-static void
-soc_port_fifo_reset(uint8 unit, uint8 lport)
+static void soc_port_fifo_reset(uint8 unit, uint8 lport)
 {
 #if 0
     uint32 val, orig_val;
@@ -108,8 +106,7 @@ soc_port_fifo_reset(uint8 unit, uint8 lport)
 #endif
 }
 
-void
-soc_egress_drain_cells(uint8 unit, uint8 lport, uint32 drain_timeout)
+void soc_egress_drain_cells(uint8 unit, uint8 lport, uint32 drain_timeout)
 {
     int cos;
     uint32 count, val, orig_val;

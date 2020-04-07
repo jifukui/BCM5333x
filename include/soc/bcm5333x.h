@@ -47,7 +47,7 @@
 
 #ifndef _BCM5333X_H_
 #define _BCM5333X_H_
-
+/**不同设备的版本号*/
 /* Foxhound */
 #define BCM53333_DEVICE_ID      0x8333
 #define BCM53334_DEVICE_ID      0x8334
@@ -172,15 +172,19 @@
 #define BLOCK_BP                 20     /* it is for XGS3 */
 
 #define R_CMIC_SCHAN_D(word)     (CMIC_CMC1_SCHAN_MESSAGE0+4*(word))
-
+/**配置交换机的基本的交换规则*/
 #define M_PORT(idx)                 10,0x04000000+(idx)
+/**配置交换机的基本交换规则*/
 #define M_IPORT(idx)                10,0x04040000+(idx)
+//VLAN和STP的关系
 #define M_VLAN(idx)                 10,0x14000000+(idx)
+//VLAN的配置表
 #define M_VLAN_PROFILE(idx)         10,0x14080000+(idx)
+//输出端口对于未知的单播是否进行阻塞 1表示阻塞，0表示允许
 #define M_EGR_MASK(idx)             10,0x44000000+(idx)
-
+//输出口的VLAN的关系表
 #define M_EGR_VLAN(idx)             11,0x100C0000+(idx)
-
+//生成树组状态表
 #define M_VLAN_STG(idx)             10,0x14040000+(idx)
 #define M_EGR_VLAN_STG(idx)         11,0x10100000+(idx)
 
@@ -243,7 +247,7 @@
 
 #define R_HASH_CONTROL              10,0x06000400
 
-/* L2 age */
+/* L2 age 设置老化时间*/
 #define R_L2_AGE_TIMER               10,0x02000400
 
 /* FP related */
@@ -294,6 +298,7 @@
 #define R_GRBCA(idx)                    0x00001000+(idx)
 #define R_GTBCA(idx)                    0x00002d00+(idx)
 /* Byte Counter */
+/**获取端口接收到的数据包的数量注意前8个端口是逆序的 2，3，4通过读取交换机的寄存器获取即g命令*/
 #define R_GRBYT(idx)                     0x00001c00+(idx)
 #define R_GTBYT(idx)                     0x00003900+(idx)
 /* Pause Frame Counter */

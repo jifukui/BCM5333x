@@ -319,8 +319,7 @@ parse_msg(void)
     return 0;
 }
 
-void
-dhcpc_init(const void *mac_addr)
+void dhcpc_init(const void *mac_addr)
 {
     uip_ipaddr_t addr;
 

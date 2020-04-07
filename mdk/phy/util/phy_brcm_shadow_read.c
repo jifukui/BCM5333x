@@ -48,16 +48,23 @@
  */
 
 #include <phy/phy_brcm_shadow.h>
-
-int
-phy_brcm_shadow_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
+/**影子寄存器的读取
+ * pc为PHY控制结构体
+ * addr为地址
+ * data用于存储数据
+*/
+int phy_brcm_shadow_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
 {
     int ioerr = 0;
+    //获取寄存器的地址
     uint32_t reg_addr = addr & 0x1f;
+    //获取块地址
     uint32_t reg_bank = (addr >> 8) & 0xffff;
+    //获取
     uint32_t reg_dev = (addr >> 24) & 0xf;
-
-    switch(reg_addr) {
+    //根据寄存器的地址进行处理
+    switch(reg_addr) 
+    {
     case 0x0e:
         ioerr += PHY_BUS_WRITE(pc, 0x0d, reg_dev);
         ioerr += PHY_BUS_WRITE(pc, 0x0e, reg_bank);

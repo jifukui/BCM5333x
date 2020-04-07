@@ -83,27 +83,33 @@ static pvlan_bmp_t member_of_pvlan_bmp[BOARD_MAX_NUM_OF_PORTS + 1];
  *      vlan_list - (OUT) vlan list pointer
  *      delete_node - (IN) delete node if found
  */
-STATICFN sys_error_t
-_brdimpl_vlan_sw_vlan_group_get(uint16 group_id,
+STATICFN sys_error_t _brdimpl_vlan_sw_vlan_group_get(uint16 group_id,
                                 vlan_list_t **vlan_list,
                                 BOOL delete_node) REENTRANT
 {
    vlan_list_t *this_vlan = NULL, *prev = NULL;
-
+    //获取当前处理的VLAN组
     this_vlan = vlan_info.head;
-
     /* go to this VLAN group */
-    while(this_vlan) {
-        if (this_vlan->vlan_id == group_id){
+    /**在VLAN列表中寻找和当前组ID一致的VLAN*/
+    while(this_vlan) 
+    {
+        //判断当前的VLAN是否和要设置的VLAN一致，对于是一致的处理
+        if (this_vlan->vlan_id == group_id)
+        {
+            //判断是否是要删除节点
             if (delete_node) {
                 /* Update head if necessary */
+                //如果前面的存在的处理
                 if (prev != NULL) {
                     prev->next = this_vlan->next;
-                } else {
+                } 
+                else {
                     vlan_info.head = this_vlan->next;
                 }
                 /* Update tail if necessary */
-                if (this_vlan == vlan_info.tail) {
+                if (this_vlan == vlan_info.tail) 
+                {
                     vlan_info.tail = prev;
                 }
                 vlan_info.count--;
@@ -121,8 +127,8 @@ _brdimpl_vlan_sw_vlan_group_get(uint16 group_id,
 /* _brdimpl_uplist_allport_set()
  *
  */
-STATICFN void
-_brdimpl_uplist_allport_set(uint8 *uplist) REENTRANT
+/**设置所有的端口*/
+STATICFN void _brdimpl_uplist_allport_set(uint8 *uplist) REENTRANT
 {
     uint16 uport;
     
@@ -137,8 +143,8 @@ _brdimpl_uplist_allport_set(uint8 *uplist) REENTRANT
  *  - will be called at the device bootup process to ensure
  *      all items' value in the vlan_info is assigned properly.
  */
-sys_error_t
-_brdimpl_vlan_init(void) REENTRANT
+/**VLAN的初始化*/
+sys_error_t _brdimpl_vlan_init(void) REENTRANT
 {
     vlan_info.head = NULL;
     vlan_info.tail = NULL;
@@ -152,6 +158,7 @@ _brdimpl_vlan_init(void) REENTRANT
 }
 
 #ifdef BRD_VLAN_DEBUG
+/**双备份VLAN的信息*/
 void _brdimpl_dump_vlan_info(void) REENTRANT
 {
     uint16 i;
@@ -188,8 +195,8 @@ void _brdimpl_dump_vlan_info(void) REENTRANT
  *      - Disable 1Q VLAN and reset QVLAN table.
  *  2. VLAN related SW database init process.
  */
-sys_error_t
-brdimpl_vlan_reset(void) REENTRANT
+/**VLAN复位*/
+sys_error_t brdimpl_vlan_reset(void) REENTRANT
 {
     uint8  i;
     sys_error_t     rv;
@@ -205,9 +212,11 @@ brdimpl_vlan_reset(void) REENTRANT
      *  4. type = NONE
      */
     this_vlan = vlan_info.head;
-    if (this_vlan == NULL) {
+    if (this_vlan == NULL) 
+    {
         this_vlan = sal_malloc(sizeof(vlan_list_t));
-        if (this_vlan == NULL) {
+        if (this_vlan == NULL) 
+        {
             return SYS_ERR_OUT_OF_RESOURCE;
         }
         vlan_info.head = this_vlan;
@@ -222,7 +231,8 @@ brdimpl_vlan_reset(void) REENTRANT
 
     /* Destroy other vlan groups */
     this_vlan = this_vlan->next;
-    while(this_vlan) {
+    while(this_vlan) 
+    {
 
         next_vlan = this_vlan->next;
 
@@ -263,8 +273,8 @@ brdimpl_vlan_reset(void) REENTRANT
 /*
  * Select vlan type
  */
-sys_error_t
-brdimpl_vlan_type_set(vlan_type_t type) REENTRANT
+/**设置VLAN的类型*/
+sys_error_t brdimpl_vlan_type_set(vlan_type_t type) REENTRANT
 {
     sys_error_t     rv;
     soc_switch_t    *soc;
@@ -309,9 +319,8 @@ brdimpl_vlan_type_set(vlan_type_t type) REENTRANT
 
     return rv;
 }
-
-sys_error_t
-brdimpl_vlan_type_get(vlan_type_t *type) REENTRANT
+/**获取VLAN的类型*/
+sys_error_t brdimpl_vlan_type_get(vlan_type_t *type) REENTRANT
 {
     if (type == NULL){
         return SYS_ERR_PARAMETER;
@@ -325,34 +334,42 @@ brdimpl_vlan_type_get(vlan_type_t *type) REENTRANT
 /*
  * Port-based and 1Q-based VLAN creation
  */
-sys_error_t
-brdimpl_vlan_create(uint16 vlan_id) REENTRANT
+/**创建VLAN*/
+sys_error_t brdimpl_vlan_create(uint16 vlan_id) REENTRANT
 {
     soc_switch_t    *soc;
     sys_error_t     rv;
     vlan_list_t     *this_vlan, *vlan;
-
-    if (vlan_info.type == VT_DOT1Q){
+    /**对于VLAN的类型为基于协议的处理*/
+    if (vlan_info.type == VT_DOT1Q)
+    {
+        //对于传入的VLAN的id不是合法的VLAN ID的处理
         if (!SOC_1QVLAN_ID_IS_VALID(vlan_id)){
             return SYS_ERR_PARAMETER;
         }
     }
+    //对于VLAN的类型是基于端口的处理
     else if (vlan_info.type == VT_PORT_BASED)
     {
-        if (vlan_id > vlan_info.max_count){
+        //对于ID的索引号大于最大VLAN的值的处理
+        if (vlan_id > vlan_info.max_count)
+        {
             return SYS_ERR_PARAMETER;
         }
-    } else {
+    } 
+    else {
         return SYS_ERR_STATE;
     }
 
-    if (vlan_info.count == vlan_info.max_count) {
+    if (vlan_info.count == vlan_info.max_count) 
+    {
         return SYS_ERR_FULL;
     }
 
     /* check if no existed */
     rv = _brdimpl_vlan_sw_vlan_group_get(vlan_id, &this_vlan, FALSE);
-    if (rv != SYS_ERR_NOT_FOUND){
+    if (rv != SYS_ERR_NOT_FOUND)
+    {
         return SYS_ERR_EXISTS;
     }
 
@@ -389,8 +406,8 @@ brdimpl_vlan_create(uint16 vlan_id) REENTRANT
 /*
  * Port-based and 1Q-based VLAN destroy
  */
-sys_error_t
-brdimpl_vlan_destroy(uint16 vlan_id) REENTRANT
+/**销毁VLAN*/
+sys_error_t brdimpl_vlan_destroy(uint16 vlan_id) REENTRANT
 {
     sys_error_t     rv;
     soc_switch_t    *soc;
@@ -399,7 +416,9 @@ brdimpl_vlan_destroy(uint16 vlan_id) REENTRANT
 
 
     /* Clear physical port bit map of this VLAN to zero */
-    if (vlan_info.type == VT_PORT_BASED) {
+    /**对于VLAN的类型为基于端口的处理*/
+    if (vlan_info.type == VT_PORT_BASED) 
+    {
 
         sal_memset(tmp_uplist, 0 , sizeof(tmp_uplist));
         rv = brdimpl_pvlan_port_set(vlan_id, tmp_uplist);
@@ -409,6 +428,7 @@ brdimpl_vlan_destroy(uint16 vlan_id) REENTRANT
     }
 
     /* check if no existed */
+    /**判断此VLAN是否存在*/
     rv = _brdimpl_vlan_sw_vlan_group_get(vlan_id, &this_vlan, TRUE);
     if (rv){
         /* rv is expected at SYS_OK if vlan is existed */
@@ -425,9 +445,8 @@ brdimpl_vlan_destroy(uint16 vlan_id) REENTRANT
     }
     return rv ;
 }
-
-sys_error_t
-brdimpl_pvlan_port_set(uint16  vlan_id, uint8 *uplist) REENTRANT
+/**VVLAN的端口的设置*/
+sys_error_t brdimpl_pvlan_port_set(uint16  vlan_id, uint8 *uplist) REENTRANT
 {
     pbmp_t      this_lpbmp;
     uint8       unit, lport;
@@ -539,8 +558,7 @@ brdimpl_pvlan_port_set(uint16  vlan_id, uint8 *uplist) REENTRANT
     return rv;
 }
 
-sys_error_t
-brdimpl_pvlan_port_get(uint16  vlan_id, uint8 *uplist) REENTRANT
+sys_error_t brdimpl_pvlan_port_get(uint16  vlan_id, uint8 *uplist) REENTRANT
 {
     sys_error_t rv;
     vlan_list_t *this_vlan;
@@ -554,8 +572,7 @@ brdimpl_pvlan_port_get(uint16  vlan_id, uint8 *uplist) REENTRANT
     return SYS_OK;
 }
 
-sys_error_t
-brdimpl_pvlan_egress_get(uint16 uport, uint8 *uplist) REENTRANT
+sys_error_t brdimpl_pvlan_egress_get(uint16 uport, uint8 *uplist) REENTRANT
 {
     pbmp_t          lpbmp;
     uint8           unit, lport;
@@ -591,8 +608,7 @@ brdimpl_pvlan_egress_get(uint16 uport, uint8 *uplist) REENTRANT
     return rv;
 }
 
-sys_error_t
-brdimpl_qvlan_port_set(uint16  vlan_id, uint8 *uplist,
+sys_error_t brdimpl_qvlan_port_set(uint16  vlan_id, uint8 *uplist,
                                 uint8 *taguplist) REENTRANT
 {
     pbmp_t      lpbmp, tag_lpbmp;
@@ -657,9 +673,8 @@ brdimpl_qvlan_port_get(uint16  vlan_id, uint8 *uplist,
 
     return rv;
 }
-
-uint16
-brdimpl_vlan_count(void) REENTRANT
+/**VLAN的数量*/
+uint16 brdimpl_vlan_count(void) REENTRANT
 {
     return vlan_info.count;
 }

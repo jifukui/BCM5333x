@@ -60,8 +60,7 @@
 #define ADDRESSr                0x0010ffc1
 #define WRDATAr                 0x0010ffc3
 
-int
-phy_tsc_iblk_mdio_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
+int phy_tsc_iblk_mdio_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
 {
     int ioerr = 0;
     uint32_t devad = (addr >> 16) & 0xf;
@@ -141,8 +140,7 @@ phy_tsc_iblk_mdio_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
     return ioerr;
 }
 
-int
-phy_tsc_iblk_proxy_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
+int phy_tsc_iblk_proxy_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
 {
     int ioerr = 0;
     int cnt, done;
@@ -151,29 +149,41 @@ phy_tsc_iblk_proxy_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
     uint32_t reg_copies = (addr >> 20) & 0x7;
 
     /* Do not attempt to read write-only registers */
-    if (addr & PHY_REG_ACC_TSC_IBLK_WR_ONLY) {
+    if (addr & PHY_REG_ACC_TSC_IBLK_WR_ONLY) 
+    {
         *data = 0;
         return CDK_E_NONE;
     }
 
     aer = 0;
-    if (PHY_CTRL_LANE(pc) & PHY_LANE_VALID) {
+    if (PHY_CTRL_LANE(pc) & PHY_LANE_VALID) 
+    {
         /* Setting lane value overrides default behavior */
         aer = PHY_CTRL_LANE(pc) & ~PHY_LANE_VALID;
-    } else if (addr & PHY_REG_ACC_TSC_IBLK_FORCE_LANE) {
+    } 
+    else if (addr & PHY_REG_ACC_TSC_IBLK_FORCE_LANE) 
+    {
         /* Forcing lane overrides default behavior */
         aer = (addr >> PHY_REG_ACCESS_FLAGS_SHIFT) & 0x7;
-    } else if (PHY_CTRL_FLAGS(pc) & PHY_F_SERDES_MODE) {
+    } 
+    
+    else if (PHY_CTRL_FLAGS(pc) & PHY_F_SERDES_MODE) {
         /* Set lane if independent lanes share PHY address */
-        if (PHY_CTRL_FLAGS(pc) & PHY_F_ADDR_SHARE) {
+        if (PHY_CTRL_FLAGS(pc) & PHY_F_ADDR_SHARE) 
+        {
             aer = PHY_CTRL_INST(pc) & 0x3;
         }
-        if (reg_copies == 1) {
+        if (reg_copies == 1) 
+        {
             aer = 0;
-        } else if (reg_copies == 2) {
+        } 
+        else if (reg_copies == 2) 
+        {
             aer &= ~0x1;
         }
-    } else {
+    } 
+    else 
+    {
         /* Optional lane 0 override */
         aer = (addr >> PHY_REG_ACCESS_FLAGS_SHIFT) & 0x3;
     }
@@ -222,10 +232,10 @@ phy_tsc_iblk_proxy_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
     return ioerr;
 }
 
-int
-phy_tsc_iblk_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
+int phy_tsc_iblk_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
 {
-    if (PHY_CTRL_ADDR_TYPE(pc) && PHY_CTRL_ADDR_TYPE(pc)(pc, addr) != 0) {
+    if (PHY_CTRL_ADDR_TYPE(pc) && PHY_CTRL_ADDR_TYPE(pc)(pc, addr) != 0) 
+    {
         return phy_tsc_iblk_proxy_read(pc, addr, data);
     }
     return phy_tsc_iblk_mdio_read(pc, addr, data);

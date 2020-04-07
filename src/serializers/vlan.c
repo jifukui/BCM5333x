@@ -51,11 +51,9 @@
 
 #if CFG_PERSISTENCE_SUPPORT_ENABLED
 
-extern int32
-vlan_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT;
+extern int32 vlan_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT;
 
-extern int32
-pvid_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT;
+extern int32 pvid_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT;
 
 /*
  * BYTE (0~1)  : vlan type.
@@ -67,9 +65,8 @@ pvid_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT;
 
 #define MAX_VLAN_SERIALIZED_LEN \
         (4 + BOARD_MAX_NUM_OF_QVLANS * MAX_VLAN_SERIALIZED_UNIT_LEN)
-
-int32
-vlan_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
+/**VLAN的序列化*/
+int32 vlan_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
 {
     uint16 length = 0;
     uint16 i, val16, count = 0;
@@ -80,11 +77,13 @@ vlan_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
     /*
      * NOTE: Update the version number if serializer code changes.
      */
-    if (op == SERIALIZE_OP_VERSION) {
+    if (op == SERIALIZE_OP_VERSION) 
+    {
         return MAKE_SERIALIZER_VERSION(1);
     }
 
-    if (op == SERIALIZE_OP_LOAD) {
+    if (op == SERIALIZE_OP_LOAD) 
+    {
         medium->read_uint16(&val16);
         type = (vlan_type_t)val16;
 #if !defined(CFG_SWITCH_PVLAN_INCLUDED)
@@ -93,6 +92,7 @@ vlan_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
         board_vlan_type_set(type);
         medium->read_uint16(&count);
         length += 4;
+        /**基于端口的VLAN的实现*/
         if (type == VT_PORT_BASED)
         {
 #if !defined(CFG_SWITCH_PVLAN_INCLUDED)
@@ -111,7 +111,9 @@ vlan_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
             }
 #endif            
             length += count * (2 + MAX_UPLIST_WIDTH);
-        } else if (type == VT_DOT1Q)
+        }
+        /**基于协议的VLAN的实现*/ 
+        else if (type == VT_DOT1Q)
         {
             /* clear default VLAN , load all VLAN from persistance*/
 			board_vlan_destroy(VLAN_DEFAULT);
@@ -130,7 +132,9 @@ vlan_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
             medium->read(&j, 1);
         }
 
-    } else if (op == SERIALIZE_OP_SAVE) {
+    } 
+    else if (op == SERIALIZE_OP_SAVE) 
+    {
         board_vlan_type_get(&type);
         val16 = (uint16)type;
         medium->write_uint16(val16);
@@ -163,16 +167,20 @@ vlan_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
             medium->write(&j, 1);
         }
 
-    } else if (op == SERIALIZE_OP_LOAD_DEFAULTS) {
+    } 
+    else if (op == SERIALIZE_OP_LOAD_DEFAULTS) 
+    {
 
         board_vlan_type_get(&type);
 
-        if (SAL_IS_UMPLUS()) {            
+        if (SAL_IS_UMPLUS()) 
+        {            
             board_vlan_type_set(VT_PORT_BASED); /* set port based vlan as default for umplus solution */
             return 0;
         }
         
-        if (VT_DOT1Q == type) {
+        if (VT_DOT1Q == type) 
+        {
             vlan_count = board_vlan_count();
             
             
@@ -205,7 +213,9 @@ vlan_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
                 }
             }
             
-        }else{
+        }
+        else
+        {
             board_vlan_type_set(VT_DOT1Q);
         }
         
@@ -215,8 +225,7 @@ vlan_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
     return MAX_VLAN_SERIALIZED_LEN;
 }
 
-int32
-pvid_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
+int32 pvid_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
 {
     uint8 i;
     uint16 vlan_id;

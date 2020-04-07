@@ -46,9 +46,9 @@
  */
 
 #include <phymod/phymod_sys.h>
-
-void
-phymod_udelay(uint32_t usecs)
+/**PHY模块的延时，延时时间单位为微秒*/
+void phymod_udelay(uint32_t usecs)
 {
+    /**设置PHY系统延迟微秒数*/
     PHY_SYS_USLEEP(usecs);
 }

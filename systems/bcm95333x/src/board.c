@@ -749,9 +749,8 @@ board_vlan_type_set(vlan_type_t type)
     return brdimpl_vlan_type_set(type);
 }
 
-
-sys_error_t
-board_vlan_type_get(vlan_type_t *type)
+/**获取VLAN的类型*/
+sys_error_t board_vlan_type_get(vlan_type_t *type)
 {
     return brdimpl_vlan_type_get(type);
 }
@@ -902,7 +901,9 @@ sys_error_t board_port_mode_get(uint16 uport, port_mode_t *mode)
 
     return rv;
 }
-
+/**获取端口的暂停状态
+ * 传入用户端口和接收暂停和发送暂停的地址
+*/
 sys_error_t board_port_pause_get(uint16 uport, BOOL *tx, BOOL *rx)
 {
     uint8 unit, lport;
@@ -910,11 +911,13 @@ sys_error_t board_port_pause_get(uint16 uport, BOOL *tx, BOOL *rx)
 
     r = board_uport_to_lport(uport, &unit, &lport);
 
-    if (r != SYS_OK) {
+    if (r != SYS_OK) 
+    {
         return r;
     }
 
-    if (!SOC_IS_DEERHOUND(unit) && lport < PHY_SECOND_QGPHY_PORT0) {
+    if (!SOC_IS_DEERHOUND(unit) && lport < PHY_SECOND_QGPHY_PORT0) 
+    {
         /* Get chip local port for BMD_PORT_PHY_CTRL for FH */
         lport = SOC_PORT_P2L_MAPPING(lport);
     }
@@ -923,7 +926,7 @@ sys_error_t board_port_pause_get(uint16 uport, BOOL *tx, BOOL *rx)
     *rx = SOC_PORT_RX_PAUSE_STATUS(lport);    
     return r;
 }
-
+/**获取端口的自协商的能力*/
 sys_error_t board_port_an_get(uint16 uport, BOOL *an)
 {
     uint8 unit, lport;
@@ -2050,17 +2053,17 @@ board_port_stat_get(uint16 uport, port_stat_t *stat)
 
     return rv;
 }
-
-sys_error_t
-board_port_stat_clear(uint16 uport)
+/**清除端口的统计信息*/
+sys_error_t board_port_stat_clear(uint16 uport)
 {
     sys_error_t rv = SYS_OK;
     uint32 entry[2] = {0, 0};
     uint8 unit, lport;
-
+    /**将用户端口转换为逻辑端口*/
     rv = board_uport_to_lport(uport, &unit, &lport);
-
-    if (IS_XL_PORT(lport)) {
+    /**应该都不是这种类型*/
+    if (IS_XL_PORT(lport)) 
+    {
         /* Byte Counter */
         rv |= bcm5333x_reg64_set(0, SOC_PORT_BLOCK(lport), R_TBYT(SOC_PORT_BLOCK_INDEX(lport)), entry, 2);
         rv |= bcm5333x_reg64_set(0, SOC_PORT_BLOCK(lport), R_RBYT(SOC_PORT_BLOCK_INDEX(lport)), entry, 2);
@@ -2084,7 +2087,10 @@ board_port_stat_clear(uint16 uport)
         /* Oversized Frame Counter */
         rv |= bcm5333x_reg64_set(0, SOC_PORT_BLOCK(lport), R_ROVR(SOC_PORT_BLOCK_INDEX(lport)), entry, 2);
         rv |= bcm5333x_reg64_set(0, SOC_PORT_BLOCK(lport), R_TOVR(SOC_PORT_BLOCK_INDEX(lport)), entry, 2);
-    } else {
+    } 
+    /**应该执行下面这部分*/
+    else 
+    {
         /* Byte Counter */
         rv |= bcm5333x_reg_set(0, SOC_PORT_BLOCK(lport), R_GTBYT(SOC_PORT_BLOCK_INDEX(lport)), 0);
         rv |= bcm5333x_reg_set(0, SOC_PORT_BLOCK(lport), R_GRBYT(SOC_PORT_BLOCK_INDEX(lport)), 0);
@@ -2120,9 +2126,8 @@ board_port_stat_clear(uint16 uport)
 
     return rv;
 }
-
-sys_error_t
-board_port_stat_clear_all(void)
+/**清除所有端口的统计信息*/
+sys_error_t board_port_stat_clear_all(void)
 {
     uint16 uport;
     sys_error_t rv = SYS_OK;
@@ -2137,8 +2142,7 @@ board_port_stat_clear_all(void)
 
 
 #if defined(CFG_SWITCH_MCAST_INCLUDED) 
-sys_error_t
-board_mcast_addr_add(uint8 *mac_addr, uint16 vlan_id, uint8 *uplist)
+sys_error_t board_mcast_addr_add(uint8 *mac_addr, uint16 vlan_id, uint8 *uplist)
 {
     int rv = SYS_OK;
     int i,j;
@@ -2149,18 +2153,23 @@ board_mcast_addr_add(uint8 *mac_addr, uint16 vlan_id, uint8 *uplist)
 	uint16 uc_idx;
 	uint16 umc_idx;
 
-    if (uplist != NULL) {
+    if (uplist != NULL) 
+    {
         board_uplist_to_lpbmp(uplist, 0, &lpbmp);
-    } else {
+    } 
+    else 
+    {
         lpbmp = 0;
     }
 
     mcast = (mcast_list_t *)sal_malloc(sizeof(mcast_list_t));
-    if (mcast == NULL) {
+    if (mcast == NULL) 
+    {
         return SYS_ERR_OUT_OF_RESOURCE;
     }
 
-    if (vlan_id == 0xFFF) {
+    if (vlan_id == 0xFFF) 
+    {
         /* LEARN_VID as '1' in VLAN_CTRL
            set in soc->vlan_type_set */
         vlan_id = 1;

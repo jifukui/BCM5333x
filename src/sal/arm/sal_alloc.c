@@ -133,7 +133,7 @@ void sal_dma_alloc_init(void *addr, uint16 len)
     *  Return value:
     *      nothing
     ********************************************************************* */
-
+/**内存块压缩*/
 static void kmemcompact(mempool_t *p)
 {
     memnode_t *m;
@@ -142,11 +142,13 @@ static void kmemcompact(mempool_t *p)
     do {
         compacted = 0;
 
-        for (m = p->root; m; m = m->next) {
+        for (m = p->root; m; m = m->next) 
+        {
 
             /* Check seal to be sure that we're doing ok */
 
-            if (m->seal != MEMNODE_SEAL) {
+            if (m->seal != MEMNODE_SEAL) 
+            {
     #ifdef TESTPROG
                 printf("Memory list corrupted!\n");
     #endif
@@ -160,7 +162,8 @@ static void kmemcompact(mempool_t *p)
 
             if (m->next &&
                (m->status == memnode_free) &&
-               (m->next->status == memnode_free)) {
+               (m->next->status == memnode_free)) 
+            {
                 m->length += sizeof(memnode_t) + m->next->length;
                 m->next->seal = 0;
                 m->next = m->next->next;
@@ -183,13 +186,13 @@ static void kmemcompact(mempool_t *p)
     *  Return value:
     *      nothing
     ********************************************************************* */
-static
-void _sal_free(mempool_t *p, void *ptr)
+static void _sal_free(mempool_t *p, void *ptr)
 {
     memnode_t **backptr;
     memnode_t *m;
 
-    if (ptr == NULL) {
+    if (ptr == NULL) 
+    {
         return;
     }
 
@@ -229,9 +232,8 @@ void _sal_free(mempool_t *p, void *ptr)
     *  Return value:
     *      pointer to data, or NULL if no memory left
     ********************************************************************* */
-
-static void *
-_sal_malloc(mempool_t *p, uint32 size)
+/**内存分配*/
+static void *_sal_malloc(mempool_t *p, uint32 size)
 {
     memnode_t *m;
     memnode_t *newm;
@@ -255,11 +257,13 @@ _sal_malloc(mempool_t *p, uint32 size)
      * size of a pointer.
      */
 
-    if (size == 0) {
+    if (size == 0) 
+    {
         size = sizeof(void *);
     }
 
-    if (size & (sizeof(void *)-1)) {
+    if (size & (sizeof(void *)-1)) 
+    {
         size += sizeof(void *);
         size &= ~(sizeof(void *)-1);
     }
@@ -269,9 +273,13 @@ _sal_malloc(mempool_t *p, uint32 size)
      * want.
      */
 
-    for (m = p->root; m; m = m->next) {
+    for (m = p->root; m; m = m->next) 
+    {
 
-        if (m->status == memnode_alloc) continue;
+        if (m->status == memnode_alloc) 
+        {
+            continue;
+        }
 
         /*
          * If we wanted a particular alignment, we will
@@ -280,12 +288,16 @@ _sal_malloc(mempool_t *p, uint32 size)
 
         daddr = memnode_data(uintptr_t,m);
         extra = 0;
-        if (daddr & (ptralign-1)) {
+        if (daddr & (ptralign-1)) 
+        {
             extra = ptralign - (daddr & (ptralign-1));
         }
         realsize = size + extra;
 
-        if (m->length < realsize) continue;
+        if (m->length < realsize)
+        {
+            continue;
+        }
         break;
     }
 
@@ -293,7 +305,8 @@ _sal_malloc(mempool_t *p, uint32 size)
      * If m is null, there's no memory left.
      */
 
-    if (m == NULL) {
+    if (m == NULL) 
+    {
         return NULL;
     }
 
@@ -361,22 +374,22 @@ _sal_malloc(mempool_t *p, uint32 size)
 
     return m->data;
 }
-
-void *
-sal_malloc(uint32 size) {
+/**内存申请*/
+void *sal_malloc(uint32 size) 
+{
     return _sal_malloc(&kmempool, size);
 }
-
+/**内存释放*/
 void sal_free(void *ptr)
 {
     _sal_free(&kmempool, ptr);
 }
-
-void *
-sal_dma_malloc(uint32 size) {
+/**DMA内存申请*/
+void * sal_dma_malloc(uint32 size) 
+{
     return _sal_malloc(&dmamempool, size);
 }
-
+/**DMA内存释放*/
 void sal_dma_free(void *ptr)
 {
     _sal_free(&dmamempool, ptr);

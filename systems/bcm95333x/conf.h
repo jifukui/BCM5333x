@@ -11,6 +11,6 @@
  *  Auto generated base on .config. Please do not edit me 
  *
  */
-#define target                         "umweb"
-#define CFG_TEXT_START                 0x1C060040
+#define target                         "loader"
+#define CFG_TEXT_START                 0x1C000000
 #define CFG_WEB                        1

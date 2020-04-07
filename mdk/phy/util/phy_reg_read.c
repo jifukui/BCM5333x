@@ -57,13 +57,20 @@
 #include <phy/phy_brcm_xe.h>
 #include <phy/phy_tsc_iblk.h>
 #include <phy/phy_brcm_rdb.h>
-/**读取寄存器数据*/
+/**读取寄存器数据
+ * pc为PHY控制结构体
+ * addr为寄存器的地址
+ * data为读取回来的数据
+*/
 int phy_reg_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
 {
+    /**根据寄存器的类型调用不同的寄存器读取接口*/
     switch (PHY_REG_ACCESS_METHOD(addr)) 
     {
+        /**读取原始数据*/
         case PHY_REG_ACC_RAW:
             return PHY_BUS_READ(pc, addr, data);
+        /***/
         case PHY_REG_ACC_BRCM_SHADOW:
             return phy_brcm_shadow_read(pc, addr, data);
         case PHY_REG_ACC_BRCM_1000X:

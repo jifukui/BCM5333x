@@ -509,7 +509,8 @@ void bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags
         {
             /* Force link up in mac loopback mode */
             speed = SOC_PORT_SPEED_MAX(lport)*1000;
-            if (speed == 11000) {
+            if (speed == 11000) 
+            {
                 speed = 10000;
             }
             duplex = TRUE;
@@ -517,19 +518,32 @@ void bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags
         } 
         else 
         {
-        
+            /**获取自适应的速度*/
             rv = PHY_SPEED_GET(BMD_PORT_PHY_CTRL(unit, lport), &speed);
-            if (rv) sal_printf("error 1:%d\n", rv);
+            if (rv) 
+            {
+                sal_printf("error 1:%d\n", rv);
+            }
+            /**获取双工模式*/
             rv |= PHY_DUPLEX_GET(BMD_PORT_PHY_CTRL(unit, lport), &duplex);
-            if (rv) sal_printf("error 2:%d\n", rv);
+            if (rv) 
+            {
+                sal_printf("error 2:%d\n", rv);
+            }
+            /**获取自协商模式*/
             rv |= PHY_AUTONEG_GET(BMD_PORT_PHY_CTRL(unit, lport), &an);
-            if (an) {
+            if (an) 
+            {
+                /**获取暂停状态*/
                 rv |= phy_pause_get(unit, lport, &tx_pause, &rx_pause);
-                if (SOC_FAILURE(rv)) {
+                if (SOC_FAILURE(rv)) 
+                {
                     sal_printf("phy_pause_get lport %d error\n", lport);
                     return;
                 }
-            } else {
+            } 
+            else 
+            {
                 tx_pause = rx_pause = TRUE;
             }
         }
@@ -1091,7 +1105,13 @@ sys_error_t bcm5333x_reg64_set(uint8 unit,
 {
     return bcm5333x_sw_op(unit, SC_OP_WR_REG_CMD, block_id, addr, buf, len);
 }
-/**获取5334内存的数据 */
+/**获取5334内存的数据
+ * unit为设备的单元号
+ * block_id为此块的ID
+ * addr为数据在内存中的地址
+ * buf数据缓冲区
+ * len数据长度
+ */
 sys_error_t bcm5333x_mem_get(uint8 unit,
                  uint8 block_id,
                  uint32 addr,
@@ -1330,26 +1350,36 @@ static void soc_pipe_mem_clear(void)
 
     
 }
-/**端口块信息获取 */
+/**端口块信息获取
+ * unit：单元号，对于53334来说都是0
+ * pport:物理端口号
+ * block_type：块的类型
+ * block_index：块的ID号
+ * port_index：端口的索引号
+*/
 static void soc_port_block_info_get(uint8 unit, uint8 pport, int *block_type, int *block_idx, int *port_idx)
 {
     *block_type = PORT_BLOCK_TYPE_XLPORT;
+    /**端口号30~33*/
     if ((pport >= PHY_XLPORT1_BASE) && (pport <= BCM5333X_PORT_MAX)) 
     {
         *block_idx = XLPORT1_BLOCK_ID;
         *port_idx = (pport - PHY_XLPORT1_BASE) & 0x7;
     } 
+    /**端口号26~29*/
     else if (pport >= PHY_XLPORT0_BASE) 
     {
         *block_idx = XLPORT0_BLOCK_ID;
         *port_idx = (pport - PHY_XLPORT0_BASE) & 0x7;
     } 
+    /**端口号18~25*/
     else if (pport >= PHY_GXPORT2_BASE) 
     {
         *block_idx = GXPORT2_BLOCK_ID;
         *port_idx = (pport - PHY_GXPORT2_BASE) & 0x7;
         *block_type = PORT_BLOCK_TYPE_GXPORT;
     } 
+    /**端口号10~17*/
     else if (pport >= PHY_GXPORT1_BASE) 
     {
         *block_idx = GXPORT1_BLOCK_ID;
@@ -2218,7 +2248,7 @@ bcm5333x_lag_group_get(uint8 unit, uint8 lagid, pbmp_t *lpbmp) {
 }
 #endif /* CFG_SWITCH_LAG_INCLUDED */
 
-
+/**交换机系统的初始化*/
 static void bcm5333x_system_init(void)
 {
     int i, j;
@@ -3315,9 +3345,12 @@ bcm5333x_loopback_enable(uint8 unit, uint8 lport, int loopback_mode)
         }
     }
 }
-
-sys_error_t
-bcm5333x_port_info_get(uint8 unit, uint8 lport, bcm_port_info_t *info)
+/**获取端口信息
+ * unit为设备单元号
+ * lport为逻辑端口号
+ * info为端口的信息
+*/
+sys_error_t bcm5333x_port_info_get(uint8 unit, uint8 lport, bcm_port_info_t *info)
 {
     int rv;    
     int duplex;
@@ -3333,49 +3366,66 @@ bcm5333x_port_info_get(uint8 unit, uint8 lport, bcm_port_info_t *info)
     uint32 disard;
 	uint32 stg;
 	//sal_printf("%s:%d  lport = %d\n", __FUNCTION__, __LINE__, lport);
-    if (info == NULL) {
+    //对于信息结构体未分配空间的处理
+    if (info == NULL) 
+    {
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return SYS_ERR;
     }
+    //获取端口的link状态
     rv = PHY_LINK_GET(BMD_PORT_PHY_CTRL(unit, lport), &link, &andone);
-    if (rv) {
+    if (rv) 
+    {
         sal_printf("error 0:%d\n", rv);
         return  SYS_ERR;
     }
+    //获取端口的速度
     rv = PHY_SPEED_GET(BMD_PORT_PHY_CTRL(unit, lport), &speed);
-    if (rv) {
+    if (rv) 
+    {
         sal_printf("error 1:%d\n", rv);
         return SYS_ERR;
     }
+    //获取端口的双工模式
     rv |= PHY_DUPLEX_GET(BMD_PORT_PHY_CTRL(unit, lport), &duplex);
-    if (rv) {
+    if (rv) 
+    {
         sal_printf("error 2:%d\n", rv);
         return SYS_ERR;
     }
+    //获取端口的自协商模式
     rv |= PHY_AUTONEG_GET(BMD_PORT_PHY_CTRL(unit, lport), &an);
-    if (an) {
+    if (an) 
+    {
         rv |= phy_pause_get(unit, lport, &tx_pause, &rx_pause);
-        if (SOC_FAILURE(rv)) {
+        if (SOC_FAILURE(rv)) 
+        {
             sal_printf("phy_pause_get lport %d error\n", lport);
             return  SYS_ERR;;
         }
-    } else {
+    } 
+    else 
+    {
         tx_pause = TRUE;
         rx_pause = TRUE;
     }
     PHY_LOOPBACK_GET(BMD_PORT_PHY_CTRL(unit, lport), &loopback);
 
     pport = SOC_PORT_L2P_MAPPING(lport);
-    if (!SOC_IS_DEERHOUND(unit) && pport < PHY_SECOND_QGPHY_PORT0) {
+    if (!SOC_IS_DEERHOUND(unit) && pport < PHY_SECOND_QGPHY_PORT0) 
+    {
         /* Get chip local port for BMD_PORT_PHY_CTRL for FH */
         rv = PHY_CONFIG_GET(BMD_PORT_PHY_CTRL(unit, pport), 
                        PhyConfig_Enable, &en, NULL);
-    } else {   
+    } 
+    else 
+    {   
     
         rv = PHY_CONFIG_GET(BMD_PORT_PHY_CTRL(unit, lport), 
                        PhyConfig_Enable, &en, NULL);
     }
-    if (rv) {
+    if (rv) 
+    {
         sal_printf("error 3:%d\n", rv);
         return SYS_ERR;
     }
@@ -3398,7 +3448,7 @@ bcm5333x_port_info_get(uint8 unit, uint8 lport, bcm_port_info_t *info)
 	info->stp_state = stg;
     return SYS_OK;
 }
-
+/**定义BCM5333的相关参数*/
 soc_switch_t soc_switch_bcm5333x =
 {
     bcm5333x_chip_type,

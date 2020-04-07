@@ -46,33 +46,40 @@
  */
 
 #include <phy/phy.h>
-/**获取端口的PHY地址
- * pc:
- * adjuest:是否进行调整
+/**根据传入的设备控制结构体返回设备的地址
+ * pc为设备控制结构体
+ * adjust：表示是否对地址进行调整
 */
 uint32_t phy_ctrl_addr(phy_ctrl_t *pc, int adjust)
 {
     uint32_t phy_addr;
 
-    /* Initialize PHY address if necessary */
-    /**检测地址是否是有效的地址*/
+    /**获取PHY控制结构体的标记值，判断是否是有效的地址
+     * 如果不是有效的地址进行下面的操作
+    */
     if ((PHY_CTRL_FLAGS(pc) & PHY_F_ADDR_VALID) == 0) 
     {
+        /**判断设备的地址是不是不等于0，对于不等于0
+         * 对于不等于0的调用PHY总线程序根据设备的端口号获取PHY地址
+        */
         if (pc->bus->phy_addr != NULL) 
         {
             pc->addr = pc->bus->phy_addr(pc->port);
         }
+        //设置PHY标记为有效的
         PHY_CTRL_FLAGS(pc) |= PHY_F_ADDR_VALID;
     }
 
-    /* Default address */
+    //设置PHY的地址
     phy_addr = pc->addr;
 
     /* Adjust according to selected instance */
+    //判断是否进行调整
     if (adjust) 
     {
+        //对于需要进行地址调整的PHY的值为PHY的地址加上PHY的偏移地址
         phy_addr += PHY_CTRL_ADDR_OFFSET(pc);
     }
-
+    //返回设置的PHY地址
     return phy_addr;
 }
