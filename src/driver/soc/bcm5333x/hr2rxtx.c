@@ -72,6 +72,7 @@
             (((pkt)->flags & RX_FLAG_STATE_MASK) == 0)
 
 /* TX/RX enabled */
+//交换机收发初始化状态
 static BOOL             rxtx_initialized;
 
 /* RX variables */
@@ -124,14 +125,17 @@ static void bcm5333x_rx_refill(void);
 static void bcm5333x_rx_retrieve(soc_rx_packet_t *pkt);
 static void bcm5333x_rxtx_task(void *data);
 static sys_error_t bcm5333x_tx_internal(soc_tx_packet_t *pkt);
-
-static void
-bcm5333x_rx_direct(void)
+/**直接接收数据
+ * 
+*/
+static void bcm5333x_rx_direct(void)
 {
     soc_rx_packet_t *pkt = rx_pkt_in_dma;
-
-    if (rx_pkt_in_dma != NULL) {
-        if (rxtx_initialized == FALSE) {
+    //判断参数是否初始化
+    if (rx_pkt_in_dma != NULL) 
+    {
+        if (rxtx_initialized == FALSE) 
+        {
             /* DMA may has been stopped */
             rx_pkt_in_dma = NULL;
             return;
@@ -144,7 +148,8 @@ bcm5333x_rx_direct(void)
         pkt->flags &= ~RX_FLAG_STATE_MASK;
 
         /* Call packet handler */
-        if (rx_handler != NULL) {
+        if (rx_handler != NULL) 
+        {
             /*
              * Assuem we use only one buffer here. Need to change the way to
              * handle it if more than one buffer used.
@@ -152,15 +157,16 @@ bcm5333x_rx_direct(void)
             rx_pkt_valid[0] = FALSE;
             rx_pkt_in_dma = NULL;
             (*rx_handler)(pkt);
-        } else {
+        } 
+        else 
+        {
             /* Try to restart DMA */
             bcm5333x_rx_refill();
         }
     }
 }
-
-APISTATIC void
-bcm5333x_rx_refill(void)
+/***/
+APISTATIC void bcm5333x_rx_refill(void)
 {
     uint8 i;
     uint32 val;
@@ -189,8 +195,7 @@ bcm5333x_rx_refill(void)
     rx_pkt_in_dma = NULL;
 }
 
-APISTATIC void
-bcm5333x_rx_retrieve(soc_rx_packet_t *pkt)
+APISTATIC void bcm5333x_rx_retrieve(soc_rx_packet_t *pkt)
 {
     /* Gather information for the received packet */
     pkt->pktlen = G_DCB1_BYTE_COUNT(rx_dcb.w15);
@@ -203,8 +208,7 @@ bcm5333x_rx_retrieve(soc_rx_packet_t *pkt)
     pkt->timestamp = rx_dcb.w13;
 }
 
-APISTATIC void
-bcm5333x_rxtx_task(void* data)
+APISTATIC void bcm5333x_rxtx_task(void* data)
 {
     uint32 irqstat = SYS_REG_READ32(CMIC_CMC1_DMA_STAT);
     uint32 val;
@@ -288,8 +292,7 @@ bcm5333x_rxtx_task(void* data)
     }
 }
 
-void
-bcm5333x_rxtx_stop(void)
+void bcm5333x_rxtx_stop(void)
 {
     uint32 val, ctrl;
     int i, j;
@@ -303,7 +306,8 @@ bcm5333x_rxtx_stop(void)
     SYS_REG_WRITE32(CMIC_RXBUF_EPINTF_RELEASE_ALL_CREDITS, 0);
 
     /* Poll for the channel 0-1 to become inactive */
-    for (i = 0; i < 2; i++) {
+    for (i = 0; i < 2; i++) 
+    {
         val = SYS_REG_READ32(CMIC_CMC1_DMA_STAT);
         ctrl = SYS_REG_READ32(CMIC_CMC1_CHx_DMA_CTRL(i));
         /* Abort TX/RX DMA */
@@ -330,9 +334,8 @@ bcm5333x_rxtx_stop(void)
         SYS_REG_WRITE32(CMIC_CMC1_DMA_STAT_CLR, val);
     }
 }
-
-void
-bcm5333x_rxtx_init(void)
+/**交换机收发数据初始化*/
+void bcm5333x_rxtx_init(void)
 {
     int i;
     uint32 val;
@@ -392,9 +395,8 @@ bcm5333x_rxtx_init(void)
     tx_pkts_list = NULL;
     tx_timeout_ticks = SAL_USEC_TO_TICKS(TX_WAIT_TIMEOUT);
 }
-
-APISTATIC sys_error_t
-bcm5333x_tx_internal(soc_tx_packet_t *pkt)
+/**发送端发送数据到以太网*/
+APISTATIC sys_error_t bcm5333x_tx_internal(soc_tx_packet_t *pkt)
 {
     int i;
     uint32 port;
@@ -461,9 +463,8 @@ bcm5333x_tx_internal(soc_tx_packet_t *pkt)
 
     return SYS_OK;
 }
-
-sys_error_t
-bcm5333x_tx(uint8 unit, soc_tx_packet_t *pkt)
+/**交换机发送*/
+sys_error_t bcm5333x_tx(uint8 unit, soc_tx_packet_t *pkt)
 {
     SAL_ASSERT(pkt != NULL && pkt->callback != NULL && pkt->buffer != NULL);
     if (pkt == NULL || pkt->callback == NULL || pkt->buffer == NULL) {
@@ -484,9 +485,8 @@ bcm5333x_tx(uint8 unit, soc_tx_packet_t *pkt)
     }
     return SYS_OK;
 }
-
-sys_error_t
-bcm5333x_rx_set_handler(uint8 unit, SOC_RX_HANDLER fn, BOOL intr)
+/**交换机接收*/
+sys_error_t bcm5333x_rx_set_handler(uint8 unit, SOC_RX_HANDLER fn, BOOL intr)
 {
     if (fn == NULL || unit > 0) {
         /* XXX: should allow to remove current handler (and do RX reset) */
@@ -507,9 +507,8 @@ bcm5333x_rx_set_handler(uint8 unit, SOC_RX_HANDLER fn, BOOL intr)
 
     return SYS_OK;
 }
-
-sys_error_t
-bcm5333x_rx_fill_buffer(uint8 unit, soc_rx_packet_t *pkt)
+/***/
+sys_error_t bcm5333x_rx_fill_buffer(uint8 unit, soc_rx_packet_t *pkt)
 {
     uint8 i;
     uint32 val;

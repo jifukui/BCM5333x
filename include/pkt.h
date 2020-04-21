@@ -49,45 +49,52 @@
 #define _PKT_H_
 
 /* RX flags (read by handler) */
+//接收包的时间戳标记
 #define SYS_RX_FLAG_TIMESTAMP                       (1 << 0)
+//接收包的消费标记
 #define SYS_RX_FLAG_COS                             (1 << 1)
+//接收包的截断标记
 #define SYS_RX_FLAG_TRUNCATED                       (1 << 2)
+//接收包的冗余错误标记
 #define SYS_RX_FLAG_ERROR_CRC                       (1 << 3)
+//接收包的其他错误标记
 #define SYS_RX_FLAG_ERROR_OTHER                     (1 << 4)
 
 /* TX flags (used by caller) */
+//发送端时间戳标记
 #define SYS_TX_FLAG_TIMESTAMP_REQUEST               (1 << 8)
+//发送端使用无标签的端口列表标记
 #define SYS_TX_FLAG_USE_UNTAG_PORT_LIST             (1 << 9) 
 
 /* VLAN tagging mode (Used if tx_uplist is empty) */
 #define SYS_TX_TAG_MODE_FOLLOW_SWITCH_RULES         (0)
 #define SYS_TX_TAG_MODE_UNTAG_ALL                   (1)
 #define SYS_TX_TAG_MODE_TAG_ALL                     (2)
-
+//系统数据包结构体
 typedef struct sys_pkt_s {
-    uint8 * pkt_data;
-    uint16  pkt_len;
-    uint16  buf_len;
-    uint16  flags;
-    uint16  cos;
+    uint8 * pkt_data;                           //包数据内容
+    uint16  pkt_len;                            //包长度
+    uint16  buf_len;                            //数据缓存长度
+    uint16  flags;                              //标记值
+    uint16  cos;                                //消费值
             
-    uint16  rx_src_uport;
-    uint32  rx_timestamp;
+    uint16  rx_src_uport;                       //接收源端口
+    uint32  rx_timestamp;                       //接收时间戳
             
-    uint8   tx_uplist[MAX_UPLIST_WIDTH];    /* Follow switch ARL if empty */
-    uint8   tx_untag_uplist[MAX_UPLIST_WIDTH];   /* If USE_UNTAG_PORT_BITMAP set */
-    uint8   tx_tag_mode;                    /* Only if tx_uplist is empty */
-    void *  cookie;
+    uint8   tx_uplist[MAX_UPLIST_WIDTH];        // /* Follow switch ARL if empty */
+    uint8   tx_untag_uplist[MAX_UPLIST_WIDTH];  // /* If USE_UNTAG_PORT_BITMAP set */
+    uint8   tx_tag_mode;                        ///* Only if tx_uplist is empty */
+    void *  cookie;                             //
             
-    uint32  reserved1;
-    uint32  reserved2;
-    uint32  reserved3;
-    uint32  reserved4;
+    uint32  reserved1;                          //
+    uint32  reserved2;                          //
+    uint32  reserved3;                          //
+    uint32  reserved4;                          //
             
-    uint32  internal0;  /* Used internally in kernel */
-    uint32  internal1;  /* Used internally in board */
+    uint32  internal0;                          ///* Used internally in kernel */
+    uint32  internal1;                          ///* Used internally in board */
     
-    struct sys_pkt_s *  next;
+    struct sys_pkt_s *  next;                   //指向下一个数据包
 } sys_pkt_t;
 
 #endif /* _PKT_H_ */

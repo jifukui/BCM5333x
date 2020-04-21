@@ -52,34 +52,35 @@
 #include "soc/bcm5333x.h"
 #include "utils/ports.h"
 #include "utils/ui.h"
-
+/**获取交换机配置对象*/
 extern soc_switch_t soc_switch_bcm5333x;
+//对于配置了flash支持
 #if CFG_FLASH_SUPPORT_ENABLED
 /* Flash device driver. */
 extern flash_dev_t n25q256_dev;
 #endif /* CFG_FLASH_SUPPORT_ENABLED */
-
+//设置设备名称
 static const char *um_boardname = CFG_BOARDNAME;
-
+//对于配置了QoS的处理
 #ifdef CFG_SWITCH_QOS_INCLUDED
 static qos_type_t  qos_info = QT_COUNT;
 #endif
-
+//对于配置了速率管理的处理
 #ifdef CFG_SWITCH_RATE_INCLUDED
 static uint8 storm_info = STORM_RATE_NONE;
 #endif
-
+//对于配置了组播的处理
 #if defined(CFG_SWITCH_MCAST_INCLUDED)
 typedef struct mcast_list_s {
-    uint8 mac[6];
-    uint16 vlan_id;
-    uint16 index;
-    pbmp_t  port_lpbmp; /* all ports' pbmp in this vlan_id */
+    uint8 mac[6];         //MAC地址
+    uint16 vlan_id;        //VLAN ID
+    uint16 index;           //索引号
+    pbmp_t  port_lpbmp;     //端口位图
 	uint16 umc_index;
 	uint16 uc_index;
     struct mcast_list_s *next;
 } mcast_list_t;
-
+//设置组播列表
 static mcast_list_t *mlist = NULL;
 
 /* address the minimal l2mc index can be used */
@@ -115,7 +116,9 @@ const char * board_name(void)
  * @return the number of user ports
  *    
  */
-/**获取设备的端口数*/
+/**获取设备的端口数
+ * 返回设备的用户端口数量
+*/
 uint8 board_uport_count(void)
 {
     return bcm5333x_port_count(0);
@@ -212,7 +215,8 @@ sys_error_t board_lport_to_uport(uint8 unit, uint8 lport, uint16 *uport)
     int temp_lport;
 
 
-    if (uport == NULL || lport > BCM5333X_PORT_MAX || unit > 0) {
+    if (uport == NULL || lport > BCM5333X_PORT_MAX || unit > 0) 
+    {
         return SYS_ERR_PARAMETER;
     }
 
@@ -271,7 +275,7 @@ sys_error_t board_lport_to_uport(uint8 unit, uint8 lport, uint16 *uport)
  *     SYS_ERR_PARAMETER : fail, because parameter is invalid
  *   
  */
-
+/**将端口的映射数组转换为bitmap的形式*/
 sys_error_t board_uplist_to_lpbmp(uint8 *uplist, uint8 unit, pbmp_t *lpbmp)
 {
 
@@ -367,7 +371,10 @@ soc_switch_t * board_get_soc_by_unit(uint8 unit)
     }
     return &soc_switch_bcm5333x;
 }
-/***/
+/**获取端口的使能状态
+ * uport：用户端口号
+ * enable：端口使能状态
+*/
 sys_error_t board_port_enable_get(uint16 uport, BOOL *enable)
 {
     uint8 unit, lport, pport;
@@ -400,7 +407,9 @@ sys_error_t board_port_enable_get(uint16 uport, BOOL *enable)
 
     return r;
 }
-
+/**设置端口的使能状态
+ * 
+*/
 sys_error_t board_port_enable_set(uint16 uport, BOOL enable)
 {
     uint8 unit;
@@ -447,7 +456,7 @@ sys_error_t board_port_enable_set(uint16 uport, BOOL enable)
 
     return r;
 }
-
+/**获取端口的link状态*/
 sys_error_t board_get_port_link_status(uint16 uport, BOOL *link)
 {
     uint8 unit, lport;
@@ -470,7 +479,7 @@ sys_error_t board_get_port_link_status(uint16 uport, BOOL *link)
 
     return (*soc_switch_bcm5333x.link_status)(unit, lport, link);
 }
-
+/**设置设备复位*/
 void board_reset(void *param)
 {
     if (param) 

@@ -75,6 +75,18 @@
 #endif /* CFG_ZEROCONF_AUTOIP_INCLUDED */
 
 #pragma pack(1)
+/**定义ARP相关的格式
+ * ethhdr源和目的的MAC地址
+ * hwtype:硬件类型，1表示为以太网类型
+ * protocol：协议类型表示为映射的地址的类型
+ * hwlen：硬件地址长度
+ * protolen：协议地址长度
+ * opcode：操作码，1表示ARP请求，2表示ARP应答，3表示RARP请求，4表示RARP应答
+ * shwaddr：发送端MAC地址
+ * sipaddr：发送端IP地址
+ * dhwaddr：接收端MAC地址
+ * dipaddr：接收端IP地址
+*/
 struct arp_hdr {
   struct uip_eth_hdr ethhdr;
   u16_t hwtype;
@@ -87,8 +99,21 @@ struct arp_hdr {
   struct uip_eth_addr dhwaddr;
   uip_ipaddr_t dipaddr;
 };
-
-struct ethip_hdr {
+/**以太网帧格式
+ * ethhdr源和目的的MAC地址
+ * vhl：协议版本号4bit和首部长度4bit
+ * tos：服务类型8bit
+ * len：数据包的总长度16bit，单位为字节长度
+ * ipid：标识符16bit
+ * ipoffset：偏移位置
+ * ttl：生存时间
+ * proto：协议
+ * ipchksum：校验值
+ * srcipaddr 源IP地址
+ * destipaddr 目的IP地址
+*/
+struct ethip_hdr 
+{
   struct uip_eth_hdr ethhdr;
   /* IP header. */
   u8_t vhl,
@@ -109,13 +134,18 @@ struct ethip_hdr {
 #define ARP_HWTYPE_ETH 1
 
 #pragma pack(1)
+/**定义ARP实例结构体
+ * ipaddr：IP地址
+ * ethaddr：MAC地址
+ * time:
+*/
 struct arp_entry {
   uip_ipaddr_t ipaddr;
   struct uip_eth_addr ethaddr;
   u8_t time;
 };
 #pragma pack()
-
+//定义物理层广播地址
 static const struct uip_eth_addr CODE broadcast_ethaddr =
     {{0xff,0xff,0xff,0xff,0xff,0xff}};
 static const u16_t CODE broadcast_ipaddr[2] = {0xffff,0xffff};
@@ -124,7 +154,7 @@ static const struct uip_eth_addr CODE mdns_ethaddr =
     {{0x01,0x00,0x5e,0x00,0x00,0xfb}};
 static const u16_t CODE mdns_ipaddr[2] = {0xe000,0x00fb};
 #endif /* CFG_ZEROCONF_MDNS_INCLUDED */
-
+/**ARP地址表*/
 static struct arp_entry arp_table[UIP_ARPTAB_SIZE];
 static uip_ipaddr_t ipaddr;
 static u8_t i, c;
@@ -158,7 +188,20 @@ static u8_t tmpage;
 #define AUTOIP_RATE_LIMIT_INTERVAL  60000000    /* 60 seconds */
 #define AUTOIP_DEFEND_INTERVAL      10000000    /* 10 seconds */
 
-
+/**自动IP信息
+ * state:
+ * renew:
+ * mac_addr:
+ * probe_count
+ * first_probe
+ * last_probe
+ * next_probe_interval
+ * conflict_count
+ * ipaddr
+ * ip
+ * netmask
+ * gateway
+*/
 struct autoip_info {
   char      state;
   BOOL      renew;
@@ -192,11 +235,13 @@ void uip_autoip_in(void);
  *
  */
 /*-----------------------------------------------------------------------------------*/
-void
-uip_arp_init(BOOL start)
+/**ARP的初始化*/
+void uip_arp_init(BOOL start)
 {
   UNREFERENCED_PARAMETER(start);
-  for(i = 0; i < UIP_ARPTAB_SIZE; ++i) {
+  //初始化ARP表
+  for(i = 0; i < UIP_ARPTAB_SIZE; ++i) 
+  {
     sal_memset(&arp_table[i].ipaddr, 0, 4);
   }
 #ifdef CFG_ZEROCONF_AUTOIP_INCLUDED
@@ -214,16 +259,16 @@ uip_arp_init(BOOL start)
  *
  */
 /*-----------------------------------------------------------------------------------*/
-void
-uip_arp_timer(void)
+void uip_arp_timer(void)
 {
   struct arp_entry *tabptr;
 
   ++arptime;
-  for(i = 0; i < UIP_ARPTAB_SIZE; ++i) {
+  for(i = 0; i < UIP_ARPTAB_SIZE; ++i) 
+  {
     tabptr = &arp_table[i];
-    if(uip_ipaddr_cmp(&tabptr->ipaddr, &uip_all_zeroes_addr) &&
-       arptime - tabptr->time >= UIP_ARP_MAXAGE) {
+    if(uip_ipaddr_cmp(&tabptr->ipaddr, &uip_all_zeroes_addr) &&arptime - tabptr->time >= UIP_ARP_MAXAGE) 
+    {
       sal_memset(&tabptr->ipaddr, 0, 4);
     }
   }
@@ -231,11 +276,9 @@ uip_arp_timer(void)
 }
 #endif /* !__BOOTLOADER__ */
 
-extern void
-uip_arp_update(uip_ipaddr_t *ipaddr, struct uip_eth_addr *ethaddr);
+extern void uip_arp_update(uip_ipaddr_t *ipaddr, struct uip_eth_addr *ethaddr);
 /*-----------------------------------------------------------------------------------*/
-void
-uip_arp_update(uip_ipaddr_t *ipaddr, struct uip_eth_addr *ethaddr)
+void uip_arp_update(uip_ipaddr_t *ipaddr, struct uip_eth_addr *ethaddr)
 {
   register struct arp_entry *tabptr = arp_table;
   /* Walk through the ARP mapping table and try to find an entry to
@@ -308,17 +351,16 @@ uip_arp_update(uip_ipaddr_t *ipaddr, struct uip_eth_addr *ethaddr)
  * variable uip_len.
  */
 /*-----------------------------------------------------------------------------------*/
-void
-uip_arp_ipin(void)
+void uip_arp_ipin(void)
 {
   /* Only insert/update an entry if the source IP address of the
      incoming IP packet comes from a host on the local network. */
-  if((IPBUF->srcipaddr.u16[0] & uip_netmask.u16[0]) !=
-     (uip_hostaddr.u16[0] & uip_netmask.u16[0])) {
+  if((IPBUF->srcipaddr.u16[0] & uip_netmask.u16[0]) !=(uip_hostaddr.u16[0] & uip_netmask.u16[0])) 
+  {
     return;
   }
-  if((IPBUF->srcipaddr.u16[1] & uip_netmask.u16[1]) !=
-     (uip_hostaddr.u16[1] & uip_netmask.u16[1])) {
+  if((IPBUF->srcipaddr.u16[1] & uip_netmask.u16[1]) !=(uip_hostaddr.u16[1] & uip_netmask.u16[1])) 
+  {
     return;
   }
   uip_arp_update(&IPBUF->srcipaddr, &IPBUF->ethhdr.src);
@@ -349,8 +391,7 @@ uip_arp_ipin(void)
  * global variable uip_len.
  */
 /*-----------------------------------------------------------------------------------*/
-void
-uip_arp_arpin(void)
+void uip_arp_arpin(void)
 {
 
   if(uip_len < sizeof(struct arp_hdr)) {
@@ -430,8 +471,7 @@ uip_arp_arpin(void)
  * uip_len.
  */
 /*-----------------------------------------------------------------------------------*/
-void
-uip_arp_out(void)
+void uip_arp_out(void)
 {
   struct arp_entry *tabptr = arp_table;
 
@@ -525,8 +565,7 @@ uip_autoip_init(void)
     sal_memset(&aip.gateway, 0x00, 4);
 }
 
-void
-uip_autoip_renew(void)
+void uip_autoip_renew(void)
 {
     u8_t    ip2 = 0;
 
@@ -573,8 +612,7 @@ uip_autoip_start(void)
 
 
 /* ARP packet receive handler while requesting an Link-Local Address */
-void
-uip_autoip_in(void)
+void uip_autoip_in(void)
 {
     switch(BUF->opcode) {
         case UIP_HTONS(ARP_REQUEST):
@@ -607,8 +645,7 @@ uip_autoip_in(void)
 }
 
 
-void
-uip_autoip_out(BOOL probe)
+void uip_autoip_out(BOOL probe)
 {
     /* Send Probe/Announce packets */
     sal_memset(BUF->ethhdr.dest.addr, 0xff, 6);
@@ -637,8 +674,7 @@ uip_autoip_out(BOOL probe)
 }
 
 
-void
-uip_autoip_appcall(void)
+void uip_autoip_appcall(void)
 {
     tick_t interval;
     if (aip.state == AUTOIP_STATE_DISABLED) {

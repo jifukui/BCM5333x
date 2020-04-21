@@ -65,6 +65,7 @@
  *
  */
 #if (UIP_CONF_IPV6 || CFG_UIP_IPV6_ENABLED)
+//定义IPv6地址联合体
 typedef union uip_ip6addr_t {
   u8_t  u8[16];         /* Initializer, must come first!!! */
   u16_t u16[8];
@@ -76,6 +77,7 @@ typedef uip_ip6addr_t uip_ipaddr_t;
 #endif /* UIP_CONF_IPV6 || CFG_UIP_IPV6_ENABLED */
 
 #if !UIP_CONF_IPV6
+//定义IPv4地址联合体
 typedef union uip_ip4addr_t {
   u8_t  u8[4];          /* Initializer, must come first!!! */
   u16_t u16[2];
@@ -83,6 +85,7 @@ typedef union uip_ip4addr_t {
   u32_t u32;
 #endif
 } uip_ip4addr_t;
+//定义
 typedef uip_ip4addr_t uip_ipaddr_t;
 #endif /* !UIP_CONF_IPV6 */
 

@@ -64,8 +64,8 @@
  * Returns:
  *   None
  */
-sys_error_t
-bcm5333x_mdns_enable_set(uint8 unit, BOOL mdns_enable)
+/***/
+sys_error_t bcm5333x_mdns_enable_set(uint8 unit, BOOL mdns_enable)
 {
     uint32 tcam_entry[15], xy_entry[15];
 
@@ -114,22 +114,30 @@ bcm5333x_mdns_enable_set(uint8 unit, BOOL mdns_enable)
  * Returns:
  *   None
  */
-sys_error_t
-bcm5333x_mdns_enable_get(uint8 unit, BOOL *mdns_enable)
+/**获取设备的mdns功能的状态
+ * unit：设备芯片的编号
+ * mdns_enable：mdns状态
+*/
+sys_error_t bcm5333x_mdns_enable_get(uint8 unit, BOOL *mdns_enable)
 {
     uint32 tcam_entry[15], dm_entry[15];
-
-    if (unit >= BOARD_NUM_OF_UNITS){
+    //判断设备单元号是否是有效的设备单元号
+    if (unit >= BOARD_NUM_OF_UNITS)
+    {
         return SYS_ERR_PARAMETER;
     }
-
+    //
     bcm5333x_mem_get(0, M_FP_TCAM(1), dm_entry, 15);
+    //
     bcm5333x_xy_to_dm(dm_entry, tcam_entry, 15, 234);
 
     /* Check MDNS port */
-    if (0x0 == tcam_entry[0]) {
+    if (0x0 == tcam_entry[0]) 
+    {
         *mdns_enable = FALSE;
-    } else {
+    } 
+    else 
+    {
         *mdns_enable = TRUE;
     }
 

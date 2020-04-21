@@ -41,7 +41,11 @@
 # WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
 # ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
 
+
+
+#定义设备的名称
 CFG_BOARDNAME = SmartSwitch
+#定义最终生成的映像文件的名称
 CFG_IMG := bcm95333x
 
 #
@@ -50,6 +54,11 @@ CFG_IMG := bcm95333x
 #
 #
 
+
+#对于定义生成的目标文件的处理
+#将configs文件夹下的对应的目标文件作为.config文件
+#将configs文件夹下的对应的目标文件下的.h文件作为include/config.h文件
+#设置CFG_CONFIG_UPDATE的值
 ifneq ($(target), )
 $(shell ln -s -f configs/config.$(target).old .config)
 $(shell ln -s -f configs/config_$(target).h  include/config.h)
@@ -77,7 +86,7 @@ $(shell ln -s -f configs/config_$(target).h  include/config.h)
 CFG_CONFIG_UPDATE = clean_wo_config
 endif
 
-
+#引入.config文件
 include .config
 
 CFG_INTERRUPTS ?= 0
@@ -92,29 +101,33 @@ CFG_LDT ?= 0
 CFG_WEB ?= 0
 CFG_GNU_TOOLCHAIN ?= 0
 
-
+#定义顶层的路径
 TOP = $(abspath  ../..)
+#定义build目录路径
 BUILD_DIR =  $(abspath  ./)
+#定义工具目录路劲
 TOOL_DIR =  $(abspath  ../../tools)
 
 
-
+#定义需要删除的文件的表达式
 CLEANOBJS += cfe.* cfez.* cfez zipstart.* conf.h  
+#定义配置文件
 CONFIG_FILES = .config include/config.h 
+#编译指令
 ALL : $(CFG_CONFIG_UPDATE) conf.h img_name cfe cfe.bin ${FLASH_IMG}
 	mv cfe.bin ${CFG_IMG}-${target}.bin
 
 
 img_name:
-
+#
 conf.h: .config
 	perl $(TOOL_DIR)/config2h.pl
 
-
+#
 include $(BUILD_DIR)/um.mk
-  
+#  
 -include ${BUILD_DIR}/um_gen_phylibs.mk
-
+#
 include ${BUILD_DIR}/um_link.mk
 
 

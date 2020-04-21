@@ -66,21 +66,22 @@ uip_ipchksum(void)
 }
 #endif
 /*---------------------------------------------------------------------------*/
-static u16_t
-upper_layer_chksum(u8_t proto)
+static u16_t upper_layer_chksum(u8_t proto)
 {
   u16_t upper_layer_len;
   u16_t sum;
 
 #if CFG_UIP_IPV6_ENABLED
-  if (uip_ipv6) {
-    upper_layer_len = 
-        ((u16_t)(BUF6->len[0]) << 8) + BUF6->len[1] - uip_ext_len;
-  } else 
-#endif /* CFG_UIP_IPV6_ENABLED */
+  /**获取IP层数据长度*/
+  if (uip_ipv6) 
   {
     upper_layer_len = 
-        (((u16_t)(BUF->len[0]) << 8) + BUF->len[1]) - UIP_IPH_LEN;
+        ((u16_t)(BUF6->len[0]) << 8) + BUF6->len[1] - uip_ext_len;
+  } 
+  else 
+#endif /* CFG_UIP_IPV6_ENABLED */
+  {
+    upper_layer_len = (((u16_t)(BUF->len[0]) << 8) + BUF->len[1]) - UIP_IPH_LEN;
   }
 
   /* 
@@ -91,7 +92,8 @@ upper_layer_chksum(u8_t proto)
   sum = upper_layer_len + proto;
   /* Sum IP source and destination addresses. */
 #if CFG_UIP_IPV6_ENABLED
-  if (uip_ipv6) {
+  if (uip_ipv6) 
+  {
     sum = sal_checksum(sum, (u8_t *)&BUF6->srcipaddr, 2 * sizeof(uip_ip6addr_t));
   } else 
 #endif /* CFG_UIP_IPV6_ENABLED */
@@ -99,13 +101,14 @@ upper_layer_chksum(u8_t proto)
 
   /* Sum TCP header and data. */
 #if CFG_UIP_IPV6_ENABLED
-  if (uip_ipv6) {
+  if (uip_ipv6) 
+  {
     sum = sal_checksum(sum, &uip_buf[UIP6_IPH_LEN + UIP_LLH_LEN + uip_ext_len],
             upper_layer_len);
-  } else 
+  } 
+  else 
 #endif /* CFG_UIP_IPV6_ENABLED */
-    sum = sal_checksum(sum, &uip_buf[UIP_IPH_LEN + UIP_LLH_LEN], 
-            upper_layer_len);
+    sum = sal_checksum(sum, &uip_buf[UIP_IPH_LEN + UIP_LLH_LEN], upper_layer_len);
 
   return uip_htons(sum);
 }
@@ -120,8 +123,7 @@ uip_icmp6chksum(void)
 #endif /* CFG_UIP_IPV6_ENABLED */
 #if UIP_TCP
 /*---------------------------------------------------------------------------*/
-u16_t
-uip_tcpchksum(void)
+u16_t uip_tcpchksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_TCP);
 }

@@ -484,8 +484,7 @@ bcm5333x_loop_detect_init(void)
     _bcm5333x_loop_detect_init(0xA);
 }
 
-void
-bcm5333x_loop_detect_enable(BOOL enable)
+void bcm5333x_loop_detect_enable(BOOL enable)
 {
     if (loopdetect_status == enable) {
         return;

@@ -242,8 +242,8 @@ uip_task_send(void)
 /*
  * Init routine for loader.
  */
-void
-uip_task_init()
+/***/
+void uip_task_init()
 {
     uint8 i;
     soc_rx_packet_t *spkt;
@@ -251,7 +251,9 @@ uip_task_init()
     bookkeeping_t bk_data;
 
     /* Update mac address info in uIP. */
+    //获取MAC地址
     get_system_mac((uint8 *)&mac_addr);
+    //用户设置MAC地址
     uip_setethaddr(mac_addr);
 
     timer_set(&periodic_timer, SAL_USEC_TO_TICKS(PERIODIC_TIMER_INTERVAL));
@@ -273,9 +275,11 @@ uip_task_init()
 
     BOOT_FUNC_RX_SET_HANDLER(0, loader_rx_handler, FALSE);
 
-    for(i=0; i<DEFAULT_RX_BUFFER_COUNT; i++) {
+    for(i=0; i<DEFAULT_RX_BUFFER_COUNT; i++) 
+    {
         spkt = (soc_rx_packet_t *)sal_malloc(sizeof(soc_rx_packet_t));
-        if (spkt == NULL) {
+        if (spkt == NULL) 
+        {
             return;
         }
         spkt->buffer = rx_buffers[i];
@@ -293,7 +297,8 @@ uip_task_init()
     /* Register a background task for RX handling */
     task_add(uip_task, (void *)NULL);
 
-    if ((board_loader_mode_get(&bk_data, FALSE) == LM_UPGRADE_FIRMWARE)) {
+    if ((board_loader_mode_get(&bk_data, FALSE) == LM_UPGRADE_FIRMWARE)) 
+    {
 
         /* Pick up bookkeeping data from firmware. */
         set_network_interface_config(
@@ -303,13 +308,15 @@ uip_task_init()
             (const uint8 *)bk_data.agent_gateway);
 
 #if CFG_UIP_IPV6_ENABLED
-        if (!uip_is_addr_unspecified((uip_ip6addr_t *)&bk_data.agent_ipv6)) {
-            uip_ds6_addr_add(
-                (uip_ip6addr_t *)&bk_data.agent_ipv6, 0, ADDR_MANUAL);
+        if (!uip_is_addr_unspecified((uip_ip6addr_t *)&bk_data.agent_ipv6)) 
+        {
+            uip_ds6_addr_add((uip_ip6addr_t *)&bk_data.agent_ipv6, 0, ADDR_MANUAL);
         }
 #endif /* CFG_UIP_IPV6_ENABLED */
 
-    } else {
+    } 
+    else 
+    {
         /*
          *  Found invalid firmware if we got here. Loader always uses default IP.
          */

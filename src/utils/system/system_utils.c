@@ -66,11 +66,13 @@
 /*
  * System mac
  */
+//定义设备的默认MAC地址
 static uint8 system_mac[6] = DEFAULT_MAC_ADDR;
 
 /*
  * System name/description
  */
+//定义设备的名称
 static char system_name[MAX_SYSTEM_NAME_LEN + 1] = DEFAULT_SYSTEM_NAME;
 
 #ifdef CFG_PRODUCT_REGISTRATION_INCLUDED
@@ -87,7 +89,10 @@ static char product_serial_num[MAX_SERIAL_NUM_LEN + 1] = DEFAULT_SERIAL_NUMBER;
 #endif /* CFG_PRODUCT_REGISTRATION_INCLUDED */
 
 static int hexdigit_to_decimal(int digit);
-/**将十六进制数转换为十进制数*/
+/**将十六进制数转换为十进制数
+ * digit为字符形式的十六进制数
+ * 返回的值为转换完成的十进制数
+*/
 static int hexdigit_to_decimal(int digit)
 {
     if (digit >= '0' && digit <= '9') return (digit - '0'     );
@@ -95,39 +100,55 @@ static int hexdigit_to_decimal(int digit)
     if (digit >= 'A' && digit <= 'F') return (digit - 'A' + 10);
     return 0;
 }
-
+/**将字符串形式的MAC地址转换为8个字节组成的数组
+ * str：字符串形式的MAC地址
+ * macaddr：转换完成的MAC地址数组
+ * 返回转换结果
+*/
 sys_error_t parse_mac_address(const char *str, uint8 *macaddr)
 {
     const char *s;
     int i;
     char gap_ch;
-
-    if (str == NULL || str[0] == 0 || macaddr == NULL) {
+    //判断字符串是否为空，MAC地址数组是否未申请，字符串的第一个字符的值为0,如果是返回错误
+    if (str == NULL || str[0] == 0 || macaddr == NULL) 
+    {
         return SYS_ERR_PARAMETER;
     }
-    if (sal_strchr(str, '-')) {
+    //获取MAC地址字符串形式的间隔符只能是-或者是：对于其他类型返回错误
+    if (sal_strchr(str, '-')) 
+    {
         gap_ch = '-';
-    } else if (sal_strchr(str, ':')) {
+    } 
+    else if (sal_strchr(str, ':')) 
+    {
         gap_ch = ':';
-    } else {
+    } 
+    else 
+    {
         return SYS_ERR_PARAMETER;
     }
 
     s = str;
-    for (i = 0; i < 6; i++) {
-        if (!isxdigit((unsigned)*s)) {  /* bad character */
+    for (i = 0; i < 6; i++) 
+    {
+        if (!isxdigit((unsigned)*s)) 
+        {  /* bad character */
             return SYS_ERR_PARAMETER;
         }
         macaddr[i] = hexdigit_to_decimal((unsigned)*(s++));
-        if (isxdigit((unsigned)*s)) {
+        if (isxdigit((unsigned)*s)) 
+        {
             macaddr[i] *= 16;
             macaddr[i] += hexdigit_to_decimal((unsigned)*(s++));
         }
-        if ((i < 5) && (*(s++) != gap_ch)) {  /* bad character */
+        if ((i < 5) && (*(s++) != gap_ch)) 
+        {  /* bad character */
             return SYS_ERR_PARAMETER;
         }
     }
-    if (*s) {
+    if (*s) 
+    {
         return SYS_ERR_PARAMETER;
     }
 
@@ -135,6 +156,7 @@ sys_error_t parse_mac_address(const char *str, uint8 *macaddr)
 }
 
 #ifdef CFG_PRODUCT_REGISTRATION_INCLUDED
+/**设置*/
 sys_error_t set_registration_status(uint8 status)
 {
     if (status > REGISTRATION_STATUS_REGISTERED) {
@@ -144,9 +166,8 @@ sys_error_t set_registration_status(uint8 status)
     product_reg_status = status;
     return SYS_OK;
 }
-
-sys_error_t
-get_registration_status(uint8 *status)
+/***/
+sys_error_t get_registration_status(uint8 *status)
 {
     if (status == NULL) {
         return SYS_ERR_PARAMETER;
@@ -155,9 +176,8 @@ get_registration_status(uint8 *status)
     *status = product_reg_status;
     return SYS_OK;
 }
-
-sys_error_t
-get_serial_num(uint8 *valid, char *serial_num)
+/***/
+sys_error_t get_serial_num(uint8 *valid, char *serial_num)
 {
     if (serial_num == NULL) {
         return SYS_ERR_PARAMETER;
@@ -172,9 +192,8 @@ get_serial_num(uint8 *valid, char *serial_num)
 
     return SYS_OK;
 }
-
-sys_error_t
-set_serial_num(uint8 valid, const char *serial_num)
+/***/
+sys_error_t set_serial_num(uint8 valid, const char *serial_num)
 {
     factory_config_t cfg;
 
@@ -209,7 +228,9 @@ set_serial_num(uint8 valid, const char *serial_num)
     return SYS_OK;
 }
 #endif /* CFG_PRODUCT_REGISTRATION_INCLUDED */
-
+/**设置系统名称
+ * name为要设置的系统名称
+*/
 sys_error_t set_system_name(const char *name)
 {
     if (name == NULL) 
@@ -229,14 +250,20 @@ sys_error_t set_system_name(const char *name)
 
     return SYS_OK;
 }
-/**获取系统名称*/
+/**获取系统名称
+ * buf：用于存储系统的名称
+ * len：为缓存区的长度
+ * 返回状态结果
+*/
 sys_error_t get_system_name(char *buf, uint8 len)
 {
-    if (buf == NULL || len == 0) {
+    if (buf == NULL || len == 0) 
+    {
         return SYS_ERR_PARAMETER;
     }
 
-    if (sal_strlen(system_name) >= len) {
+    if (sal_strlen(system_name) >= len) 
+    {
         return SYS_ERR_PARAMETER;
     }
 
@@ -251,6 +278,7 @@ sys_error_t get_system_mac(uint8 *mac_buf)
     {
         return SYS_ERR_PARAMETER;
     }
+    //将默认的MAC地址拷贝到mac地址的字符串中
     sal_memcpy(mac_buf, system_mac, 6);
     return SYS_OK;
 }

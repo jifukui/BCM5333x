@@ -55,7 +55,7 @@
 #include "utils/ui.h"
 #include "sal.h"
 
-
+/**用户接口相关的函数*/
 extern uint32 counter_val[BCM5333X_LPORT_MAX][R_MAX * 2];
 
 
@@ -63,15 +63,13 @@ extern uint32 counter_val[BCM5333X_LPORT_MAX][R_MAX * 2];
 
 
 #if CFG_CONSOLE_ENABLED
-
-void
-APIFUNC(ui_backspace)(void) REENTRANT
+//输出回车符
+void APIFUNC(ui_backspace)(void) REENTRANT
 {
     sal_putchar(UI_KB_BS);
 }
-
-void
-APIFUNC(ui_dump_memory)(uint8 *addr, uint16 len) REENTRANT
+/**输出内存中的数据*/
+void APIFUNC(ui_dump_memory)(uint8 *addr, uint16 len) REENTRANT
 {
     uint8 p;
     uint8 c, buf[17];
@@ -125,9 +123,8 @@ APIFUNC(ui_dump_memory)(uint8 *addr, uint16 len) REENTRANT
 #endif /* CFG_CONSOLE_ENABLED */
 
 #if CFG_CLI_ENABLED
-
-ui_ret_t
-APIFUNC(ui_get_hex)(uint32 *value, uint8 size) REENTRANT
+/**获取十六进制数*/
+ui_ret_t APIFUNC(ui_get_hex)(uint32 *value, uint8 size) REENTRANT
 {
     uint8 len;
     char ch;
@@ -196,9 +193,8 @@ APIFUNC(ui_get_hex)(uint32 *value, uint8 size) REENTRANT
     
     return UI_RET_OK;
 }
-
-ui_ret_t
-APIFUNC(ui_get_byte)(uint8 *val, const char *str) REENTRANT
+/**获取字节数据*/
+ui_ret_t APIFUNC(ui_get_byte)(uint8 *val, const char *str) REENTRANT
 {
     uint32 value;
     ui_ret_t r;
@@ -214,9 +210,8 @@ APIFUNC(ui_get_byte)(uint8 *val, const char *str) REENTRANT
     *val = (uint8)(value & 0xFF);
     return r;
 }
-
-ui_ret_t
-APIFUNC(ui_get_word)(uint16 *val, const char *str) REENTRANT
+/**获取16bit数据*/
+ui_ret_t APIFUNC(ui_get_word)(uint16 *val, const char *str) REENTRANT
 {
     uint32 value;
     ui_ret_t r;
@@ -232,9 +227,8 @@ APIFUNC(ui_get_word)(uint16 *val, const char *str) REENTRANT
     *val = (uint16)(value & 0xFFFF);
     return r;
 }
-
-ui_ret_t
-APIFUNC(ui_get_dword)(uint32 *val, const char *str) REENTRANT
+/**获取32bit的数值*/
+ui_ret_t APIFUNC(ui_get_dword)(uint32 *val, const char *str) REENTRANT
 {
     uint32 value;
     ui_ret_t r;
@@ -250,9 +244,8 @@ APIFUNC(ui_get_dword)(uint32 *val, const char *str) REENTRANT
     *val = value;
     return r;
 }
-
-ui_ret_t
-APIFUNC(ui_get_address)(uint8 **paddr, const char *str) REENTRANT
+/**获取数据的地址*/
+ui_ret_t APIFUNC(ui_get_address)(uint8 **paddr, const char *str) REENTRANT
 {
     uint32 value;
     uint8 len = sizeof(msaddr_t) * 2;  /* 2 digits per byte */    
@@ -272,8 +265,7 @@ APIFUNC(ui_get_address)(uint8 **paddr, const char *str) REENTRANT
 }
 
 #if CFG_SAL_LIB_SUPPORT_ENABLED
-ui_ret_t
-APIFUNC(ui_get_decimal)(uint32 *pvalue, const char *str) REENTRANT
+ui_ret_t APIFUNC(ui_get_decimal)(uint32 *pvalue, const char *str) REENTRANT
 {
     char ch, last;
     uint32 value = 0;
@@ -337,9 +329,8 @@ APIFUNC(ui_get_decimal)(uint32 *pvalue, const char *str) REENTRANT
     *pvalue = value;
     return UI_RET_OK;
 }
-
-BOOL
-APIFUNC(ui_yes_or_no)(const char *str, uint8 suggested) REENTRANT
+/**判断用户输入的是否*/
+BOOL APIFUNC(ui_yes_or_no)(const char *str, uint8 suggested) REENTRANT
 {
     char ch;
     
@@ -378,9 +369,8 @@ APIFUNC(ui_yes_or_no)(const char *str, uint8 suggested) REENTRANT
     }
 }
 #endif /* CFG_SAL_LIB_SUPPORT_ENABLED */
-
-ui_ret_t
-APIFUNC(ui_get_bytes)(uint8 *pbytes, uint8 len, const char *str, BOOL show_org) REENTRANT
+/**获取多个字节*/
+ui_ret_t APIFUNC(ui_get_bytes)(uint8 *pbytes, uint8 len, const char *str, BOOL show_org) REENTRANT
 {
     uint8 i;
     uint32 value;
@@ -412,8 +402,8 @@ APIFUNC(ui_get_bytes)(uint8 *pbytes, uint8 len, const char *str, BOOL show_org) 
 }
 
 #if CFG_SAL_LIB_SUPPORT_ENABLED
-ui_ret_t
-APIFUNC(ui_get_string)(char *pbytes, uint8 len, const char *str) REENTRANT
+/**获取字符串*/
+ui_ret_t APIFUNC(ui_get_string)(char *pbytes, uint8 len, const char *str) REENTRANT
 {
     char ch, last;
     uint8 ch_len = 0;
@@ -462,8 +452,8 @@ APIFUNC(ui_get_string)(char *pbytes, uint8 len, const char *str) REENTRANT
 
 
 #ifdef CFG_XCOMMAND_INCLUDED
-ui_ret_t
-APIFUNC(ui_get_secure_string)(char *pbytes, uint8 len, const char *str) REENTRANT
+/**获取原始字符串*/
+ui_ret_t APIFUNC(ui_get_secure_string)(char *pbytes, uint8 len, const char *str) REENTRANT
 {
     char ch, last;
     uint8 ch_len = 0;
@@ -1149,8 +1139,7 @@ uint32 mem_valid_field[] = {
 };
 
 
-uint32 *
-soc_memacc_field_get(soc_field_info_t *fieldinfo, const uint32 *entbuf,
+uint32 * soc_memacc_field_get(soc_field_info_t *fieldinfo, const uint32 *entbuf,
                      uint32 *fldbuf)
 {    
     int i, wp, bp, len;
@@ -1202,12 +1191,11 @@ soc_memacc_field_get(soc_field_info_t *fieldinfo, const uint32 *entbuf,
     return fldbuf;
 }  
 
-void
-soc_memacc_mac_addr_get(soc_field_info_t *fieldinfo,
-                          void *entry, sal_mac_addr_t mac)
+void soc_memacc_mac_addr_get(soc_field_info_t *fieldinfo,void *entry, sal_mac_addr_t mac)
 {
     uint32              mac_field[2];
-    if (fieldinfo == NULL || entry == NULL) {
+    if (fieldinfo == NULL || entry == NULL) 
+    {
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return;
     }
@@ -1217,8 +1205,7 @@ soc_memacc_mac_addr_get(soc_field_info_t *fieldinfo,
     SAL_MAC_ADDR_FROM_UINT32(mac, mac_field);
 }
 
-uint32
-soc_memacc_field32_get(soc_field_info_t *fieldinfo, void *entry)
+uint32 soc_memacc_field32_get(soc_field_info_t *fieldinfo, void *entry)
 {
     uint32 value;
 
@@ -1232,24 +1219,27 @@ soc_memacc_field32_get(soc_field_info_t *fieldinfo, void *entry)
 }
 
 
-
-uint32 *
-soc_mem_field_get(soc_field_info_t *fieldinfo, const uint32 *entbuf,
+/**芯片内存域获取*/
+uint32 * soc_mem_field_get(soc_field_info_t *fieldinfo, const uint32 *entbuf,
                      uint32 *fldbuf)
 {
-    if(fieldinfo == NULL || entbuf == NULL || fldbuf == NULL) {
+    if(fieldinfo == NULL || entbuf == NULL || fldbuf == NULL) 
+    {
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return NULL;
     }
     return soc_memacc_field_get(fieldinfo, entbuf, fldbuf);
 }
 
-
- soc_field_info_t *
- soc_mem_valid_field_info(mem_tab_t tab_index) { 
+/**内存有效域信息
+ * tab_index
+*/
+ soc_field_info_t * soc_mem_valid_field_info(mem_tab_t tab_index) 
+ { 
     uint32 field;
 
-    if (tab_index >= MEM_MAX_COUNT) {
+    if (tab_index >= MEM_MAX_COUNT) 
+    {
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return NULL; 
     }
@@ -1259,8 +1249,7 @@ soc_mem_field_get(soc_field_info_t *fieldinfo, const uint32 *entbuf,
 } 
 
 
-void
-_shr_format_integer(char *buf, unsigned int n, int min_digits, int base)
+void _shr_format_integer(char *buf, unsigned int n, int min_digits, int base)
 {
     static char		*digit_char = "0123456789abcdef";
     unsigned int	tmp;
@@ -1284,8 +1273,7 @@ _shr_format_integer(char *buf, unsigned int n, int min_digits, int base)
 
 
 
-void
-_shr_format_long_integer(char *buf, uint32 *val, int nval)
+void _shr_format_long_integer(char *buf, uint32 *val, int nval)
 {
     int i = BYTES2WORDS(nval) - 1;  
   
@@ -1319,7 +1307,7 @@ _shr_format_long_integer(char *buf, uint32 *val, int nval)
 	    }
     }
 }
-
+/**芯片内存*/
 void soc_mem_dump(int tab_index, int change)
 {
     soc_mem_info_t * tab_prt;
@@ -1481,7 +1469,7 @@ typedef enum {
     USE_PPD_SOURCEf,
     VFP_PRI_ACTION_FB2_MODEf,
 } soc_reg_ing_config_64_t;
-
+/**芯片域信息表*/
 soc_field_info_t soc_ING_CONFIG_64_fields[] = {
     { APPLY_EGR_MASK_ON_L2f, 1, 12, 0 },
     { APPLY_EGR_MASK_ON_L3f, 1, 13, 0 },
@@ -1743,7 +1731,8 @@ soc_reg_info_t SOC_IUNKNOWN_MCAST_BLOCK_MASK_64 = {
 };
 
 
-soc_reg_info_t *reg_arr[] = {
+soc_reg_info_t *reg_arr[] = 
+{
     &SOC_REG_ING_CONFIG_64,
     &SOC_IGMP_MLD_PKT_CONTROL,
     &SOC_L2_AGE_TIMER,
@@ -1752,9 +1741,8 @@ soc_reg_info_t *reg_arr[] = {
     &SOC_IUNKNOWN_MCAST_BLOCK_MASK_64
 };
 
-
-void
-format_long_integer(char *buf, uint32 *val, int nval)
+/**长整形*/
+void format_long_integer(char *buf, uint32 *val, int nval)
 {
     int i;	
 
@@ -1775,9 +1763,11 @@ format_long_integer(char *buf, uint32 *val, int nval)
     }
 }
 
-
-void
-soc_reg_dump(uint32 index, uint32 id)
+/**寄存器映射
+ * index：
+ * id：
+*/
+void soc_reg_dump(uint32 index, uint32 id)
 {
     int         f;    
     char        line_buf[1024];
@@ -1788,13 +1778,15 @@ soc_reg_dump(uint32 index, uint32 id)
     uint32 val[SOC_MAX_MEM_FIELD_WORDS];
     uint8 size  = soc_reg_entry_bytes(index);
     
-	if (index >= REG_MAX_COUNT) {
+	if (index >= REG_MAX_COUNT) 
+    {
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return;
 	}
 
     reginfo = reg_arr[index]; 
-    if (reginfo == NULL) {
+    if (reginfo == NULL) 
+    {
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return;
     }
@@ -1837,7 +1829,7 @@ soc_reg_dump(uint32 index, uint32 id)
 }
 
 
-
+/**定义寄存器字符串*/
 char * reg_str[] = {
     "TBYT",
     "RBYT",
@@ -1875,17 +1867,22 @@ char * xl_reg_str[] = {
     "GTOVR",
     "TDrop",
 };
-
-void
-counter_val_set(int port, int reg, uint32 *dst)
+/**
+ * port：
+ * reg：
+ * dst：
+*/
+void counter_val_set(int port, int reg, uint32 *dst)
 {
-    if (dst == NULL) {
+    if (dst == NULL) 
+    {
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return;
     }
 
 	
-	if (port > BCM5333X_LPORT_MAX || reg > R_MAX) {
+	if (port > BCM5333X_LPORT_MAX || reg > R_MAX) 
+    {
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return;
 	}
@@ -1894,68 +1891,85 @@ counter_val_set(int port, int reg, uint32 *dst)
     counter_val[port][reg] = dst[reg];
     counter_val[port][reg + R_MAX] = dst[reg + R_MAX];	
 }
-
-void
-counter_val_diff(     int port, int reg, uint32 *dst, uint32 *diff)
+/***/
+void counter_val_diff(     int port, int reg, uint32 *dst, uint32 *diff)
 {
     uint32 val = 0;
 	uint8 pport;
 
-    if (dst == NULL || diff == NULL) {
+    if (dst == NULL || diff == NULL) 
+    {
         return;
     }
 	pport = SOC_PORT_L2P_MAPPING(port);
 
-    if (IS_XL_PORT(pport)) {
-        if (dst[reg + R_MAX] < counter_val[port][reg + R_MAX]) {
+    if (IS_XL_PORT(pport)) 
+    {
+        if (dst[reg + R_MAX] < counter_val[port][reg + R_MAX]) 
+        {
             val = 4294967295 - counter_val[port][reg + R_MAX];
             val += dst[reg + R_MAX];
 		    diff[0] = dst[reg];
             diff[0] -= 1;
-        } else {
+        } 
+        else 
+        {
 	
             diff[0] = dst[reg];
             diff[1] = val;
         }
-    } else {
-        if (dst[reg] < counter_val[port][reg]) {
+    }
+    else 
+    {
+        if (dst[reg] < counter_val[port][reg]) 
+        {
 			diff[0] = dst[reg];
 			counter_val[port][reg] = 0;
-        } else {           
+        } 
+        else 
+        {           
             diff[0] = dst[reg] - counter_val[port][reg];           
         }
 
     }
 }
-
-void
-soc_port_status_dump(int port)
+/**芯片端口状态*/
+void soc_port_status_dump(int port)
 {
-    char buf[80];    
+    char buf[80];
+    //逻辑端口    
 	uint8 lport;
+    //物理端口
 	uint8 pport;
 	int index;
 	uint32 stat[2 * R_MAX];
 	uint32 diff[2];
 
-	for (pport = 2; pport < 25; pport ++) {
+	for (pport = 2; pport < 25; pport ++) 
+    {
 		lport = SOC_PORT_P2L_MAPPING(pport);
-            if (port != 0) {
-                if (pport - 1 != port) {
+            if (port != 0) 
+            {
+                if (pport - 1 != port) 
+                {
                     continue;
                 }
 	    }
 		sal_memset(stat, 0, 2 * R_MAX * sizeof(uint32));
 		board_lport_stat_get(lport, stat);		
-		for (index = TBYT; index < R_MAX; index++) {
+		for (index = TBYT; index < R_MAX; index++) 
+        {
 			counter_val_diff(lport, index, stat, diff);			
 			sal_memset(buf, 0, 80);
-		    if (IS_XL_PORT(pport)) {
+		    if (IS_XL_PORT(pport)) 
+            {
 				sal_sprintf(buf, "%s%s%d", xl_reg_str[index], ".port", pport - 1);
 		        sal_printf("%-22s: 0x%08x%08x + 0x%08x%08x\n",
 			    buf, stat[index], stat[R_MAX + index], diff[0], diff[1]);
 			    counter_val_set(lport, index, stat);
-			} else {
+			} 
+            else 
+            {
 				sal_sprintf(buf, "%s%s%d", reg_str[index], ".port", pport - 1);
 		        sal_printf("%s:     0x%08x + 0x%08x\n",	buf, counter_val[port][index], diff[0]);
 				counter_val_set(lport, index, stat);
@@ -1965,14 +1979,14 @@ soc_port_status_dump(int port)
 	}
 }
 
-
-int
-resource_alloc( id_resource_t resource, uint32 *id)
+/**资源申请*/
+int resource_alloc( id_resource_t resource, uint32 *id)
 {
     int  idx;
 
     /* Input parameters check. */
-    if (NULL == id) {
+    if (NULL == id) 
+    {
         return (SYS_ERR);
     }
 
@@ -1991,9 +2005,8 @@ resource_alloc( id_resource_t resource, uint32 *id)
     return (SYS_OK);
 }
 
-
-int
-resource_free( id_resource_t resource, int id)
+/**资源释放*/
+int resource_free( id_resource_t resource, int id)
 {
 
     /* Input parameters check. */

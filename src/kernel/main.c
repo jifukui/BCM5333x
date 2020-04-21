@@ -185,7 +185,9 @@ main(void)
              */
             persistence_load_all_current_settings();
 
-        } else {
+        } 
+        else 
+        {
 
             /* 
              * Part or all of data in current settings are not valid: 

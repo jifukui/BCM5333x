@@ -32,10 +32,11 @@
  */
 #ifndef __DHCPC_H__
 #define __DHCPC_H__
-
+//定义DHCP服务器端口
 #define DHCPC_SERVER_PORT  67
+//定义DHCP客户端端口
 #define DHCPC_CLIENT_PORT  68
-
+//DHCP状态结构体
 struct dhcpc_state {
   char state;
   BOOL renew;
@@ -59,9 +60,9 @@ struct dhcpc_state {
   uint32 lease_interval;
   uint32 send_request;
 };
-
+//DHCP初始化
 void dhcpc_init(const void *mac_addr);
-
+//DHCP
 void dhcpc_request(void);
 
 void dhcpc_appcall(void);

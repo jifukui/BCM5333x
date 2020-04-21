@@ -69,8 +69,7 @@ extern int32
 access_control_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT;
 
 #if CFG_UIP_STACK_ENABLED
-int32
-eth_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
+int32 eth_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
 {
     uint8 ip[4], netmask[4], gateway[4];
     uint8 type;
@@ -161,8 +160,7 @@ eth_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
 
 #ifdef CFG_SYSTEM_PASSWORD_INCLUDED
 
-int32
-password_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
+int32 password_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
 {
     unsigned char buf[MAX_PASSWORD_LEN + 1];
     unsigned char buf2[MAX_PASSWORD_LEN + 1];

@@ -49,14 +49,17 @@
 #define _CLI_H_
 
 /* CLI command function prototype */
+/**定义名称操作结构体*/
 typedef enum {
     CLI_CMD_OP_EXEC,
     CLI_CMD_OP_DESC,
     CLI_CMD_OP_HELP
 } CLI_CMD_OP;
+//
 typedef void (*CLI_CMD_FUNC)(CLI_CMD_OP) REENTRANT;
 
 /* Add command to CLI command list */
+//
 extern BOOL cli_add_cmd(char cmd, CLI_CMD_FUNC func) REENTRANT;
 
 /* Remove command from CLI command list */

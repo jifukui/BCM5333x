@@ -63,8 +63,7 @@ extern int32
 registration_status_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT;
 #endif /* CFG_PRODUCT_REGISTRATION_INCLUDED */
 
-int32
-system_name_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
+int32 system_name_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
 {
     unsigned char buf[MAX_SYSTEM_NAME_LEN + 1];
 
@@ -99,8 +98,7 @@ system_name_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
     return MAX_SYSTEM_NAME_LEN;
 }
 
-int32
-port_desc_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
+int32 port_desc_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
 {
     unsigned char buf[WEB_PORT_DESC_LEN + 1];
     uint16 uport;
@@ -143,8 +141,7 @@ port_desc_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
 
 }
 
-int32
-port_enable_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
+int32 port_enable_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
 {
     uint16 uport;
     BOOL porten;
@@ -187,8 +184,7 @@ port_enable_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
 }
 
 #ifdef CFG_PRODUCT_REGISTRATION_INCLUDED
-int32
-registration_status_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
+int32 registration_status_serializer(SERIALIZE_OP op, SERL_MEDIUM_BIN *medium) REENTRANT
 {
     unsigned char reg_status;
 

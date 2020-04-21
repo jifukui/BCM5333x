@@ -59,6 +59,7 @@
 #if (CFG_CLI_ENABLED && CFG_RXTX_SUPPORT_ENABLED && CFG_CLI_RX_CMD_ENABLED)
 
 /* RX monitoring and forwarding */
+
 STATIC BOOL     rx_registered;
 STATIC uint8    rx_monitor_state;
 STATIC uint8    rx_forward_enabled;
@@ -77,49 +78,67 @@ APIFUNC(cli_switch_rx_handler)(sys_pkt_t *pkt, void *cookie) REENTRANT
     UNREFERENCED_PARAMETER(cookie);
     
     SAL_ASSERT(pkt != NULL);
-    if (pkt == NULL) {
+    if (pkt == NULL) 
+    {
         return SYS_RX_HANDLED;
     }
     
     rx_count++;
-    if (rx_monitor_state > 0) {
+    //对于监视器的状态值大于0的处理
+    if (rx_monitor_state > 0) 
+    {
         BOOL error = FALSE;
-        sal_printf("\nRX(%lu): length=%u port=%u", 
-                    rx_count, pkt->pkt_len, pkt->rx_src_uport);
-        if (pkt->flags) {
-            if (pkt->flags & SYS_RX_FLAG_COS) {
+        //输出接收包的数量和包的长度以及来源的端口号
+        sal_printf("\nRX(%lu): length=%u port=%u", rx_count, pkt->pkt_len, pkt->rx_src_uport);
+        //根据包的标记输出相关内容
+        if (pkt->flags) 
+        {
+            if (pkt->flags & SYS_RX_FLAG_COS) 
+            {
                 sal_printf(" cos=%u", pkt->cos);
             }
-            if (pkt->flags & SYS_RX_FLAG_TIMESTAMP) {
+            if (pkt->flags & SYS_RX_FLAG_TIMESTAMP) 
+            {
                 sal_printf(" Timestamp=%lu", pkt->rx_timestamp);
             }
-            if (pkt->flags & SYS_RX_FLAG_TRUNCATED) {
+            if (pkt->flags & SYS_RX_FLAG_TRUNCATED) 
+            {
                 sal_printf(" TRUNCATED");
             }
-            if (pkt->flags & SYS_RX_FLAG_ERROR_CRC) {
+            if (pkt->flags & SYS_RX_FLAG_ERROR_CRC) 
+            {
                 error = TRUE;
                 sal_printf(" !CRC-ERROR!");
             }
-            if (pkt->flags & SYS_RX_FLAG_ERROR_OTHER) {
+            if (pkt->flags & SYS_RX_FLAG_ERROR_OTHER) 
+            {
                 error = TRUE;
                 sal_printf(" !ERROR!");
             }
         }
-        if (rx_monitor_state == 2 && !error) {
+        //对于接收包状态等于2且没有错误的处理
+        if (rx_monitor_state == 2 && !error) 
+        {
             ui_dump_memory(pkt->pkt_data, pkt->pkt_len);
-        } else {
+        } 
+        //反之输出包内容
+        else 
+        {
             sal_putchar('\n');
         }
     } 
-    
-    if (rx_forward_enabled) {
+    //对于rx_forward_enabled的值为真的处理
+    if (rx_forward_enabled) 
+    {
         sys_error_t r;
-        
+        //设置
         sal_memcpy(pkt->tx_uplist, rx_forward_uplist, MAX_UPLIST_WIDTH);
         sal_memcpy(pkt->tx_untag_uplist, rx_forward_untag_uplist, MAX_UPLIST_WIDTH);
         pkt->flags = 0;
+        //
         r = sys_tx(pkt, NULL);
-        if (r != SYS_OK) {
+        if (r != SYS_OK) 
+        {
             sal_printf("TX error: %d\n", (int16)r);
         }
         
@@ -128,19 +147,23 @@ APIFUNC(cli_switch_rx_handler)(sys_pkt_t *pkt, void *cookie) REENTRANT
     
     return SYS_RX_NOT_HANDLED;    
 }
-
-APISTATIC void
-APIFUNC(cli_cmd_switch_rx_mon)(CLI_CMD_OP op) REENTRANT
+/****/
+APISTATIC void APIFUNC(cli_cmd_switch_rx_mon)(CLI_CMD_OP op) REENTRANT
 {
     uint8 uplist[MAX_UPLIST_WIDTH];
     
-    if (op == CLI_CMD_OP_HELP) {
+    if (op == CLI_CMD_OP_HELP) 
+    {
         sal_printf("Command to enable/disable RX monitor.\n"
                    "When it's enabled, notification of packet receiving will\n"
                    "be shown.\n");
-    } else if (op == CLI_CMD_OP_DESC) {
+    } 
+    else if (op == CLI_CMD_OP_DESC) 
+    {
         sal_printf("RX monitor");
-    } else {
+    } 
+    else 
+    {
         char c;
         sal_printf("  0 - Disable RX monitor\n"
                    "  1 - Show one line summary\n"
@@ -151,34 +174,51 @@ APIFUNC(cli_cmd_switch_rx_mon)(CLI_CMD_OP op) REENTRANT
                    "Enter your choice: ");
         c = sal_getchar();
         sal_putchar('\n');
-        if (c == '0' || c == '1' || c == '2') {
+        //对于是参数0,1,2的处理，设置监视器的状态
+        if (c == '0' || c == '1' || c == '2') 
+        {
             rx_monitor_state = (uint8)(c - '0');
-        } else if (c == '3' || c == '4' || c == '5') {
+        } 
+        //对参数是3,4,5的处理
+        else if (c == '3' || c == '4' || c == '5') 
+        {
             sal_printf("Port bitmap to forward:\n");
             uplist_clear(uplist);
-            if (ui_get_bytes(uplist, MAX_UPLIST_WIDTH, "Port list", FALSE) == UI_RET_OK) {
-                if (uplist_is_empty(uplist) == SYS_OK) {
+            if (ui_get_bytes(uplist, MAX_UPLIST_WIDTH, "Port list", FALSE) == UI_RET_OK) 
+            {
+                if (uplist_is_empty(uplist) == SYS_OK) 
+                {
                     rx_forward_enabled = FALSE;
                     sal_printf("No ports to forward!\n");
-                } else {
+                } 
+                else 
+                {
                     sal_memcpy(rx_forward_uplist, uplist, MAX_UPLIST_WIDTH);
-                    if (ui_yes_or_no("Untag?", 1)) {
+                    if (ui_yes_or_no("Untag?", 1)) 
+                    {
                         sal_memcpy(rx_forward_untag_uplist, 
                                     rx_forward_uplist, MAX_UPLIST_WIDTH);
-                    } else {
+                    } 
+                    else 
+                    {
                         uplist_clear(rx_forward_untag_uplist);
                     }
                     rx_forward_enabled = TRUE;
                     rx_monitor_state = (uint8)(c - '3');
                 }
-            } else {
+            } 
+            else 
+            {
                 sal_printf("Cancelled.\n");
             }
-        } else {
+        } 
+        else 
+        {
             sal_printf("Invalid choice.\n");
         }
         
-        if (rx_registered == FALSE && rx_monitor_state > 0) {
+        if (rx_registered == FALSE && rx_monitor_state > 0) 
+        {
             /* Lazy registration to enable RX engine on demand */
             sys_rx_register(
                 cli_switch_rx_handler, 
@@ -191,9 +231,9 @@ APIFUNC(cli_cmd_switch_rx_mon)(CLI_CMD_OP op) REENTRANT
         }
     }
 }
-
-void
-APIFUNC(ui_rx_init)(void) REENTRANT
+/**接收数据包初始化
+ * **/
+void APIFUNC(ui_rx_init)(void) REENTRANT
 {
     /* RX monitor */
     rx_registered = FALSE;

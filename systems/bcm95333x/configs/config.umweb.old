@@ -1,3 +1,4 @@
+#定义target的值
 target = umweb
 
  
@@ -5,13 +6,15 @@ target = umweb
 #  Firmware type  
 #
 
+#定义程序开始的位置
 CFG_TEXT_START ?= 0x1C060040
+#定义生成文件的文件名
 FLASH_IMG = ${CFG_IMG}-${target}.flash
 
 #
 #  WEB feature 
 #
-
+#定义CFG_WEB的值
 CFG_WEB = 1
 
 

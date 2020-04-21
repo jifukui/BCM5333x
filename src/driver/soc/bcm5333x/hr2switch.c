@@ -188,6 +188,11 @@ static const uint32 hu2_tdm_non_cascade_1b[75] = {2,14,30,31,32,33,
  *    8          3
  *    9          2
  */
+/**物理端口到逻辑端口的映射
+ * 传入物理端口
+ * 返回逻辑端口号
+ * 返回小于0的值表示端口不存在
+*/
 static const int p2l_mapping_24_0_0[] = { /* Powersave */
           0, -1,
           9,  8,  7,  6,  5,  4,  3,  2,
@@ -195,6 +200,7 @@ static const int p2l_mapping_24_0_0[] = { /* Powersave */
          18, 19, 20, 21, 22, 23, 24, 25,
          -1, -1, -1, -1,
          -1, -1, -1, -1 };
+/***/
 static const int port_speed_max_24x1g[] = {
          -1, -1,
           1,  1,  1,  1,  1,  1,  1,  1,
@@ -434,6 +440,7 @@ static const int port_speed_max_24x1g_1x10g_1x10g[] = {
     };
 #ifdef CFG_LED_MICROCODE_INCLUDED
 /* Left LED : Link,   Right LED : TX/RX activity */
+/**LED配置文件1*/
 static uint8 led_program_1[] = {
     0x02, 0x02, 0x28, 0x60, 0xE3, 0x67, 0x70, 0x75,
     0x0D, 0x67, 0x50, 0x77, 0x0F, 0x67, 0x22, 0x06,
@@ -460,6 +467,7 @@ static uint8 led_program_1[] = {
     0x87, 0x32, 0x0E, 0x87, 0x32, 0x0E, 0x87, 0x57};
 
  /* Left LED : TX/RX activity,   Right LED : LINK */
+ /**LED配置文件2*/
  static uint8 led_program_2[] = {
     0x02, 0x02, 0x28, 0x60, 0xE3, 0x67, 0x70, 0x75,
     0x0D, 0x67, 0x50, 0x77, 0x0F, 0x67, 0x22, 0x06,
@@ -491,7 +499,12 @@ uint32 counter_val[BCM5333X_LPORT_MAX][R_MAX * 2];
 
 static void bcm5333x_load_led_program(void);
 
-/**处理端口连接上 */
+/**对于端口的状态为link-up的处理
+ * unit为设备单元号
+ * lport为设备的逻辑端口
+ * changed为端口状态是否发生变换
+ * flags
+ */
 void bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags)
 {
     int rv;
@@ -500,7 +513,7 @@ void bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags
     uint32 speed;
     BOOL   tx_pause, rx_pause;
     int an = 0;
-
+    //对于端口的link状态发生变化的处理
     if (1 == changed) 
     {
         /* Port changes to link up from link down */
@@ -547,7 +560,9 @@ void bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags
                 tx_pause = rx_pause = TRUE;
             }
         }
+        //
         SOC_PORT_TX_PAUSE_STATUS(lport) = tx_pause;
+        //
         SOC_PORT_RX_PAUSE_STATUS(lport) = rx_pause;        
 #if CFG_CONSOLE_ENABLED
         sal_printf("\nlport %d (P:%d), speed = %d, duplex = %d, tx_pause = %d, rx_pause = %d speed=%d, an=%d %s\n",
@@ -562,6 +577,7 @@ void bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags
 #endif /* CFG_QSGMII_SERDES_AN_DISABLED */
 
         /* Update LED status */
+        /**更新状态灯的变化*/
         val = READCSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)));
         val |= 0x01;
         WRITECSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)), val);

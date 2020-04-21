@@ -50,7 +50,11 @@
 #include "soc/port.h"
 #include "soc/soc.h"
 #include "utils/ui.h"
-
+/**
+ * 此文件用于设置端口的一些功能包括
+ * 速率
+ * 节能以太网
+*/
 
 #ifdef CFG_SWITCH_QOS_INCLUDED
 static uint32 dscp_table[64] = {
@@ -82,8 +86,7 @@ static uint8 eee_state[BCM5333X_LPORT_MAX+1];
 
 #ifdef CFG_SWITCH_RATE_INCLUDED
 /* Ingress rate limit: FP slice 1 */
-void
-bcm5333x_rate_init(void)
+void bcm5333x_rate_init(void)
 {
     uint8 pport;
     uint32 port_field_sel_entry[5];
@@ -129,8 +132,7 @@ bcm5333x_rate_init(void)
 
 #ifdef CFG_SWITCH_QOS_INCLUDED
 /* QoS: FP slice 2 */
-void
-bcm5333x_qos_init(void)
+void bcm5333x_qos_init(void)
 {
     int i, j;
     uint32 port_entry[8];
@@ -219,18 +221,21 @@ bcm5333x_qos_init(void)
     }
 }
 
-void
-bcm5333x_dscp_map_enable(BOOL enable)
+void bcm5333x_dscp_map_enable(BOOL enable)
 {
     int i;
     uint32 dscp_port_tab[8];
 
-    for (i = BCM5333X_LPORT_MIN; i <= BCM5333X_LPORT_MAX; i++) {
+    for (i = BCM5333X_LPORT_MIN; i <= BCM5333X_LPORT_MAX; i++) 
+    {
         bcm5333x_mem_get(0, M_PORT(i), dscp_port_tab, 8);
-        if (enable) {
+        if (enable) 
+        {
             /* Enable TRUST_DSCP_V6 and TRUST_DSCP_V4 */
             dscp_port_tab[0] |= 0x18;
-        } else {
+        } 
+        else 
+        {
             /* Disable TRUST_DSCP_V6 and TRUST_DSCP_V4 */
             dscp_port_tab[0] &= 0xffffffe7;
         }
@@ -240,8 +245,8 @@ bcm5333x_dscp_map_enable(BOOL enable)
 #endif /* CFG_SWITCH_QOS_INCLUDED */
 
 #ifdef CFG_SWITCH_EEE_INCLUDED
-void
-bcm5333x_eee_init(void)
+/**初始化节能以太网*/
+void bcm5333x_eee_init(void)
 {
     int block_idx, port_idx;
     uint32 lport;
@@ -282,8 +287,13 @@ bcm5333x_eee_init(void)
  *  Note :
  *
  */
-sys_error_t
-bcm5333x_port_eee_enable_set(uint8 unit, uint8 lport, uint8 enable, uint8 save)
+/**设置端口节能以太网的状态
+ * unit
+ * lport
+ * enable
+ * save
+*/
+sys_error_t bcm5333x_port_eee_enable_set(uint8 unit, uint8 lport, uint8 enable, uint8 save)
 {
     uint32 regval;
     int block_idx, port_idx;
@@ -334,8 +344,12 @@ bcm5333x_port_eee_enable_set(uint8 unit, uint8 lport, uint8 enable, uint8 save)
  *  Note :
  *
  */
-void
-bcm5333x_port_eee_enable_get(uint8 unit, uint8 port, uint8 *enable)
+/**节能以太网状态获取
+ * unit：单元号
+ * port：端口
+ * enable：节能以太网状态
+*/
+void bcm5333x_port_eee_enable_get(uint8 unit, uint8 port, uint8 *enable)
 {
     *enable  = eee_state[port];
 }

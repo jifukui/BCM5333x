@@ -49,6 +49,7 @@
 #define _BCM5333X_H_
 /**不同设备的版本号*/
 /* Foxhound */
+/**bcm53334的设备ID号*/
 #define BCM53333_DEVICE_ID      0x8333
 #define BCM53334_DEVICE_ID      0x8334
 /* Deerhound*/
@@ -99,6 +100,7 @@
 #define M_SCTL_MIIM_PAUSE_SCAN_EN _DD_MAKEMASK1(S_SCTL_MIIM_PAUS_ESCAN_EN)
 
 /* MIIMP: MIIM Parameter Register (0x0158) */
+/**MII管理寄存器*/
 #define S_MIIMP_PHY_DATA          0
 #define M_MIIMP_PHY_DATA          _DD_MAKEMASK(16,S_MIIMP_PHY_DATA)
 #define V_MIIMP_PHY_DATA(x)       _DD_MAKEVALUE(x,S_MIIMP_PHY_DATA)
@@ -110,6 +112,7 @@
 #define G_MIIMP_PHY_ID(x)         _DD_GETVALUE(x,S_MIIMP_PHY_ID,M_MIIMP_PHY_ID)
 
 /* MIIMRD: MIIM Read Data Register (0x015C) */
+/**MII读数据接口8*/
 #define S_MIIMRD_DATA             0
 #define M_MIIMRD_DATA             _DD_MAKEMASK(16,S_MIIMRD_DATA)
 #define V_MIIMRD_DATA(x)          _DD_MAKEVALUE(x,S_MIIMRD_DATA)
@@ -186,6 +189,7 @@
 #define M_EGR_VLAN(idx)             11,0x100C0000+(idx)
 //生成树组状态表
 #define M_VLAN_STG(idx)             10,0x14040000+(idx)
+/**生成树输出状态表*/
 #define M_EGR_VLAN_STG(idx)         11,0x10100000+(idx)
 
 #define R_EGR_VLAN_CONTROL_1(idx)   11,0x04000B00+(idx)

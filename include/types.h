@@ -57,9 +57,11 @@ typedef signed short        int16;
 typedef signed long         int32;
 
 typedef uint8               BOOL;
+//定义真为1
 #define TRUE                (1)
+//定义假为0
 #define FALSE               (0)
-
+//如果没有定义NULL定义NULL为0
 #ifndef NULL
 #define NULL                (0)
 #endif
@@ -101,8 +103,9 @@ typedef uint32 u32_t;
 typedef uint32 uint32_t;
 
 #define UNREFERENCED_PARAMETER(x)   do { x = x; } while(0)
-
+//获取两个数值中小数值的宏
 #define min(a,b) ((a) < (b)? (a) : (b))
+//获取两个数值中大数值的宏
 #define max(a,b) ((a) > (b)? (a) : (b))
 
 #endif /* _TYPES_H_ */

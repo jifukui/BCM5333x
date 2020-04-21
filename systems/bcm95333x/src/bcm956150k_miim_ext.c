@@ -86,7 +86,7 @@ static const uint16 _phy_addr_bcm5339x[] = {
     0xFF, /* Port  32        N/A */
     0xFF /* Port  33        N/A */
 };
-
+/**获取外置PHY的地址*/
 static uint32_t _phy_addr(int pport)
 {
     if (pport < BCM5333X_PORT_MAX) 
@@ -136,22 +136,24 @@ static uint32_t _phy_addr(int pport)
     /* Should not get here */
     return 0xFF;
 }
-
+/**定义读取指定寄存器的值
+ * 
+*/
 static int _read(int unit, uint32_t addr, uint32_t reg, uint32_t *val)
 {
     return cdk_xgsm_miim_read(unit, addr, reg, val);
 }
-
+/**定义设置指定寄存器的值*/
 static int _write(int unit, uint32_t addr, uint32_t reg, uint32_t val)
 {
     return cdk_xgsm_miim_write(unit, addr, reg, val);
 }
-/***/
+/**返回指定物理端口的逻辑端口*/
 static int _phy_inst(int port)
 {
     return port - 2;
 }
-
+/**扩展的PHY的总线配置*/
 phy_bus_t phy_bus_bcm956150k_miim_ext = {
     "bcm956150k_miim_ext",
     _phy_addr,

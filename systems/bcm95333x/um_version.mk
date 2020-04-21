@@ -49,7 +49,11 @@
 #
 
 # Base UM version
+
+#定义程序的主版本号
 CFE_VER_MAJ=3
+#定义程序的此版本号
 CFE_VER_MIN=4
+#定义程序的编译版本号
 CFE_VER_ECO=0
 

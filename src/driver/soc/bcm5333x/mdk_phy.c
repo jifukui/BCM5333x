@@ -95,14 +95,14 @@ extern phy_driver_t bcm56150_drv;
 extern phy_driver_t bcmi_qsgmii_serdes_drv;
 extern phy_driver_t bcm54880e_drv;
 #endif /* !CONFIG_GREYHOUND_ROMCODE */
-/**定义使用的PHY的驱动*/
+/**定义5333x使用的PHY的驱动程序*/
 phy_driver_t *phy_drv_list_bcm95333x[] = {
     &bcm56150_drv,
     &bcm54282_drv,
     &bcmi_qsgmii_serdes_drv,
     NULL
 };
-
+/**定义*/
 phy_driver_t *phy_drv_list_bcm95339x[] = {
     &bcm54880e_drv,
     &bcmi_tsc_xgxs_drv,
@@ -117,18 +117,18 @@ phy_driver_t *phy_drv_list_bcm95334x[] = {
     &bcmi_tsc_xgxs_drv,
     NULL
 };
-
+/**定义外部PHY的模式*/
 static uint32 phy_external_mode = 0;
-
+//定义PHY为外部模式
 #define PHY_EXTERNAL_MODE(lport) (phy_external_mode & (0x1 << lport))
-
+//
 static uint32 phy_egphy_mode = 0;
-
+//
 #define PHY_EGPHY_MODE(lport) (phy_egphy_mode & (0x1 << lport))
 
-
+//定义设备信息
 bmd_phy_info_t bmd_phy_info[BOARD_NUM_OF_UNITS];
-
+//定义最大的控制PHY的数量为BCM5333X的最大逻辑端口数量的2倍
 #define PHY_CTRL_NUM_MAX  (BCM5333X_LPORT_MAX*2)
 /*
  * We do not want to rely on dynamic memory allocation,
@@ -145,7 +145,7 @@ int (*phy_init_cb)(phy_ctrl_t *pc);
 /*
  * Register PHY init callback function
  */
-/**设置PHY*/
+/**初始化注册PHY的回调处理函数*/
 int bmd_phy_init_cb_register(int (*init_cb)(phy_ctrl_t *pc))
 {
     phy_init_cb = init_cb;
@@ -156,6 +156,7 @@ int bmd_phy_init_cb_register(int (*init_cb)(phy_ctrl_t *pc))
 /*
  * Register PHY reset callback function
  */
+/**复位注册的PHY回调函数*/
 int bmd_phy_reset_cb_register(int (*reset_cb)(phy_ctrl_t *pc))
 {
     phy_reset_cb = reset_cb;
@@ -195,7 +196,7 @@ static phy_ctrl_t * phy_ctrl_alloc(void)
     }
     return NULL;
 }
-/***/
+/**释放PHY的控制*/
 static void phy_ctrl_free(phy_ctrl_t *pc)
 {
     pc->bus = 0;
@@ -324,7 +325,11 @@ int soc_phyctrl_notify(phy_ctrl_t *pc, phy_event_t event, uint32 value)
 
     return rv;
 }
-/**读取PHY的寄存器，传入的是逻辑端口寄存器地址返回数据的参数值*/
+/**读取PHY的寄存器，传入的是逻辑端口寄存器地址返回数据的参数值
+ * lport：为逻辑端口号
+ * red_addr：为寄存器的地址
+ * p_value：为读取值的内存地址
+*/
 sys_error_t phy_reg_read(uint8 lport, uint16 reg_addr, uint16 *p_value)
 {
     int rv = CDK_E_NONE;
@@ -335,14 +340,14 @@ sys_error_t phy_reg_read(uint8 lport, uint16 reg_addr, uint16 *p_value)
     {
         return SYS_ERR;
     }
-
+    //获取对应端口的控制结构
     pc = BMD_PORT_PHY_CTRL(0, lport);
 
-
+    //读取寄存器的值
     rv = PHY_BUS_READ(pc, (uint32)reg_addr, &value);
 
     *p_value = (uint16)value;
-
+    //返回读取状态
     if (!rv) 
     {
         return SYS_OK;
@@ -396,11 +401,13 @@ sys_error_t phy_reg_write(uint8 lport, uint16 reg_addr, uint16 value)
     }
 }
 
-
+/***/
 int cdk_xgsm_miim_read(int unit, uint32_t phy_addr, uint32_t reg, uint32_t *val)
 {
     int rv = CDK_E_NONE;
-    uint32 polls, data, phy_param;
+    uint32 polls;
+    uint32 data;
+    uint32 phy_param;
 
     /*
      * Use clause 45 access if DEVAD specified.
@@ -647,7 +654,7 @@ int bmd_phy_fw_helper_set(int unit, int lport,
     }
     return CDK_E_NONE;
 }
-
+/**PHY的线性接口设置*/
 int bmd_phy_line_interface_set(int unit, int lport, int intf)
 {
     int pref_intf;
@@ -734,7 +741,9 @@ int bmd_phy_eee_set(int unit, int lport, int mode)
     }
     return CDK_E_NONE;
 }
-
+/**获取PHY的节能以太网的状态
+ * 
+*/
 int bmd_phy_eee_get(int unit, int lport, int *mode)
 {
     *mode = PHY_EEE_NONE;
@@ -754,17 +763,14 @@ int bmd_phy_eee_get(int unit, int lport, int *mode)
     }
     return CDK_E_NONE;
 }
-
+/***/
 int bmd_phy_laneswap_set(int unit, int lport)
 {
     if (BMD_PORT_PHY_CTRL(unit, lport)) 
     {
         int rv;
-
         rv = PHY_CONFIG_SET(BMD_PORT_PHY_CTRL(unit, lport), PhyConfig_XauiTxLaneRemap, 0x3210, NULL);
-
         rv = PHY_CONFIG_SET(BMD_PORT_PHY_CTRL(unit, lport), PhyConfig_XauiRxLaneRemap, 0x0123, NULL);
-
         return rv;
     }
     return CDK_E_NONE;
@@ -917,10 +923,8 @@ int bmd_phy_staged_init(int unit)
     return rv;
 }
 
-extern int
-phy_brcm_xe_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data);
-extern int
-phy_tsc_iblk_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data);
+extern int phy_brcm_xe_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data);
+extern int phy_tsc_iblk_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data);
 
 #define BCM54282_MII_ANPr             (0x00000005)
 #define BCMI_TSC_XGXS_LP_BASE_PAGE1r  (0x0000c198)

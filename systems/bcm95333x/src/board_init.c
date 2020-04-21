@@ -95,6 +95,7 @@ uint8 reset_button_enable = 0;
 */
 
 /* Default LED control */
+/**默认的LED控制*/
 #define BCM54xxx_LED1_SEL(_pc)          0xA
 #define BCM54xxx_LED2_SEL(_pc)          0x3
 #define BCM54xxx_LED3_SEL(_pc)          0x3
@@ -160,7 +161,8 @@ int board_phy_init_callback(phy_ctrl_t *pc) {
         ioerr += PHY_BUS_WRITE(pc, MII_EXP_SEL, MII_EXP_UNMAP);
         
         /* If using LED link/activity mode, disable LED traffic mode */
-        if ((BCM54xxx_LEDCTRL(pc) & 0x10) || BCM54xxx_LEDSELECT(pc) == 0x01) {
+        if ((BCM54xxx_LEDCTRL(pc) & 0x10) || BCM54xxx_LEDSELECT(pc) == 0x01) 
+        {
             ioerr += PHY_BUS_READ(pc, MII_ECR_REG, &val);
             val &= ~0x0020;
             ioerr += PHY_BUS_WRITE(pc, MII_ECR_REG, val);

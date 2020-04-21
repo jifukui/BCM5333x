@@ -66,7 +66,9 @@
  *               QSGMII2X inst 2 : 11
  */
 
-/**配置BCN53334的地址*/
+/**配置BCN53334对应物理接口的PHY的控制地址
+ * CDK_XGSM_MIIM_IBUS(x)的值为里面的数值左移6位然后和0x200进行与运算
+*/
 static const uint16 _phy_addr_bcm5333x[] = {
     0xFF,  /* Port  0 (cmic) N/A */
     0xFF,  /* Port  1        N/A */
@@ -169,7 +171,9 @@ static const uint16 _phy_addr_bcm5339x[] = {
     0x07 + CDK_XGSM_MIIM_IBUS(1), /* Port 32 IntBus=1 Addr=0x07 */
     0x08 + CDK_XGSM_MIIM_IBUS(1)  /* Port 33 IntBus=1 Addr=0x08 */
 };
-/**获取根据端口的地址*/
+/**获取根据端口的地址传入的是物理端口号
+ * 返回PHY端口的配置表，返回FF表示失败
+*/
 static uint32_t _phy_addr(int pport)
 {
     if (pport <= BCM5333X_PORT_MAX) 
@@ -216,17 +220,29 @@ static uint32_t _phy_addr(int pport)
     /* Should not get here */
     return 0xFF;
 }
-
+/**读取操作
+ * unit：为此芯片的数量
+ * addr：为PHY的地址
+ * reg:为寄存器的地址
+ * val：为存放地址数据的缓存区
+*/
 static int _read(int unit, uint32_t addr, uint32_t reg, uint32_t *val)
 {
     return cdk_xgsm_miim_read(unit, addr, reg, val);
 }
-
+/**设置操作
+ * unit：为此芯片的数量
+ * addr：为PHY的地址
+ * reg:为寄存器的地址
+ * val:为要设置的值
+*/
 static int _write(int unit, uint32_t addr, uint32_t reg, uint32_t val)
 {
     return cdk_xgsm_miim_write(unit, addr, reg, val);
 }
-/**PHY的实例化，根据传入的端口号返回*/
+/**PHY的实例
+ * 根据传入的物理端口号返回设置的逻辑端口号
+*/
 static int _phy_inst(int pport)
 {
     if ((pport >= BCM5333X_PORT_MIN) && (pport <= BCM5333X_PORT_MAX)) 
@@ -259,7 +275,7 @@ static int _phy_inst(int pport)
     /* Should not get here */
     return 0;
 }
-
+/**定义mii总线的相关实例*/
 phy_bus_t phy_bus_bcm56150_miim_int = 
 {
     "bcm56150_miim_int",

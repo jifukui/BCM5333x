@@ -54,7 +54,7 @@
 #include "system.h"
 
 #if (CFG_RXTX_SUPPORT_ENABLED && !defined(__BOOTLOADER__))
-
+/**定义接收数据回调结构体**/
 typedef struct rx_cbk_s {
     uint8 priority;
     SYS_RX_CBK_FUNC cbk;
@@ -72,9 +72,13 @@ STATIC sys_pkt_t *rx_pkt_pool;
 void APIFUNC(sys_rx_init)(void) REENTRANT;
 APISTATIC void sys_rx_handler(sys_pkt_t *pkt) REENTRANT;
 APISTATIC sys_error_t sys_rx_refill(sys_pkt_t *pkt) REENTRANT;
-
-sys_error_t 
-APIFUNC(sys_rx_register)(
+/**注册接收数据回调函数
+ * callback：回调处理函数
+ * priority 优先级
+ * cookie 
+ * flags 
+*/
+sys_error_t  APIFUNC(sys_rx_register)(
     SYS_RX_CBK_FUNC callback, 
     uint8 priority, 
     void *cookie,
@@ -82,39 +86,51 @@ APIFUNC(sys_rx_register)(
 {
     uint8 i;
     rx_cbk_t *cbk = NULL;
-    
-    if (callback == NULL) {
+    //对于回调函数为空的处理
+    if (callback == NULL) 
+    {
         return SYS_ERR_PARAMETER;
     }
-    
-    for(i=0; i<CFG_MAX_REGISTERED_RX_CBKS; i++) {
-        if (rx_cbks[i].cbk == NULL) {
+    //获取回调函数
+    for(i=0; i<CFG_MAX_REGISTERED_RX_CBKS; i++) 
+    {
+        if (rx_cbks[i].cbk == NULL) 
+        {
             cbk = &rx_cbks[i];
             break;
         }
     }
     SAL_ASSERT(cbk != NULL);
-    if (cbk == NULL) {
+    if (cbk == NULL) 
+    {
         return SYS_ERR_FULL;
     }
-    
+    //初始化回调函数的参数
     cbk->priority = priority;
     cbk->cbk = callback;
     cbk->cookie = cookie;
     cbk->flags = flags;
     cbk->next = NULL;
     
-    if (rx_cbk_list == NULL) {
+    if (rx_cbk_list == NULL) 
+    {
         rx_cbk_list = cbk;
-    } else {
+    } 
+    else 
+    {
         rx_cbk_t *cur = rx_cbk_list;
         rx_cbk_t *prev = NULL;
-        while(cur != NULL) {
-            if (cur->priority >= cbk->priority) {
+        while(cur != NULL) 
+        {
+            if (cur->priority >= cbk->priority) 
+            {
                 cbk->next = cur;
-                if (prev == NULL) {
+                if (prev == NULL) 
+                {
                     rx_cbk_list = cbk;
-                } else {
+                } 
+                else 
+                {
                     prev->next = cbk;
                 }
                 break;
@@ -122,18 +138,22 @@ APIFUNC(sys_rx_register)(
             prev = cur;
             cur = cur->next;
         }
-        if (cur == NULL) {
+        if (cur == NULL) 
+        {
             prev->next = cbk;
         }
     }
     
     rx_cbk_count++;
-    if (rx_cbk_count == 1) {
+    if (rx_cbk_count == 1) 
+    {
         sys_pkt_t *pkt;
-        while(rx_pkt_pool != NULL) {
+        while(rx_pkt_pool != NULL) 
+        {
             pkt = rx_pkt_pool;
             rx_pkt_pool = rx_pkt_pool->next;
-            if (board_rx_fill_buffer(pkt) != SYS_OK) {
+            if (board_rx_fill_buffer(pkt) != SYS_OK) 
+            {
                 SAL_ASSERT(FALSE);
                 sal_free(pkt);
             }
@@ -142,9 +162,8 @@ APIFUNC(sys_rx_register)(
     
     return SYS_OK;
 }
-    
-sys_error_t
-APIFUNC(sys_rx_unregister)(SYS_RX_CBK_FUNC callback) REENTRANT
+/**注销接收回调处理函数*/
+sys_error_t APIFUNC(sys_rx_unregister)(SYS_RX_CBK_FUNC callback) REENTRANT
 {
     rx_cbk_t *cur = rx_cbk_list;
     rx_cbk_t *prev = NULL;
@@ -166,43 +185,50 @@ APIFUNC(sys_rx_unregister)(SYS_RX_CBK_FUNC callback) REENTRANT
     return SYS_ERR_PARAMETER;
 }
 
-APISTATIC sys_error_t
-APIFUNC(sys_rx_refill)(sys_pkt_t *pkt) REENTRANT
+APISTATIC sys_error_t APIFUNC(sys_rx_refill)(sys_pkt_t *pkt) REENTRANT
 {
-    if (rx_cbk_count > 0) {
+    if (rx_cbk_count > 0) 
+    {
         return board_rx_fill_buffer(pkt);
-    } else {
+    } 
+    else {
         pkt->next = rx_pkt_pool;
         rx_pkt_pool = pkt;
     }
     
     return SYS_OK;
 }
-
-APISTATIC void
-APIFUNC(sys_rx_handler)(sys_pkt_t *pkt) REENTRANT
+/**接收数据包的回调处理函数
+ * 
+*/
+APISTATIC void APIFUNC(sys_rx_handler)(sys_pkt_t *pkt) REENTRANT
 {
     rx_cbk_t *cur = rx_cbk_list;
     uint16 flags;
     sys_rx_t r;
     
     SAL_ASSERT(pkt != NULL);
-    
+    //flags为数据表的标记值
     flags = pkt->flags;
-
-    while(cur != NULL) {
+    /**对于接收包的处理函数不为空的处理*/
+    while(cur != NULL) 
+    {
 
         SAL_ASSERT(cur->cbk != NULL);
         
-        if (flags & SYS_RX_FLAG_TRUNCATED) {
-            if (!(cur->flags & SYS_RX_REGISTER_FLAG_ACCEPT_TRUNCATED_PKT)) {
+        if (flags & SYS_RX_FLAG_TRUNCATED) 
+        {
+            if (!(cur->flags & SYS_RX_REGISTER_FLAG_ACCEPT_TRUNCATED_PKT)) 
+            {
                 cur = cur->next;
                 continue;
             }
         }
 
-        if ((flags & (SYS_RX_FLAG_ERROR_CRC | SYS_RX_FLAG_ERROR_OTHER))) {
-            if (!(cur->flags & SYS_RX_REGISTER_FLAG_ACCEPT_TRUNCATED_PKT)) {
+        if ((flags & (SYS_RX_FLAG_ERROR_CRC | SYS_RX_FLAG_ERROR_OTHER))) 
+        {
+            if (!(cur->flags & SYS_RX_REGISTER_FLAG_ACCEPT_TRUNCATED_PKT)) 
+            {
                 cur = cur->next;
                 continue;
             }
@@ -210,8 +236,9 @@ APIFUNC(sys_rx_handler)(sys_pkt_t *pkt) REENTRANT
 
         r = (*cur->cbk)(pkt, cur->cookie);
         
-        switch(r) {
-
+        switch(r) 
+        {
+        //对于数据包被处理过的处理
         case SYS_RX_HANDLED:
             board_rx_fill_buffer(pkt);
             return;
@@ -234,8 +261,7 @@ APIFUNC(sys_rx_handler)(sys_pkt_t *pkt) REENTRANT
     sys_rx_refill(pkt);
 }
 
-void
-APIFUNC(sys_rx_free_packet)(sys_pkt_t *pkt) REENTRANT
+void APIFUNC(sys_rx_free_packet)(sys_pkt_t *pkt) REENTRANT
 {
     if (pkt == NULL) {
         return;
@@ -244,8 +270,7 @@ APIFUNC(sys_rx_free_packet)(sys_pkt_t *pkt) REENTRANT
     sys_rx_refill(pkt);
 }
 
-void
-APIFUNC(sys_rx_add_buffer)(uint8 *buffer, uint16 size) REENTRANT
+void APIFUNC(sys_rx_add_buffer)(uint8 *buffer, uint16 size) REENTRANT
 {
     sys_pkt_t *pkt;
     sys_error_t r;
@@ -269,9 +294,14 @@ APIFUNC(sys_rx_add_buffer)(uint8 *buffer, uint16 size) REENTRANT
         sal_free(pkt);
     }
 }
-
-void
-APIFUNC(sys_rx_init)(void) REENTRANT
+/**接收包初始化函数
+ * 设置回调函数列表为空
+ * 设置接收包数据池为空
+ * 设置回调函数的数量为空
+ * 清除回调函数数组的回电函数为空
+ * 注册接收数据包的回调函数为sys_rx_handler
+*/
+void APIFUNC(sys_rx_init)(void) REENTRANT
 {
     uint8 i;
     

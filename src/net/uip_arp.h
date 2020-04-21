@@ -61,15 +61,23 @@ extern struct uip_eth_addr uip_ethaddr;
 /**
  * The Ethernet header.
  */
+/**定义以太网数据帧头的格式
+ * dest为目的MAC地址
+ * src为源MAC地址
+ * type：为协议类型
+ * 此格式为MAC地址
+*/
 struct uip_eth_hdr {
   struct uip_eth_addr dest;
   struct uip_eth_addr src;
   u16_t type;
 };
 #pragma pack()
-
+//arp协议的帧类型
 #define UIP_ETHTYPE_ARP 0x0806
+//IP协议
 #define UIP_ETHTYPE_IP  0x0800
+//IPv6IP帧
 #define UIP_ETHTYPE_IP6 0x86dd
 
 /* The uip_arp_init() function must be called before any of the other
@@ -107,7 +115,7 @@ void uip_arp_out(void);
    is responsible for flushing old entries in the ARP table. */
 void uip_arp_timer(void);
 
-
+/**如果定义了0配置自动IP*/
 #ifdef CFG_ZEROCONF_AUTOIP_INCLUDED
 void uip_autoip_init(void);
 void uip_autoip_renew(void);
@@ -140,6 +148,7 @@ void uip_autoip_out(BOOL probe);
  *
  * \hideinitializer
  */
+/**设置设备的MAC地址宏*/
 #define uip_setethaddr(eaddr) do {uip_ethaddr.addr[0] = eaddr.addr[0]; \
                               uip_ethaddr.addr[1] = eaddr.addr[1];\
                               uip_ethaddr.addr[2] = eaddr.addr[2];\

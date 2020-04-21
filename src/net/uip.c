@@ -134,6 +134,7 @@ static const uip_ipaddr_t CODE mdns_addr =
 
 #if !CFG_UIP_IPV6_ENABLED
 #if UIP_FIXEDETHADDR
+/**以太网地址结构体*/
 const struct uip_eth_addr CODE uip_ethaddr = {{UIP_ETHADDR0,
                       UIP_ETHADDR1,
                       UIP_ETHADDR2,
@@ -160,11 +161,8 @@ uip_buf_t uip_aligned_buf;
 #endif /* !CFG_UIP_IPV6_ENABLED */
 
 #if !CFG_UIP_IPV6_ENABLED
-void *uip_appdata;               /* The uip_appdata pointer points to
-                    application data. */
-void *uip_sappdata;              /* The uip_appdata pointer points to
-                    the application data which is to
-                    be sent. */
+void *uip_appdata;               /* The uip_appdata pointer points to application data. */
+void *uip_sappdata;              /* The uip_appdata pointer points to the application data which is to be sent. */
 #else /* CFG_UIP_IPV6_ENABLED */
 extern void *uip_sappdata;
 #endif /* CFG_UIP_IPV6_ENABLED */
@@ -296,8 +294,7 @@ void uip_log(char *msg);
 
 #if ! UIP_ARCH_ADD32
 #if UIP_TCP
-void
-uip_add32(u8_t *op32, u16_t op16)
+void uip_add32(u8_t *op32, u16_t op16)
 {
   uip_acc32[3] = op32[3] + (op16 & 0xff);
   uip_acc32[2] = op32[2] + (op16 >> 8);
@@ -2037,12 +2034,14 @@ uip_htons(u16_t val)
 }
 #endif /* !CFG_UIP_IPV6_ENABLED */
 /*---------------------------------------------------------------------------*/
-void
-uip_send(const void *data_p, int len)
+/***/
+void uip_send(const void *data_p, int len)
 {
-  if(len > 0) {
+  if(len > 0) 
+  {
     uip_slen = len;
-    if(data_p != uip_sappdata) {
+    if(data_p != uip_sappdata) 
+    {
       sal_memcpy(uip_sappdata, (data_p), uip_slen);
     }
   }

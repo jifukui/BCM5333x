@@ -54,24 +54,35 @@ extern void background(void) REENTRANT;
 #define POLL() background()
 
 /* Tasking - Background task registration */
+//定义BACKGROUND_TASK_FUNC为回调函数的别名
 typedef void (*BACKGROUND_TASK_FUNC)(void *) REENTRANT;
+//定义添加任务
 extern void task_add(BACKGROUND_TASK_FUNC func, void *arg) REENTRANT;
+//定义删除任务
 extern void task_remove(BACKGROUND_TASK_FUNC func) REENTRANT;
+//定义暂停任务
 extern void task_suspend(BACKGROUND_TASK_FUNC func) REENTRANT;
+//定义恢复任务
 extern void task_resume(BACKGROUND_TASK_FUNC func) REENTRANT;
 
 
 /* Timer registration/notification */
+//定义计时器TIMER_FUNC任务处理的回调函数别名
 typedef void (*TIMER_FUNC)(void *) REENTRANT;
+//添加计时器处理函数
 extern BOOL timer_add(TIMER_FUNC func, void *arg, uint32 usec) REENTRANT;
+//删除计时器处理函数
 extern void timer_remove(TIMER_FUNC func) REENTRANT;
 
 /* Link change registration/notification */
+//定义连接状态改变是的回调函数
 typedef void (*SYS_LINKCHANGE_FUNC)(uint16 port, BOOL link, void *arg) REENTRANT;
+//
 extern BOOL sys_register_linkchange(SYS_LINKCHANGE_FUNC func, void *arg) REENTRANT;
 extern void sys_unregister_linkchange(SYS_LINKCHANGE_FUNC func) REENTRANT;
 
 /* RX handler - prototype */
+//接收
 typedef enum {
     SYS_RX_INVALID,
     SYS_RX_NOT_HANDLED,

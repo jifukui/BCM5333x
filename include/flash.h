@@ -71,7 +71,10 @@ struct flash_dev_funs
                              const hsaddr_t base, 
                              void* ram_base, size_t len) REENTRANT;
 };
-/**flash的块信息*/
+/**flash的块信息
+ * block_size块大小
+ * blocks块数量
+*/
 typedef struct flash_block_info_s 
 {
   size_t  block_size;
@@ -79,6 +82,12 @@ typedef struct flash_block_info_s
 } flash_block_info_t;
 
 /* Information about what one device driver drives */
+/**flash信息结构体
+ * start起始地址
+ * end结束地址
+ * num_block_infos flash实体的数量
+ * block_info flash的大小
+*/
 typedef struct {
   hsaddr_t                  start;              /* First address */
   hsaddr_t                  end;                /* Last address */

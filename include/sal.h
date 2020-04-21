@@ -50,6 +50,7 @@
 
 
 /* Debugging */
+//对于定义调试的外部引用sal_debugf函数用于信息输出
 #if CFG_DEBUGGING_ENABLED
 extern void sal_debugf(const char *fmt, ...);
 #define SAL_DEBUGF(x) do { sal_debugf x; } while(0)
@@ -58,6 +59,7 @@ extern void sal_debugf(const char *fmt, ...);
 #endif
 
 /* Assertion */
+//对于定义断言的外部引用sal_assert函数，并定义断言宏
 extern void sal_assert(const char *, const char *, uint16) REENTRANT;
 #if CFG_ASSERTION_ENABLED
 #define SAL_ASSERT(x) (void)((x)? 0 : (sal_assert(#x, __FILE__, __LINE__), 0))
