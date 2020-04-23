@@ -46,34 +46,42 @@
  */
 
 #include "system.h"
-
-uint16
-sal_checksum(uint16 sum, const void *data_p, uint16 len) REENTRANT
+/**计算冗余值
+ * sum：初始值，一般是0
+ * data_p：数据
+ * len：数据长度
+*/
+uint16 sal_checksum(uint16 sum, const void *data_p, uint16 len) REENTRANT
 {
     uint16 t;
     const uint8 *dataptr;
     const uint8 *last_byte;
-
+    //数据的开始位置
     dataptr = (const uint8 *)data_p;
+    //数据的最后一个字节
     last_byte = (const uint8 *)data_p + len - 1;
-
-    while(dataptr < last_byte) {    /* At least two more bytes */
+    //
+    while(dataptr < last_byte) 
+    {    /* At least two more bytes */
         t = (dataptr[0] << 8) + dataptr[1];
         sum += t;
-        if(sum < t) {
+        if(sum < t) 
+        {
             sum++;      /* carry */
         }
         dataptr += 2;
     }
 
-    if(dataptr == last_byte) {
+    if(dataptr == last_byte) 
+    {
         t = (dataptr[0] << 8) + 0;
         sum += t;
-        if(sum < t) {
+        //如果有溢出自加1
+        if(sum < t) 
+        {
             sum++;      /* carry */
         }
     }
-
-    /* Return sum in host byte order. */
+    //返回计算的冗余值
     return sum;
 }

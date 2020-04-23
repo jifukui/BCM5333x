@@ -109,20 +109,22 @@ const uip_ipaddr_t CODE uip_netmask =
 #else
 uip_ipaddr_t uip_hostaddr, uip_draddr, uip_netmask;
 #endif /* UIP_FIXEDADDR */
-
+/****************************************这段部分定义物理层的广播地址*******************************************************************/
 const uip_ipaddr_t CODE uip_broadcast_addr =
 #if UIP_CONF_IPV6
   {{ 0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff }};
 #else /* UIP_CONF_IPV6 */
   {{ 0xff, 0xff, 0xff, 0xff }};
 #endif /* UIP_CONF_IPV6 */
+/**************************************************************************************************************************************/
+/***********************************这段部分定义全零的物理地址即没有被分配的地址************************************/
 const uip_ipaddr_t CODE uip_all_zeroes_addr =
 #if UIP_CONF_IPV6
   {{ 0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000 }};
 #else /* UIP_CONF_IPV6 */
   {{ 0x00, 0x00, 0x00, 0x00 }};
 #endif /* UIP_CONF_IPV6 */
-
+/*************************************************************************************************************/
 #ifdef CFG_ZEROCONF_MDNS_INCLUDED
 static const uip_ipaddr_t CODE mdns_addr =
 #if UIP_CONF_IPV6
@@ -161,7 +163,9 @@ uip_buf_t uip_aligned_buf;
 #endif /* !CFG_UIP_IPV6_ENABLED */
 
 #if !CFG_UIP_IPV6_ENABLED
+//指向应用数据
 void *uip_appdata;               /* The uip_appdata pointer points to application data. */
+//指向要发送的应用数据
 void *uip_sappdata;              /* The uip_appdata pointer points to the application data which is to be sent. */
 #else /* CFG_UIP_IPV6_ENABLED */
 extern void *uip_sappdata;
@@ -201,6 +205,7 @@ struct uip_conn uip_conns[UIP_CONNS];
 #endif /* UIP_TCP */
 
 #if !CFG_UIP_IPV6_ENABLED
+//监听端口数组
 u16_t uip_listenports[UIP_LISTENPORTS];
                              /* The uip_listenports list all currently
                 listning ports. */
@@ -218,12 +223,14 @@ struct uip_udp_conn uip_udp_conns[UIP_UDP_CONNS];
 static u16_t ipid;           /* Ths ipid variable is an increasing
                 number that is used for the IP ID
                 field. */
-
-void uip_setipid(u16_t id) { ipid = id; }
+/**此函数用于设置ipid的值*/
+void uip_setipid(u16_t id) 
+{ 
+  ipid = id; 
+}
 
 #if UIP_TCP
-static u8_t iss[4];          /* The iss variable is used for the TCP
-                initial sequence number. */
+static u8_t iss[4];          /* The iss variable is used for the TCP initial sequence number. */
 #endif /* UIP_TCP */
 #if (UIP_ACTIVE_OPEN || UIP_UDP)
 static u16_t lastport;       /* Keeps track of the last port used for
@@ -242,11 +249,17 @@ static u16_t tmp16;
 #endif /* UIP_TCP */
 
 /* Structures and definitions. */
+//发送端完成发送任务
 #define TCP_FIN 0x01
+//同步序号，用于发起一次连接
 #define TCP_SYN 0x02
+//重建连接
 #define TCP_RST 0x04
+//接收端应该尽快将此报文交给应用层
 #define TCP_PSH 0x08
+//确认序列号有效
 #define TCP_ACK 0x10
+//紧急指针有效
 #define TCP_URG 0x20
 #define TCP_CTL 0x3f
 
@@ -301,20 +314,25 @@ void uip_add32(u8_t *op32, u16_t op16)
   uip_acc32[1] = op32[1];
   uip_acc32[0] = op32[0];
 
-  if(uip_acc32[2] < (op16 >> 8)) {
+  if(uip_acc32[2] < (op16 >> 8)) 
+  {
     ++uip_acc32[1];
-    if(uip_acc32[1] == 0) {
+    if(uip_acc32[1] == 0) 
+    {
       ++uip_acc32[0];
     }
   }
 
 
-  if(uip_acc32[3] < (op16 & 0xff)) {
+  if(uip_acc32[3] < (op16 & 0xff)) 
+  {
     ++uip_acc32[2];
-    if(uip_acc32[2] == 0) {
+    if(uip_acc32[2] == 0) 
+    {
       ++uip_acc32[1];
-      if(uip_acc32[1] == 0) {
-    ++uip_acc32[0];
+      if(uip_acc32[1] == 0) 
+      {
+        ++uip_acc32[0];
       }
     }
   }
@@ -324,21 +342,20 @@ void uip_add32(u8_t *op32, u16_t op16)
 
 #if ! UIP_ARCH_CHKSUM
 /*---------------------------------------------------------------------------*/
-static u16_t
-chksum(u16_t sum, const u8_t *data_p, u16_t len)
+/**计算冗余值*/
+static u16_t chksum(u16_t sum, const u8_t *data_p, u16_t len)
 {
   return sal_checksum(sum, data_p, len);
 }
 /*---------------------------------------------------------------------------*/
-u16_t
-uip_chksum(u16_t *data_p, u16_t len)
+/**将冗余值转换为网络流格式*/
+u16_t uip_chksum(u16_t *data_p, u16_t len)
 {
   return uip_htons(chksum(0, (u8_t *)data_p, len));
 }
 /*---------------------------------------------------------------------------*/
 #ifndef UIP_ARCH_IPCHKSUM
-u16_t
-uip_ipchksum(void)
+u16_t uip_ipchksum(void)
 {
   u16_t sum;
 
@@ -350,8 +367,7 @@ uip_ipchksum(void)
 }
 #endif
 /*---------------------------------------------------------------------------*/
-static u16_t
-upper_layer_chksum(u8_t proto)
+static u16_t upper_layer_chksum(u8_t proto)
 {
   u16_t upper_layer_len;
   u16_t sum;
@@ -380,8 +396,8 @@ upper_layer_chksum(u8_t proto)
 }
 /*---------------------------------------------------------------------------*/
 #if UIP_CONF_IPV6
-u16_t
-uip_icmp6chksum(void)
+/**计算IPV6的冗余值*/
+u16_t uip_icmp6chksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_ICMP6);
 
@@ -389,16 +405,16 @@ uip_icmp6chksum(void)
 #endif /* UIP_CONF_IPV6 */
 #if UIP_TCP
 /*---------------------------------------------------------------------------*/
-u16_t
-uip_tcpchksum(void)
+//计算TCP数据包的冗余值
+u16_t uip_tcpchksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_TCP);
 }
 #endif
 /*---------------------------------------------------------------------------*/
 #if UIP_UDP_CHECKSUMS
-u16_t
-uip_udpchksum(void)
+//计算UDP数据包的冗余值
+u16_t uip_udpchksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_UDP);
 }
@@ -406,13 +422,19 @@ uip_udpchksum(void)
 #endif /* UIP_ARCH_CHKSUM */
 /*---------------------------------------------------------------------------*/
 #ifdef CFG_NET_LINKCHANGE_NOTIFY_INCLUDED
-void
-uip_linkchange(BOOL link)
+/**
+ * link：
+*/
+void uip_linkchange(BOOL link)
 {
-  if (!link) {
-    for(c = 0; c < UIP_CONNS; ++c) {
+  if (!link) 
+  {
+    for(c = 0; c < UIP_CONNS; ++c) 
+    {
+      //
       uip_conn = &uip_conns[c];
-      if (uip_conn->tcpstateflags != UIP_CLOSED) {
+      if (uip_conn->tcpstateflags != UIP_CLOSED) 
+      {
           uip_abort();
 #if CFG_UIP_IPV6_ENABLED
           if (uip_conn->ipv6) {
@@ -428,16 +450,19 @@ uip_linkchange(BOOL link)
 }
 #endif /* CFG_NET_LINKCHANGE_NOTIFY_INCLUDED */
 /*---------------------------------------------------------------------------*/
-void
-uip_init(void)
+/**微型的TCP/IP栈的初始化*/
+void uip_init(void)
 {
 #if UIP_TCP
 #if !CFG_UIP_IPV6_ENABLED
-  for(c = 0; c < UIP_LISTENPORTS; ++c) {
+  /**设置所有的端口的监听状态为无监听*/
+  for(c = 0; c < UIP_LISTENPORTS; ++c) 
+  {
     uip_listenports[c] = 0;
   }
-
-  for(c = 0; c < UIP_CONNS; ++c) {
+  /**设置所有端口的连接状态为关闭*/
+  for(c = 0; c < UIP_CONNS; ++c) 
+  {
     uip_conns[c].tcpstateflags = UIP_CLOSED;
   }
 #endif /* !CFG_UIP_IPV6_ENABLED */
@@ -449,7 +474,8 @@ uip_init(void)
 
 #if UIP_UDP
 #if !CFG_UIP_IPV6_ENABLED
-  for(c = 0; c < UIP_UDP_CONNS; ++c) {
+  for(c = 0; c < UIP_UDP_CONNS; ++c) 
+  {
     uip_udp_conns[c].lport = 0;
   }
 #endif /* !CFG_UIP_IPV6_ENABLED */
@@ -466,137 +492,184 @@ uip_init(void)
 }
 /*---------------------------------------------------------------------------*/
 #if UIP_ACTIVE_OPEN
-struct uip_conn *
-uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
+/**tcp连接的处理
+ * ripaddr：为远端的IP地址
+ * rport：为远端的端口号
+*/
+struct uip_conn * uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
 {
   register struct uip_conn *conn, *cconn;
 
   /* Find an unused local port. */
  again:
   ++lastport;
-
-  if(lastport >= 32000) {
+  /**对于端口号大于32000的设置lastport的值为4096*/
+  if(lastport >= 32000) 
+  {
     lastport = 4096;
   }
 
   /* Check if this port is already in use, and if so try to find
      another one. */
-  for(c = 0; c < UIP_CONNS; ++c) {
+  /**对于此端口号被使用的处理*/
+  for(c = 0; c < UIP_CONNS; ++c) 
+  {
     conn = &uip_conns[c];
-    if(conn->tcpstateflags != UIP_CLOSED &&
-       conn->lport == uip_htons(lastport)) {
+    //对于此端口的连接状态不为关闭且此连接的端口号为远端地址的端口号的的处理，重新获取
+    if(conn->tcpstateflags != UIP_CLOSED && conn->lport == uip_htons(lastport)) 
+    {
       goto again;
     }
   }
 
   conn = 0;
-  for(c = 0; c < UIP_CONNS; ++c) {
+  for(c = 0; c < UIP_CONNS; ++c) 
+  {
     cconn = &uip_conns[c];
-    if(cconn->tcpstateflags == UIP_CLOSED) {
+    /**寻找连接状态为连接关闭的连接*/
+    if(cconn->tcpstateflags == UIP_CLOSED) 
+    {
       conn = cconn;
       break;
     }
-    if(cconn->tcpstateflags == UIP_TIME_WAIT) {
-      if(conn == 0 ||
-     cconn->timer > conn->timer) {
-    conn = cconn;
+    /**对于没有找到连接状态为关闭的连接查找为等待关闭的连接*/
+    if(cconn->tcpstateflags == UIP_TIME_WAIT) 
+    {
+      /**对于conn的值为0或者是cconn的连接的计时器大于conn的计时器的处理*/
+      if(conn == 0 || cconn->timer > conn->timer) 
+      {
+        conn = cconn;
       }
     }
   }
-
-  if(conn == 0) {
+  /**分配连接失败的处理*/
+  if(conn == 0) 
+  {
     return 0;
   }
-
+  /**分配连接成功的处理*/
+  //设置tcp连接的状态值为发送同步序列
   conn->tcpstateflags = UIP_SYN_SENT;
-
+  //设置
   conn->snd_nxt[0] = iss[0];
   conn->snd_nxt[1] = iss[1];
   conn->snd_nxt[2] = iss[2];
   conn->snd_nxt[3] = iss[3];
-
+  //设置最大报文长度
   conn->initialmss = conn->mss = UIP_TCP_MSS;
-
+  //
   conn->len = 1;   /* TCP length of the SYN is one. */
+  //
   conn->nrtx = 0;
+  //
   conn->timer = 1; /* Send the SYN next time around. */
+  //
   conn->rto = UIP_RTO;
+  //
   conn->sa = 0;
+  //
   conn->sv = 16;   /* Initial value of the RTT variance. */
+  //
   conn->lport = uip_htons(lastport);
+  //
   conn->rport = rport;
   uip_ipaddr_copy((uip_ipaddr_t *)&conn->ripaddr, ripaddr);
-
+  //返回连接对象
   return conn;
 }
 #endif /* UIP_ACTIVE_OPEN */
 /*---------------------------------------------------------------------------*/
 #if UIP_UDP
-struct uip_udp_conn *
-uip_udp_new(const uip_ipaddr_t *ripaddr, u16_t rport)
+/**对于UDP的连接
+ * ripaddr：远端地址
+ * rport：远端端口
+*/
+struct uip_udp_conn * uip_udp_new(const uip_ipaddr_t *ripaddr, u16_t rport)
 {
   register struct uip_udp_conn *conn;
 
   /* Find an unused local port. */
  again:
   ++lastport;
-
-  if(lastport >= 32000) {
+  /**在4096~32000之间寻找可以使用的连接对象*/
+  if(lastport >= 32000) 
+  {
     lastport = 4096;
   }
-
-  for(c = 0; c < UIP_UDP_CONNS; ++c) {
-    if(uip_udp_conns[c].lport == uip_htons(lastport)) {
+  /**对于此端口已经被使用，再次进行查找*/
+  for(c = 0; c < UIP_UDP_CONNS; ++c) 
+  {
+    if(uip_udp_conns[c].lport == uip_htons(lastport)) 
+    {
       goto again;
     }
   }
 
   conn = 0;
-  for(c = 0; c < UIP_UDP_CONNS; ++c) {
-    if(uip_udp_conns[c].lport == 0) {
+  /**寻找可以使用的连接*/
+  for(c = 0; c < UIP_UDP_CONNS; ++c) 
+  {
+    if(uip_udp_conns[c].lport == 0) 
+    {
       conn = &uip_udp_conns[c];
       break;
     }
   }
-
-  if(conn == 0) {
+  /**没有找到，返回失败*/
+  if(conn == 0) 
+  {
     return 0;
   }
-
+  //设置本地端口
   conn->lport = UIP_HTONS(lastport);
+  //设置远端端口
   conn->rport = rport;
-  if(ripaddr == NULL) {
+  //对于远端的地址为空的处理，设置远端地址为0
+  if(ripaddr == NULL) 
+  {
     sal_memset(&conn->ripaddr, 0, sizeof(uip_ipaddr_t));
-  } else {
+  } 
+  //对于远端地址不为空的处理设置远端地址为连接的远端地址
+  else 
+  {
     uip_ipaddr_copy((uip_ipaddr_t *)&conn->ripaddr, ripaddr);
   }
+  //设置TTL的值
   conn->ttl = UIP_TTL;
 #if CFG_UIP_IPV6_ENABLED
   conn->ipv6 = FALSE;
 #endif /* CFG_UIP_IPV6_ENABLED */
-
+  //返回获取的连接的对象
   return conn;
 }
 #endif /* UIP_UDP */
 /*---------------------------------------------------------------------------*/
 #if UIP_TCP
 #if !CFG_UIP_IPV6_ENABLED
-void
-uip_unlisten(u16_t port)
+/**TCP取消监听的处理
+ * port：监听的端口号
+*/
+void uip_unlisten(u16_t port)
 {
-  for(c = 0; c < UIP_LISTENPORTS; ++c) {
-    if(uip_listenports[c] == port) {
+  /**根据端口号，获取需要查询的端口号*/
+  for(c = 0; c < UIP_LISTENPORTS; ++c) 
+  {
+    //对于找到此端口的处理，设置监听端口数组的值为0
+    if(uip_listenports[c] == port) 
+    {
       uip_listenports[c] = 0;
       return;
     }
   }
 }
 /*---------------------------------------------------------------------------*/
-void
-uip_listen(u16_t port)
+/**TCP设置监听端口*/
+void uip_listen(u16_t port)
 {
-  for(c = 0; c < UIP_LISTENPORTS; ++c) {
-    if(uip_listenports[c] == 0) {
+  for(c = 0; c < UIP_LISTENPORTS; ++c) 
+  {
+    if(uip_listenports[c] == 0) 
+    {
       uip_listenports[c] = port;
       return;
     }
@@ -620,8 +693,7 @@ static u8_t uip_reasstmr;
 
 #define IP_MF   0x20
 
-static u8_t
-uip_reass(void)
+static u8_t uip_reass(void)
 {
   u16_t offset, len;
   u16_t i;
@@ -738,8 +810,7 @@ uip_reass(void)
 #endif /* UIP_REASSEMBLY */
 /*---------------------------------------------------------------------------*/
 #if UIP_TCP
-static void
-uip_add_rcv_nxt(u16_t n)
+static void uip_add_rcv_nxt(u16_t n)
 {
   uip_add32(uip_conn->rcv_nxt, n);
   uip_conn->rcv_nxt[0] = uip_acc32[0];
@@ -749,13 +820,18 @@ uip_add_rcv_nxt(u16_t n)
 }
 #endif /* UIP_TCP */
 /*---------------------------------------------------------------------------*/
-void
-uip_process(u8_t flag)
+/**处理过程
+ * flag：
+*/
+void uip_process(u8_t flag)
 {
     BOOL acc_valid = FALSE;
     int acc_num;
-    uint8 accessctrlip[MAX_ACCESSCONTROL_IP][4], accmaskip[MAX_ACCESSCONTROL_IP][4];
-    int i, j, accctrl = 0;    
+    uint8 accessctrlip[MAX_ACCESSCONTROL_IP][4];
+    uint8 accmaskip[MAX_ACCESSCONTROL_IP][4];
+    int i;
+    int j;
+    int accctrl = 0;    
     uip_ipaddr_t LIMIT_BUF_MASK;
     uip_ipaddr_t BUF_MASK;
 
@@ -2034,12 +2110,17 @@ uip_htons(u16_t val)
 }
 #endif /* !CFG_UIP_IPV6_ENABLED */
 /*---------------------------------------------------------------------------*/
-/***/
+/**发送数据
+ * data_p：
+ * len：数据长度
+*/
 void uip_send(const void *data_p, int len)
 {
+  //对于需要发送数据的数据长度大于0进行数据发送
   if(len > 0) 
   {
     uip_slen = len;
+    //对于发送数据的数据的地址不是uip_sappdata将数据拷贝到此地址中
     if(data_p != uip_sappdata) 
     {
       sal_memcpy(uip_sappdata, (data_p), uip_slen);

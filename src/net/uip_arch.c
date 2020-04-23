@@ -53,8 +53,8 @@
 #if UIP_ARCH_CHKSUM
 /*---------------------------------------------------------------------------*/
 #ifndef UIP_ARCH_IPCHKSUM
-u16_t
-uip_ipchksum(void)
+/**计算冗余值并转换为网络字节序*/
+u16_t uip_ipchksum(void)
 {
   u16_t sum;
 
@@ -66,6 +66,7 @@ uip_ipchksum(void)
 }
 #endif
 /*---------------------------------------------------------------------------*/
+/**上层冗余值*/
 static u16_t upper_layer_chksum(u8_t proto)
 {
   u16_t upper_layer_len;
@@ -114,8 +115,7 @@ static u16_t upper_layer_chksum(u8_t proto)
 }
 /*---------------------------------------------------------------------------*/
 #if CFG_UIP_IPV6_ENABLED
-u16_t
-uip_icmp6chksum(void)
+u16_t uip_icmp6chksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_ICMP6);
   
@@ -123,6 +123,7 @@ uip_icmp6chksum(void)
 #endif /* CFG_UIP_IPV6_ENABLED */
 #if UIP_TCP
 /*---------------------------------------------------------------------------*/
+/**TCP的冗余值*/
 u16_t uip_tcpchksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_TCP);
@@ -130,16 +131,15 @@ u16_t uip_tcpchksum(void)
 #endif
 /*---------------------------------------------------------------------------*/
 #if UIP_UDP_CHECKSUMS
-u16_t
-uip_udpchksum(void)
+/**UDP的冗余值*/
+u16_t uip_udpchksum(void)
 {
   return upper_layer_chksum(UIP_PROTO_UDP);
 }
 #endif /* UIP_UDP_CHECKSUMS */
 
 #if (UIP_ARCH_ADD32 && UIP_TCP)
-void
-uip_add32(u8_t *op32, u16_t op16)
+void uip_add32(u8_t *op32, u16_t op16)
 {
   uip_acc32[3] = op32[3] + (op16 & 0xff);
   uip_acc32[2] = op32[2] + (op16 >> 8);

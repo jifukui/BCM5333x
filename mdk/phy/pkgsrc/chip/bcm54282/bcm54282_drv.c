@@ -109,7 +109,8 @@ static int _bcm54282_inst(phy_ctrl_t *pc)
     {
         uint32_t addr = PHY_CTRL_PHY_ADDR(pc);
 
-        while (addr > 8) {
+        while (addr > 8) 
+        {
             addr -= 8;
         }
         inst = addr - 1;
@@ -381,7 +382,8 @@ static int bcm54282_phy_init(phy_ctrl_t *pc)
     orig_inst = _bcm54282_inst(pc);
 
     /* Switch to instance 0 to enable QSGMII MDIO sharing */
-    if (phy_ctrl_change_inst(pc, 0, _bcm54282_inst) < 0) {
+    if (phy_ctrl_change_inst(pc, 0, _bcm54282_inst) < 0) 
+    {
         return CDK_E_FAIL;
     }
 
@@ -452,7 +454,8 @@ static int bcm54282_phy_init(phy_ctrl_t *pc)
     ioerr += WRITE_EEE_STAT_CTRLr(pc, eee_stat_ctrl);
 
     /* Switch to instance 0 for AutogrEEEn configuration */
-    if (phy_ctrl_change_inst(pc, 0, _bcm54282_inst) < 0) {
+    if (phy_ctrl_change_inst(pc, 0, _bcm54282_inst) < 0) 
+    {
         return CDK_E_FAIL;
     }
 
@@ -500,17 +503,20 @@ static int bcm54282_phy_init(phy_ctrl_t *pc)
     ioerr += WRITE_MII_ANAr(pc, mii_ana);
 
     /* Enable PHY temperature monitor */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         rv = PHY_CONFIG_SET(pc, PhyConfig_TempMon, 1, NULL);
     }
 
     /* Call up the PHY chain */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         rv = PHY_INIT(PHY_CTRL_NEXT(pc));
     }
 
     /* Set default medium */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         PHY_NOTIFY(pc, PhyEvent_ChangeToCopper);
     }
 

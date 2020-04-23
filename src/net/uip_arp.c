@@ -259,6 +259,7 @@ void uip_arp_init(BOOL start)
  *
  */
 /*-----------------------------------------------------------------------------------*/
+/**arp定时处理程序*/
 void uip_arp_timer(void)
 {
   struct arp_entry *tabptr;
@@ -267,6 +268,7 @@ void uip_arp_timer(void)
   for(i = 0; i < UIP_ARPTAB_SIZE; ++i) 
   {
     tabptr = &arp_table[i];
+    //对于IP地址全为零且时间值大于定义的最大的arp的时间值的处理，清空这个arp表s
     if(uip_ipaddr_cmp(&tabptr->ipaddr, &uip_all_zeroes_addr) &&arptime - tabptr->time >= UIP_ARP_MAXAGE) 
     {
       sal_memset(&tabptr->ipaddr, 0, 4);
@@ -278,60 +280,64 @@ void uip_arp_timer(void)
 
 extern void uip_arp_update(uip_ipaddr_t *ipaddr, struct uip_eth_addr *ethaddr);
 /*-----------------------------------------------------------------------------------*/
+/**arp表更新
+ * 对于IP地址已经存在的更新MAC地址和时间值
+ * 对于IP地址不存在的如果当前ARP表有空闲进行添加对于ARP表没有空闲删除最老的那个
+ * ipaddr：为ip地址
+ * ethaddr：为以太网地址
+*/
 void uip_arp_update(uip_ipaddr_t *ipaddr, struct uip_eth_addr *ethaddr)
 {
   register struct arp_entry *tabptr = arp_table;
   /* Walk through the ARP mapping table and try to find an entry to
      update. If none is found, the IP -> MAC address mapping is
      inserted in the ARP table. */
-  for(i = 0; i < UIP_ARPTAB_SIZE; ++i) {
+  for(i = 0; i < UIP_ARPTAB_SIZE; ++i) 
+  {
     tabptr = &arp_table[i];
 
-    /* Only check those entries that are actually in use. */
-    if(!uip_ipaddr_cmp(&tabptr->ipaddr, &uip_all_zeroes_addr)) {
-
-      /* Check if the source IP address of the incoming packet matches
-         the IP address in this ARP table entry. */
-      if(uip_ipaddr_cmp(ipaddr, &tabptr->ipaddr)) {
-
-    /* An old entry found, update this and return. */
-    sal_memcpy(tabptr->ethaddr.addr, ethaddr->addr, 6);
-    tabptr->time = arptime;
-
-    return;
+    /**对于串入的IP地址存在于IP地址表的处理
+     * 更新ARP表
+    */
+    if(!uip_ipaddr_cmp(&tabptr->ipaddr, &uip_all_zeroes_addr)) 
+    {
+      if(uip_ipaddr_cmp(ipaddr, &tabptr->ipaddr)) 
+      {
+        sal_memcpy(tabptr->ethaddr.addr, ethaddr->addr, 6);
+        tabptr->time = arptime;
+        return;
       }
     }
   }
-
-  /* If we get here, no existing ARP table entry was found, so we
-     create one. */
-
-  /* First, we try to find an unused entry in the ARP table. */
-  for(i = 0; i < UIP_ARPTAB_SIZE; ++i) {
+  /**找到第一个IP地址全为0的ARP表的表项*/
+  for(i = 0; i < UIP_ARPTAB_SIZE; ++i) 
+  {
     tabptr = &arp_table[i];
-    if(uip_ipaddr_cmp(&tabptr->ipaddr, &uip_all_zeroes_addr)) {
+    if(uip_ipaddr_cmp(&tabptr->ipaddr, &uip_all_zeroes_addr)) 
+    {
       break;
     }
   }
-
-  /* If no unused entry is found, we try to find the oldest entry and
-     throw it away. */
-  if(i == UIP_ARPTAB_SIZE) {
+  /**对于已经使用的表项超出最大范围的处理
+   * 找出注册时间最早的表项
+  */
+  if(i == UIP_ARPTAB_SIZE) 
+  {
     tmpage = 0;
     c = 0;
-    for(i = 0; i < UIP_ARPTAB_SIZE; ++i) {
+    for(i = 0; i < UIP_ARPTAB_SIZE; ++i) 
+    {
       tabptr = &arp_table[i];
-      if(arptime - tabptr->time > tmpage) {
-    tmpage = arptime - tabptr->time;
-    c = i;
+      if(arptime - tabptr->time > tmpage) 
+      {
+        tmpage = arptime - tabptr->time;
+        c = i;
       }
     }
     i = c;
     tabptr = &arp_table[i];
   }
-
-  /* Now, i is the ARP table entry which we will fill with the new
-     information. */
+  /**更新IP地址和MAC地址的对应和时间值*/
   uip_ipaddr_copy(&tabptr->ipaddr, ipaddr);
   sal_memcpy(tabptr->ethaddr.addr, ethaddr->addr, 6);
   tabptr->time = arptime;
@@ -351,10 +357,14 @@ void uip_arp_update(uip_ipaddr_t *ipaddr, struct uip_eth_addr *ethaddr)
  * variable uip_len.
  */
 /*-----------------------------------------------------------------------------------*/
+/**对于ip包进入的处理
+ * 从缓冲区中取出第一个数据包
+*/
 void uip_arp_ipin(void)
 {
   /* Only insert/update an entry if the source IP address of the
      incoming IP packet comes from a host on the local network. */
+  /**判读输入的IP地址和本设备是否同处于一个网段对于是一个网段的进行ARP表的更新*/
   if((IPBUF->srcipaddr.u16[0] & uip_netmask.u16[0]) !=(uip_hostaddr.u16[0] & uip_netmask.u16[0])) 
   {
     return;
@@ -391,31 +401,38 @@ void uip_arp_ipin(void)
  * global variable uip_len.
  */
 /*-----------------------------------------------------------------------------------*/
+/**此函数是针对ARP数据包的处理*/
 void uip_arp_arpin(void)
 {
 
-  if(uip_len < sizeof(struct arp_hdr)) {
+  if(uip_len < sizeof(struct arp_hdr)) 
+  {
     uip_len = 0;
     return;
   }
   uip_len = 0;
 
 #ifdef CFG_ZEROCONF_AUTOIP_INCLUDED
-    if (aip.state == AUTOIP_STATE_INIT ||
-        aip.state == AUTOIP_STATE_PROBE) {
+    if (aip.state == AUTOIP_STATE_INIT || aip.state == AUTOIP_STATE_PROBE) 
+    {
         uip_autoip_in();
         return;
     }
 #endif /* CFG_ZEROCONF_AUTOIP_INCLUDED */
-
-  switch(BUF->opcode) {
+  /**对ARP数据包中的操作码进行处理*/
+  switch(BUF->opcode) 
+  {
+    //ARP请求的处理
   case UIP_HTONS(ARP_REQUEST):
     /* ARP request. If it asked for our address, we send out a
        reply. */
-    if(uip_ipaddr_cmp(&BUF->dipaddr, &uip_hostaddr)) {
+      /**对于请求的目的ip地址是设备本身的IP地址的处理*/
+    if(uip_ipaddr_cmp(&BUF->dipaddr, &uip_hostaddr)) 
+    {
       /* First, we register the one who made the request in our ARP
      table, since it is likely that we will do more communication
      with this host in the future. */
+      //更新请求包中的源ip地址和MAC地址到ARP表中
       uip_arp_update(&BUF->sipaddr, &BUF->shwaddr);
 
       BUF->opcode = UIP_HTONS(ARP_REPLY);
@@ -432,10 +449,12 @@ void uip_arp_arpin(void)
       uip_len = sizeof(struct arp_hdr);
     }
     break;
+  //ARP回复的处理，更新ARP表
   case UIP_HTONS(ARP_REPLY):
     /* ARP reply. We insert or update the ARP table if it was meant
        for us. */
-    if(uip_ipaddr_cmp(&BUF->dipaddr, &uip_hostaddr)) {
+    if(uip_ipaddr_cmp(&BUF->dipaddr, &uip_hostaddr)) 
+    {
       uip_arp_update(&BUF->sipaddr, &BUF->shwaddr);
     }
     break;
@@ -471,6 +490,7 @@ void uip_arp_arpin(void)
  * uip_len.
  */
 /*-----------------------------------------------------------------------------------*/
+/**arp输出的处理*/
 void uip_arp_out(void)
 {
   struct arp_entry *tabptr = arp_table;
@@ -483,9 +503,14 @@ void uip_arp_out(void)
      packet with an ARP request for the IP address. */
 
   /* First check if destination is a local broadcast. */
-  if(uip_ipaddr_cmp(&IPBUF->destipaddr, &uip_broadcast_addr)) {
+  //对于目的地址是广播地址的处理，设置目的的以太网地址为广播地址
+  if(uip_ipaddr_cmp(&IPBUF->destipaddr, &uip_broadcast_addr)) 
+  {
     sal_memcpy(IPBUF->ethhdr.dest.addr, broadcast_ethaddr.addr, 6);
-  } else if(IPBUF->destipaddr.u8[0] == 224) {
+  } 
+  //对于目的地址是224开始的处理，设置以太网的地址为0x01,0x00,0x5e和目的IP地址的后3个字节
+  else if(IPBUF->destipaddr.u8[0] == 224) 
+  {
     /* Multicast. */
     IPBUF->ethhdr.dest.addr[0] = 0x01;
     IPBUF->ethhdr.dest.addr[1] = 0x00;
@@ -494,31 +519,42 @@ void uip_arp_out(void)
     IPBUF->ethhdr.dest.addr[4] = IPBUF->destipaddr.u8[2];
     IPBUF->ethhdr.dest.addr[5] = IPBUF->destipaddr.u8[3];
 #ifdef CFG_ZEROCONF_MDNS_INCLUDED
-  } else if (uip_ipaddr_cmp(&IPBUF->destipaddr, (uip_ipaddr_t *)mdns_ipaddr)) {
+  } 
+  //对于支持MDNS的处理
+  else if (uip_ipaddr_cmp(&IPBUF->destipaddr, (uip_ipaddr_t *)mdns_ipaddr)) 
+  {
     sal_memcpy(IPBUF->ethhdr.dest.addr, mdns_ethaddr.addr, 6);
 #endif /* CFG_ZEROCONF_MDNS_INCLUDED */
-  } else {
-    /* Check if the destination address is on the local network. */
-    if(!uip_ipaddr_maskcmp(&IPBUF->destipaddr, &uip_hostaddr, &uip_netmask)) {
+  } 
+  /**对于正常的IP地址的处理*/
+  else 
+  {
+    //对于目的地址和设备地址不在一个局域网的处理，设置ip地址为
+    if(!uip_ipaddr_maskcmp(&IPBUF->destipaddr, &uip_hostaddr, &uip_netmask)) 
+    {
       /* Destination address was not on the local network, so we need to
      use the default router's IP address instead of the destination
      address when determining the MAC address. */
       uip_ipaddr_copy(&ipaddr, &uip_draddr);
-    } else {
-      /* Else, we use the destination IP address. */
+    } 
+    //对于IP地址和设备的IP地址处于同一个网段的处理，设置ip地址为传入的目的ip地址
+    else 
+    {
       uip_ipaddr_copy(&ipaddr, &IPBUF->destipaddr);
     }
-    for(i = 0; i < UIP_ARPTAB_SIZE; ++i) {
-      if(uip_ipaddr_cmp(&ipaddr, &tabptr->ipaddr)) {
-    break;
+    //根据设备地址在ARP表中查找指定ip的物理地址
+    for(i = 0; i < UIP_ARPTAB_SIZE; ++i) 
+    {
+      if(uip_ipaddr_cmp(&ipaddr, &tabptr->ipaddr)) 
+      {
+        break;
       }
       tabptr++;
     }
-
-    if(i == UIP_ARPTAB_SIZE) {
-      /* The destination address was not in our ARP table, so we
-     overwrite the IP packet with an ARP request. */
-
+    //对于没有在ARP表中找到
+    if(i == UIP_ARPTAB_SIZE) 
+    {
+      //设置目的以太网地址为fffffff
       sal_memset(BUF->ethhdr.dest.addr, 0xff, 6);
       sal_memset(BUF->dhwaddr.addr, 0x00, 6);
       sal_memcpy(BUF->ethhdr.src.addr, uip_ethaddr.addr, 6);
@@ -526,15 +562,21 @@ void uip_arp_out(void)
 
       uip_ipaddr_copy(&BUF->dipaddr, &ipaddr);
       uip_ipaddr_copy(&BUF->sipaddr, &uip_hostaddr);
+      //设置操作码为ARP请求
       BUF->opcode = UIP_HTONS(ARP_REQUEST); /* ARP request. */
+      //设置硬件类型为以太网类型
       BUF->hwtype = UIP_HTONS(ARP_HWTYPE_ETH);
+      //设置映射的协议为以太网协议
       BUF->protocol = UIP_HTONS(UIP_ETHTYPE_IP);
+      //设置硬件地址长度
       BUF->hwlen = 6;
+      //设置协议地址长度
       BUF->protolen = 4;
+      //设置数据头的协议类型为ARP协议
       BUF->ethhdr.type = UIP_HTONS(UIP_ETHTYPE_ARP);
-
+      //设置数据为指向TCP应用数据
       uip_appdata = &uip_buf[UIP_TCPIP_HLEN + UIP_LLH_LEN];
-
+      //设置发送数据的数据长度
       uip_len = sizeof(struct arp_hdr);
       return;
     }
@@ -542,10 +584,11 @@ void uip_arp_out(void)
     /* Build an ethernet header. */
     sal_memcpy(IPBUF->ethhdr.dest.addr, tabptr->ethaddr.addr, 6);
   }
+  //设置需要发送数据的源物理地址
   sal_memcpy(IPBUF->ethhdr.src.addr, uip_ethaddr.addr, 6);
-
+  //设置IP数据包的协议类型为以太网协议
   IPBUF->ethhdr.type = UIP_HTONS(UIP_ETHTYPE_IP);
-
+  //设置发送数据的数据长度
   uip_len += sizeof(struct uip_eth_hdr);
 }
 /*-----------------------------------------------------------------------------------*/
@@ -553,9 +596,11 @@ void uip_arp_out(void)
 
 #ifdef CFG_ZEROCONF_AUTOIP_INCLUDED
 
-
-void
-uip_autoip_init(void)
+/**自动IP的初始化过程
+ * 设置自动获取IP的状态值
+ * 初始化IP地址,子网掩码，网关的值为0
+*/
+void uip_autoip_init(void)
 {
 
     /* Reset state and IP address */
@@ -564,7 +609,7 @@ uip_autoip_init(void)
     sal_memset(&aip.netmask, 0x00, 4);
     sal_memset(&aip.gateway, 0x00, 4);
 }
-
+/**设置IP地址，即在获取IP地址失败的时候设置的IP地址*/
 void uip_autoip_renew(void)
 {
     u8_t    ip2 = 0;
@@ -573,36 +618,43 @@ void uip_autoip_renew(void)
     /* The range is 169.254.1.0 ~ 169.254.254.255 */
     aip.ipaddr.u8[0] = 169;
     aip.ipaddr.u8[1] = 254;
-    while (ip2 == 0) {
+    while (ip2 == 0) 
+    {
         ip2 = sal_rand() % 255;
     }
     aip.ipaddr.u8[2] = ip2;
     aip.ipaddr.u8[3] = sal_rand() % 256;
 }
 
-
-void
-uip_autoip_start(void)
+/**开始自动获取IP地址*/
+void uip_autoip_start(void)
 {
     tick_t  interval;
     u8_t autoip[4];
     BOOL valid;
     /* check the last auto ip configuration */
+    //判断自动IP地址是否被设置
     get_autoip_addr(&valid, autoip);
-
-    if (valid && ((autoip[0] == 169) && (autoip[1] == 254))) {
+    //对于参数被设置且自动ip地址的前两位不是169和254设置自动ip地址为内存中的自动ip地址
+    if (valid && ((autoip[0] == 169) && (autoip[1] == 254))) 
+    {
         /* Check if the last configuration is Link-Local address */
         /* valid IPv4 link local address */
         uip_ipaddr_copy(&aip.ipaddr, (uip_ipaddr_t *) autoip);
-    } else {
+    } 
+    //使用MAC地址的后两位作为IP地址
+    else 
+    {
         /* Refer the MAC address as the initial IP address */
         aip.ipaddr.u8[0] = 169;
         aip.ipaddr.u8[1] = 254;
         aip.ipaddr.u8[2] = uip_ethaddr.addr[4];
         aip.ipaddr.u8[3] = uip_ethaddr.addr[5];
     }
+    //设置自动IP地址的状态
     aip.state = AUTOIP_STATE_INIT;
     /* add random delay for first probe packet */
+    //设置间隔时间
     interval = SAL_USEC_TO_TICKS(AUTOIP_PROBE_WAIT);
     aip.last_probe = sal_get_ticks();
     aip.next_probe_interval = (sal_rand() % interval);
@@ -612,36 +664,45 @@ uip_autoip_start(void)
 
 
 /* ARP packet receive handler while requesting an Link-Local Address */
+/**自动IP地址的输入*/
 void uip_autoip_in(void)
 {
-    switch(BUF->opcode) {
-        case UIP_HTONS(ARP_REQUEST):
-            /* ARP request.
-             * If the sender IP is our requested IP address,
-             * or if the sender IP is zero address, target IP is our requested address
-             *   and the sender hardware address is not ours,
-             *   it is considered as a conflict event.
-             */
-            if(uip_ipaddr_cmp(&BUF->sipaddr, &aip.ipaddr)) {
+  switch(BUF->opcode) 
+  {
+      //对于请求时ARP请求的处理
+    case UIP_HTONS(ARP_REQUEST):
+        /* ARP request.
+          * If the sender IP is our requested IP address,
+          * or if the sender IP is zero address, target IP is our requested address
+          *   and the sender hardware address is not ours,
+          *   it is considered as a conflict event.
+          */
+        if(uip_ipaddr_cmp(&BUF->sipaddr, &aip.ipaddr)) 
+        {
+          aip.state = AUTOIP_STATE_CONFLICT;
+        } 
+        else if (uip_ipaddr_cmp(&BUF->sipaddr, &uip_all_zeroes_addr) && uip_ipaddr_cmp(&BUF->dipaddr, &aip.ipaddr)) 
+        {
+          if (sal_memcmp(BUF->shwaddr.addr, uip_ethaddr.addr, 6) == 0) 
+          {
               aip.state = AUTOIP_STATE_CONFLICT;
-            } else if (uip_ipaddr_cmp(&BUF->sipaddr, &uip_all_zeroes_addr) &&
-                uip_ipaddr_cmp(&BUF->dipaddr, &aip.ipaddr)) {
-                if (sal_memcmp(BUF->shwaddr.addr, uip_ethaddr.addr, 6) == 0) {
-                    aip.state = AUTOIP_STATE_CONFLICT;
-                }
-            }
-        break;
-        case UIP_HTONS(ARP_REPLY):
-            /* ARP reply. If the sender IP is our requested address, it is a conflict event. */
-            if(uip_ipaddr_cmp(&BUF->sipaddr, &aip.ipaddr)) {
-              aip.state = AUTOIP_STATE_CONFLICT;
-            } else {
-              uip_arp_update(&BUF->sipaddr, &BUF->shwaddr);
-            }
-        break;
-    }
+          }
+        }
+    break;
+    case UIP_HTONS(ARP_REPLY):
+        /* ARP reply. If the sender IP is our requested address, it is a conflict event. */
+        if(uip_ipaddr_cmp(&BUF->sipaddr, &aip.ipaddr)) 
+        {
+          aip.state = AUTOIP_STATE_CONFLICT;
+        } 
+        else 
+        {
+          uip_arp_update(&BUF->sipaddr, &BUF->shwaddr);
+        }
+    break;
+  }
 
-    return;
+  return;
 }
 
 

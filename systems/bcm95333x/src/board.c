@@ -513,9 +513,8 @@ board_rx_fill_buffer(sys_pkt_t *pkt)
 {
     return brdimpl_rx_fill_buffer(pkt);
 }
-
-sys_error_t
-board_tx(sys_pkt_t *pkt, BOARD_TX_CALLBACK cbk)
+/***/
+sys_error_t board_tx(sys_pkt_t *pkt, BOARD_TX_CALLBACK cbk)
 {
     return brdimpl_tx(pkt, cbk);
 }

@@ -271,7 +271,9 @@ sys_error_t get_system_name(char *buf, uint8 len)
 
     return SYS_OK;
 }
-/**获取系统的MAC地址*/
+/**获取系统的MAC地址
+ * mac_buf：为地址指针，Mac地址将会填写在这个缓存中
+*/
 sys_error_t get_system_mac(uint8 *mac_buf)
 {
     if (mac_buf == NULL) 

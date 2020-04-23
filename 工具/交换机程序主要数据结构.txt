@@ -1,0 +1,331 @@
+PHY控制结构体
+typedef struct phy_ctrl_s {
+    struct phy_ctrl_s *next;
+    struct phy_driver_s *drv;
+    struct phy_bus_s *bus;                                          总线
+    int (*fw_helper)(void *, uint32_t, uint32_t, void *);
+    int (*addr_type)(struct phy_ctrl_s *, uint32_t);
+    int unit;                                                       phy的单元号
+    int port;                                                       端口号
+    int addr_offset;                                                地址偏移位
+    uint32_t flags;                                                 标记值
+    uint32_t addr;													PHY的地址
+    uint16_t lane;
+    uint8_t lane_mask;
+    uint8_t line_intf;
+    uint8_t num_phys;   
+    uint8_t blk_id;     
+    uint8_t blk_idx;    
+    uint8_t lane_num;            
+    uint8_t lane_idx;
+    struct phy_ctrl_s *slave[2];                                    /* Multi-core slaves */
+} phy_ctrl_t;
+PHY驱动结构体
+typedef struct phy_driver_s {
+    const char *drv_name;
+    const char *drv_desc;
+    uint32_t flags;
+    int  (*pd_probe)(phy_ctrl_t *);
+    int  (*pd_notify)(phy_ctrl_t *, phy_event_t);
+    int  (*pd_reset)(phy_ctrl_t *);
+    int  (*pd_init)(phy_ctrl_t *);
+    int  (*pd_link_get)(phy_ctrl_t *, int *, int *);
+    int  (*pd_duplex_set)(phy_ctrl_t *, int);
+    int  (*pd_duplex_get)(phy_ctrl_t *, int *);
+    int  (*pd_speed_set)(phy_ctrl_t *, uint32_t);
+    int  (*pd_speed_get)(phy_ctrl_t *, uint32_t *);
+    int  (*pd_autoneg_set)(phy_ctrl_t *, int);
+    int  (*pd_autoneg_get)(phy_ctrl_t *, int *);
+    int  (*pd_loopback_set)(phy_ctrl_t *, int);
+    int  (*pd_loopback_get)(phy_ctrl_t *, int *);
+    int  (*pd_ability_get)(phy_ctrl_t *, uint32_t *);
+    int  (*pd_config_set)(phy_ctrl_t *, phy_config_t, uint32_t, void *);
+    int  (*pd_config_get)(phy_ctrl_t *, phy_config_t, uint32_t *, void *);
+    int  (*pd_status_get)(phy_ctrl_t *, phy_status_t, uint32_t *);
+    int  (*pd_cable_diag)(phy_ctrl_t *, phy_port_cable_diag_t *);
+} phy_driver_t;
+PHY总线结构体
+typedef struct phy_bus_s {
+    const char *drv_name;     设备驱动的名称
+    uint32_t (*phy_addr)(int port); 根据端口号获取设备的地址
+    int (*read)(int unit, uint32_t addr, uint32_t reg, uint32_t *data);  读取PHY的原始数据
+    int (*write)(int unit, uint32_t addr, uint32_t reg, uint32_t data);  设置PHY的原始数据
+    int (*phy_inst)(int port);     对于多个PHY的封装获取PHY的实例
+
+} phy_bus_t;
+PHY的访问模式结构体
+typedef struct phymod_access_s {
+    void* user_acc; 
+    phymod_bus_t* bus; PHY的总线驱动
+    uint32_t flags; PHY的访问模式标记
+    uint32_t lane_mask; 线路掩码
+    uint32_t addr; PHY的地址
+    uint32_t devad; 默认为45的规则
+} phymod_access_t;
+PHY总线模式
+typedef struct phymod_bus_s {
+    char* bus_name;														总线名称
+    phymod_bus_read_f read;												读总线函数
+    phymod_bus_write_f write;											写总线函数
+    phymod_bus_write_disabled_f is_write_disabled;						不能写总线函数
+    phymod_bus_mutex_take_f mutex_take;									消费信号量函数
+    phymod_bus_mutex_give_f mutex_give;									生产信号量函数
+    uint32_t bus_capabilities;											总线能力
+} phymod_bus_t;
+VLAN信息结构体
+typedef struct vlan_info_s {
+    vlan_type_t type;   VLAN的类型
+    uint16      count;  VLAN的数量
+    uint16      max_count;  最大VLAN的数量
+    vlan_list_t *head; 链表的头部
+    vlan_list_t *tail; 链表的尾部
+} vlan_info_t;
+VLAN实例信息结构体
+typedef struct vlan_list_s {
+    uint16  vlan_id;    当前VLAN的ID号
+    uint8   uplist[MAX_UPLIST_WIDTH]; 参加的端口的端口列表
+    struct vlan_list_s *next;   下一个实例的指针
+} vlan_list_t;
+系统数据包的结构
+typedef struct sys_pkt_s {
+    uint8 * pkt_data; 包数据
+    uint16  pkt_len; 包数据长度
+    uint16  buf_len; 缓冲区长度
+    uint16  flags;  标记值
+    uint16  cos;    消耗值
+            
+    uint16  rx_src_uport; 源端口
+    uint32  rx_timestamp; 时间错
+            
+    uint8   tx_uplist[MAX_UPLIST_WIDTH];    
+    uint8   tx_untag_uplist[MAX_UPLIST_WIDTH];   
+    uint8   tx_tag_mode;                    
+    void *  cookie;
+            
+    uint32  reserved1;
+    uint32  reserved2;
+    uint32  reserved3;
+    uint32  reserved4;
+            
+    uint32  internal0;  /* Used internally in kernel */
+    uint32  internal1;  /* Used internally in board */
+    
+    struct sys_pkt_s *  next;
+} sys_pkt_t;
+交换机对象
+typedef struct soc_switch_s {
+    soc_chip_type_t (*chip_type)(void) REENTRANT;                       芯片的类型
+    sys_error_t (*chip_revision)(uint8 unit, uint8 *rev) REENTRANT;     芯片的版本
+    uint8 (*port_count)(uint8 unit) REENTRANT;                          设备的端口数量
+                                                                        获取寄存器的值
+    sys_error_t (*robo_switch_reg_get)(uint8 unit,
+                                       uint8 page,
+                                       uint8 offset,
+                                       uint8 *buf,
+                                       uint8 len) REENTRANT;
+                                                                        设置寄存器的值
+    sys_error_t (*robo_switch_reg_set)(uint8 unit,
+                                       uint8 page,
+                                       uint8 offset,
+                                       uint8 *buf,
+                                       uint8 len) REENTRANT;
+
+#if CFG_RXTX_SUPPORT_ENABLED
+
+    /*
+     * Set (the one and only) RX handler.
+     * If intr is TRUE, the handler will be called in interrupt context
+     */
+    sys_error_t (*rx_set_handler)(uint8 unit, SOC_RX_HANDLER fn, BOOL intr) REENTRANT;              当intr的值为真将会被调用接收处理函数
+
+
+    /*
+     * Fill (or refill) one packet buffer to RX engine.
+     * You can fill more than one buffers until it returns SYS_ERR_FULL
+     */
+    sys_error_t (*rx_fill_buffer)(uint8 unit, soc_rx_packet_t *pkt) REENTRANT;                      填充数据到发送引擎
+
+    /*
+     * Packet TX
+     */
+    sys_error_t (*tx)(uint8 unit, soc_tx_packet_t *pkt) REENTRANT;                                  发送数据包函数
+
+#endif /* CFG_RXTX_SUPPORT_ENABLED */
+
+    /* Link status of a port */
+    sys_error_t (*link_status)(uint8 unit, uint8 lport, BOOL *link) REENTRANT;                      端口link状态变化
+
+    /* XGS chip revision */
+    sys_error_t (*xgs_chip_revision)(uint8 unit, uint16 *dev, uint16 *rev) REENTRANT;
+
+    /* XGS register/memory read/write */
+#ifdef CFG_SWITCH_XGS_NEW_SBUS_FORMAT_INCLUDED
+    /* New sbus format(separated block id) */
+    sys_error_t (*xgs_switch_reg_get)(uint8 unit,
+                                      uint8 block,
+                                      uint32 addr,
+                                      uint32 *val) REENTRANT;
+    sys_error_t (*xgs_switch_reg_set)(uint8 unit,
+                                      uint8 block,
+                                      uint32 addr,
+                                      uint32 val) REENTRANT;
+    sys_error_t (*xgs_switch_mem_get)(uint8 unit,
+                                      uint8 block,
+                                      uint32 addr,
+                                      uint32 *buf,
+                                      int len) REENTRANT;
+    sys_error_t (*xgs_switch_mem_set)(uint8 unit,
+                                      uint8 block,
+                                      uint32 addr,
+                                      uint32 *buf,
+                                      int len) REENTRANT;
+#else
+    sys_error_t (*xgs_switch_reg_get)(uint8 unit,
+                                      uint32 addr,
+                                      uint32 *val) REENTRANT;
+    sys_error_t (*xgs_switch_reg_set)(uint8 unit,
+                                      uint32 addr,
+                                      uint32 val) REENTRANT;
+    sys_error_t (*xgs_switch_mem_get)(uint8 unit,
+                                      uint32 addr,
+                                      uint32 *buf,
+                                      int len) REENTRANT;
+    sys_error_t (*xgs_switch_mem_set)(uint8 unit,
+                                      uint32 addr,
+                                      uint32 *buf,
+                                      int len) REENTRANT;
+#endif /* CFG_SWITCH_XGS_NEW_SBUS_FORMAT_INCLUDED */
+
+#ifdef CFG_SWITCH_VLAN_INCLUDED
+    sys_error_t (*pvlan_egress_set)(uint8 unit,
+                                       uint8 lport,
+                                       pbmp_t lpbmp)   REENTRANT;
+
+    sys_error_t (*pvlan_egress_get)(uint8 unit,
+                                       uint8 lport,
+                                       pbmp_t *lpbmp)   REENTRANT;
+    sys_error_t (*qvlan_port_set)(uint8 unit,
+                                       uint16 vlan_id,
+                                       pbmp_t lpbmp,
+                                       pbmp_t tag_lpbmp)   REENTRANT;
+
+    sys_error_t (*qvlan_port_get)(uint8 unit,
+                                       uint16 vlan_id,
+                                       pbmp_t *lpbmp,
+                                       pbmp_t *tag_lpbmp)   REENTRANT;
+
+    sys_error_t (*vlan_create)(uint8 unit,
+                                       vlan_type_t type,
+                                       uint16 vlan_id)   REENTRANT;
+
+    sys_error_t (*vlan_destroy)(uint8 unit,
+                                       uint16 vlan_id)   REENTRANT;
+    sys_error_t (*vlan_type_set)(uint8 unit,
+                                       vlan_type_t type)   REENTRANT;
+    sys_error_t (*vlan_reset)(uint8 unit)   REENTRANT;
+#endif  /* CFG_SWITCH_VLAN_INCLUDED */
+    sys_error_t (*phy_reg_get)(uint8 unit, uint8 lport, uint16 reg_addr, uint16 *p_value);
+    sys_error_t (*phy_reg_set)(uint8 unit, uint8 lport, uint16 reg_addr, uint16 value);
+} soc_switch_t;
+53334定义的相关的内容
+soc_switch_t soc_switch_bcm5333x =
+{
+    bcm5333x_chip_type,
+    NULL,
+    bcm5333x_port_count,
+    NULL,
+    NULL,
+#if CFG_RXTX_SUPPORT_ENABLED
+    bcm5333x_rx_set_handler,
+    bcm5333x_rx_fill_buffer,
+    bcm5333x_tx,
+#endif /* CFG_RXTX_SUPPORT_ENABLED */
+
+    bcm5333x_link_status,
+    bcm5333x_chip_revision,
+    bcm5333x_reg_get,
+    bcm5333x_reg_set,
+    bcm5333x_mem_get,
+    bcm5333x_mem_set,
+#ifdef CFG_SWITCH_VLAN_INCLUDED
+    bcm5333x_pvlan_egress_set,
+    bcm5333x_pvlan_egress_get,
+    bcm5333x_qvlan_port_set,
+    bcm5333x_qvlan_port_get,
+    bcm5333x_vlan_create,
+    bcm5333x_vlan_destroy,
+    bcm5333x_vlan_type_set,
+    bcm5333x_vlan_reset,
+#endif  /* CFG_SWITCH_VLAN_INCLUDED */
+    bcm5333x_phy_reg_get,
+    bcm5333x_phy_reg_set,
+
+};
+接收数据结构体
+typedef struct soc_rx_packet_s {
+    uint8   *buffer;                数据缓存区
+    uint16  buflen;                 数据长度
+
+    /* Filled by soc RX engine */
+    uint16  flags;                 标记值
+    uint16  pktlen;             包长度
+    uint8   unit;               单元
+    uint8   lport;              本地端口
+    uint16  traffic_class;
+    uint32  timestamp;          时间戳
+    uint32  reserved1;
+    uint32  reserved2;
+
+    /* For chaining */
+    struct soc_rx_packet_s *next;   下一个接收的包
+} soc_rx_packet_t;
+
+发送数据包结构体
+typedef struct soc_tx_packet_s {
+    uint8 * buffer;             数据缓存区
+    uint16  pktlen;             包长度
+    uint16  flags;              标记为
+    uint16  traffic_class;
+    pbmp_t  port_bitmap;        端口位图/* Follow switch ARL if empty */
+    pbmp_t  untag_bitmap;       无标签位图/* Valid only if FOLLOW_VLAN_UNTAG_RULES not set */
+    uint8   tag_mode;           标签模式/* Valid only if port_bitmap is empty  */
+
+    /* Reserved */
+    uint32  reserved1;
+    uint32  reserved2;
+    uint32  reserved3;
+    uint32  reserved4;
+
+    /* Filled by switch driver */
+    uint8 unit;                 单元         
+    sys_error_t status;         错误状态
+
+    /* Used by caller */
+    SOC_TX_CALLBACK callback;   回调函数
+    void *cookie;               
+
+    /* Used interally in SOC layer */
+    uint32 internal0;           
+
+    /* For chaining */
+    struct soc_tx_packet_s *next;   设置下一个发送的数据包
+} soc_tx_packet_t;
+MDA控制块
+typedef struct dcb_s {
+    uint32 mem_addr;  /* buffer or chain address */
+    uint32 w1;
+    uint32 w2;
+    uint32 w3;
+    uint32 w4;
+    uint32 w5;
+    uint32 w6;
+    uint32 w7;
+    uint32 w8;
+    uint32 w9;
+    uint32 w10;
+    uint32 w11;
+    uint32 w12;
+    uint32 w13;
+    uint32 w14;
+    uint32 w15;
+} dcb_t;

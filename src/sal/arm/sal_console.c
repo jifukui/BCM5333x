@@ -209,6 +209,7 @@ void sal_assert(const char *expr, const char *file, uint16 line) REENTRANT
 #endif /* CFG_CONSOLE_ENABLED */
     for(;;);
 }
+/***/
 BOOL sal_char_avail(void)
 {
 #if CFG_CONSOLE_ENABLED
@@ -218,7 +219,7 @@ BOOL sal_char_avail(void)
     return FALSE;
 #endif
 }
-
+/***/
 char sal_getchar(void)
 {
 #if CFG_CONSOLE_ENABLED
@@ -259,7 +260,9 @@ char sal_get_last_char(void)
     return 0;
 #endif
 }
-
+/**输出字符
+ * c：为需要输出的字符
+*/
 char sal_putchar(char c)
 {
 #if CFG_CONSOLE_ENABLED

@@ -101,15 +101,22 @@
  * Returns:
  *      PHY instance
  */
+/**54282的实例化
+ * pc：PHY控制结构体
+ * 
+*/
 static int _bcm54282_inst(phy_ctrl_t *pc)
 {
+    //判断这个PHY控制对象是否有实例没有返回-1
     int inst = PHY_CTRL_PHY_INST(pc);
-
+    //对于没有实例的处理
     if (inst < 0) 
     {
+        //获取实例的地址
         uint32_t addr = PHY_CTRL_PHY_ADDR(pc);
-
-        while (addr > 8) {
+        //将地址转换为不大于8的值
+        while (addr > 8) 
+        {
             addr -= 8;
         }
         inst = addr - 1;
@@ -128,6 +135,10 @@ static int _bcm54282_inst(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
+/**获取远端PHY的能力
+ * pc：PHY控制结构体
+ * ability：暂停的能力
+*/
 static int _bcm54282_abiliby_remote_get(phy_ctrl_t *pc, uint32_t *ability)
 {
     int ioerr = 0;
@@ -138,19 +149,30 @@ static int _bcm54282_abiliby_remote_get(phy_ctrl_t *pc, uint32_t *ability)
     *ability = 0;
 
     /* get pause */
+    //读取寄存器5获取对端PHY的能力
     ioerr += READ_MII_ANPr(pc, &mii_anp);
+    //判断是否支持异步暂停
     asym_pause = MII_ANPr_ASYM_PAUSEf_GET(mii_anp);
+    //判断是否支持暂停
     pause = MII_ANPr_PAUSEf_GET(mii_anp);
 
     /* retrieve "pause" abilities */
-    if (asym_pause) {
-        if (pause) {
+    //对于支持异步暂停的处理
+    if (asym_pause) 
+    {
+        if (pause) 
+        {
             *ability |= PHY_ABIL_PAUSE_RX;
-        } else {
+        } 
+        else 
+        {
             *ability |= PHY_ABIL_PAUSE_TX;
         }
-    } else {
-        if (pause) {
+    } 
+    else 
+    {
+        if (pause) 
+        {
             *ability |= PHY_ABIL_PAUSE;
         }
     }
@@ -169,8 +191,11 @@ static int _bcm54282_abiliby_remote_get(phy_ctrl_t *pc, uint32_t *ability)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-_bcm54282_ability_eee_remote_get(phy_ctrl_t *pc, uint32_t *ability)
+/**获取远端设备的节能以太网的能力
+ * pc：PHY控制结构体
+ * ability：能力
+*/
+static int _bcm54282_ability_eee_remote_get(phy_ctrl_t *pc, uint32_t *ability)
 {
     int ioerr = 0;
     uint32_t temp = 0;
@@ -179,11 +204,14 @@ _bcm54282_ability_eee_remote_get(phy_ctrl_t *pc, uint32_t *ability)
     *ability = 0;
 
     /* get remote EEE */
+    //0x07803e0e
     ioerr += _PHY_REG_READ(pc, EEE_RSL_STATUSr, &temp);
-    if (temp & 0x4) {
+    if (temp & 0x4) 
+    {
         *ability |= PHY_ABIL_EEE_1GB;
     } 
-    if (temp & 0x2) {
+    if (temp & 0x2) 
+    {
         *ability |= PHY_ABIL_EEE_100MB;
     }
     
@@ -210,16 +238,18 @@ extern cdk_symbols_t bcm54282_symbols;
  * Returns:
  *      CDK_E_xxx
  */
-/**PHY探测*/
+/**PHY探测，探测设备的PHY的ID是否是bcm50282*/
 static int bcm54282_phy_probe(phy_ctrl_t *pc)
 {
     uint32_t phyid0, phyid1;
     int ioerr = 0;
 
     PHY_CTRL_CHECK(pc);
-
+    //读取PHYID的高位
     ioerr += PHY_BUS_READ(pc, MII_PHY_ID0_REG, &phyid0);
+    //读取PHYID的低位
     ioerr += PHY_BUS_READ(pc, MII_PHY_ID1_REG, &phyid1);
+    //判断是否是50282
     if (PHY_IS_BCM54282(pc) || PHY_IS_BCM54292(pc)) 
     {
 #if PHY_CONFIG_INCLUDE_CHIP_SYMBOLS == 1
@@ -279,13 +309,18 @@ static int bcm54282_phy_notify(phy_ctrl_t *pc, phy_event_t event)
  * Returns:
  *      CDK_E_xxx
  */
+/**设置PHY复位
+ * pc:PHY控制结构体
+ * 
+*/
 static int bcm54282_phy_reset(phy_ctrl_t *pc)
 {
     int rv;
-
+    //设置PHY复位
     rv = ge_phy_reset(pc);
 
     /* Call up the PHY chain */
+    //根据状态值进行处理，如果
     if (CDK_SUCCESS(rv)) 
     {
         rv = PHY_RESET(PHY_CTRL_NEXT(pc));
@@ -522,8 +557,12 @@ static int bcm54282_phy_init(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
+/**获取连接状态
+ * pc：PHY控制对象
+ * link：link状态
+ * autoneg_done：自协商完成状态
+*/
+static int bcm54282_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -531,32 +570,41 @@ bcm54282_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
     uint32_t speed;
 
     PHY_CTRL_CHECK(pc);
-
-    if (link == NULL) {
+    //没有PHY控制对象的空间分配
+    if (link == NULL) 
+    {
         return CDK_E_PARAM;
     }
-
+    //默认设置link状态为没有link
     *link = FALSE;
-
-    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) {
+    //对于标记状态为是光纤模式的处理
+    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) 
+    {
 
         /* Get fiber link status */
+        //READ_MII_1000X_STATr为宏用于读取
         ioerr += READ_MII_1000X_STATr(pc, &mii_1000x_stat);
-        if (MII_1000X_STATr_LINKf_GET(mii_1000x_stat)) {
+        if (MII_1000X_STATr_LINKf_GET(mii_1000x_stat)) 
+        {
             *link = TRUE;
         }
 
-        if (autoneg_done) {
+        if (autoneg_done) 
+        {
             /* Use register value by default */
             *autoneg_done = MII_1000X_STATr_AUTONEG_DONEf_GET(mii_1000x_stat);
 
             /* Force done for 100FX */
             rv = PHY_SPEED_GET(pc, &speed);
-            if (CDK_SUCCESS(rv) && speed == 100) {
+            if (CDK_SUCCESS(rv) && speed == 100) 
+            {
                 *autoneg_done = 1;
             }
         }
-    } else {
+    } 
+    //对于标记是电口模式的处理
+    else 
+    {
         rv = ge_phy_link_get(pc, link, autoneg_done);
     }
 
@@ -574,8 +622,8 @@ bcm54282_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_duplex_set(phy_ctrl_t *pc, int duplex)
+/**设置设备的双工状态*/
+static int bcm54282_phy_duplex_set(phy_ctrl_t *pc, int duplex)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;

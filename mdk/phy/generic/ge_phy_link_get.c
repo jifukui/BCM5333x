@@ -62,20 +62,25 @@
  * Returns:     
  *      CDK_E_xxx
  */
-/**获取link状态*/
+/**获取link状态
+ * pc：为PHY的控制结构
+ * link：用于存储端口的连接状态
+ * autoneg_done：用于存储
+*/
 int ge_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
 {
     uint32_t stat;
     int ioerr = 0;
 
     PHY_CTRL_CHECK(pc);
-
+    //读取标准同轴寄存器的1寄存器（状态寄存器）
     ioerr += PHY_BUS_READ(pc, MII_STAT_REG, &stat);
-
+    //如果link被分配的有内存空间的处理，判断Bit2位的状态是否为1，1表示link
     if (link) 
     {
         *link = (stat & MII_STAT_LA) ? 1 : 0;
     }
+    //对于自适应状态被分配的有内存空间的处理，判断bit5位的状态值是否为1，1表示自协商完成
     if (autoneg_done) 
     {
         *autoneg_done = (stat & MII_STAT_AN_DONE) ? 1 : 0;

@@ -52,7 +52,11 @@ extern long mem_heapstart, mem_dmaheapstart;
 extern void sal_console_init(void);
 extern void sal_alloc_init(void *addr, uint16 len);
 extern void sal_dma_alloc_init(void *addr, uint16 len);
-/***/
+/**初始化函数
+ * 进行串口的初始化
+ * 初始化堆起始位置和大小
+ * 初始化dma的起始位置和大小
+*/
 void APIFUNC(sal_init)(void) REENTRANT
 {
 #if CFG_CONSOLE_ENABLED

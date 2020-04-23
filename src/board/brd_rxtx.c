@@ -70,11 +70,13 @@ STATIC soc_tx_packet_t *tx_pkt_list;
 /* Forwards */
 APISTATIC void brdimpl_rx_handler(soc_rx_packet_t *pkt) REENTRANT;
 APISTATIC void brdimpl_tx_cbk(struct soc_tx_packet_s *pkt) REENTRANT;
-
-APISTATIC void
-APIFUNC(brdimpl_rx_handler)(soc_rx_packet_t *pkt) REENTRANT
+/**接收处理函数
+ * 
+*/
+APISTATIC void APIFUNC(brdimpl_rx_handler)(soc_rx_packet_t *pkt) REENTRANT
 {
-    uint16 flags0, flags1;
+    uint16 flags0;
+    uint16 flags1;
     sys_pkt_t *wrap;
     
     SAL_ASSERT(pkt != NULL);
@@ -122,8 +124,7 @@ APIFUNC(brdimpl_rx_handler)(soc_rx_packet_t *pkt) REENTRANT
     (*rx_handler)(wrap);
 }
 
-sys_error_t
-APIFUNC(brdimpl_rx_set_handler)(BOARD_RX_HANDLER fn) REENTRANT
+sys_error_t APIFUNC(brdimpl_rx_set_handler)(BOARD_RX_HANDLER fn) REENTRANT
 {
     soc_switch_t *soc;
 
@@ -143,31 +144,42 @@ APIFUNC(brdimpl_rx_set_handler)(BOARD_RX_HANDLER fn) REENTRANT
     rx_handler = fn;
     return (*soc->rx_set_handler)(0, brdimpl_rx_handler, FALSE);
 }
-    
-sys_error_t 
-APIFUNC(brdimpl_rx_fill_buffer)(sys_pkt_t *pkt) REENTRANT
+/**填充接收数据缓存区的数据
+ * pkt：为数据包指针
+ * */    
+sys_error_t APIFUNC(brdimpl_rx_fill_buffer)(sys_pkt_t *pkt) REENTRANT
 {
+    //交换机对象
     soc_switch_t *soc;
+    //数据包
     soc_rx_packet_t *spkt;
-    
+    //检测芯片的数量是不是1个
     SAL_ASSERT(board_unit_count() == 1);
-    if (pkt == NULL) {
+    if (pkt == NULL) 
+    {
         return SYS_ERR_PARAMETER;
     }
-
+    //获取接收数据包的列表
     spkt = rx_pkt_list;
-    if (spkt == NULL) {
+    //对于接收数据包的列表为空，申请空间设置接收数据包列表。如果分配失败返回错误
+    if (spkt == NULL) 
+    {
         spkt = (soc_rx_packet_t *)sal_malloc(sizeof(soc_rx_packet_t));
-        if (spkt == NULL) {
+        if (spkt == NULL) 
+        {
             return SYS_ERR_OUT_OF_RESOURCE;
         }
-    } else {
+    } 
+    //对于接收包列表不为空的处理，更新接收包列表
+    else 
+    {
         rx_pkt_list = spkt->next;
     }
-    
+    //设置包数据的地址
     spkt->buffer = pkt->pkt_data;
+    //设置包数据的长度
     spkt->buflen = pkt->buf_len;
-
+    //设置包的下一个处理单元
     pkt->next = rx_syspkt_list;
     rx_syspkt_list = pkt;
     
@@ -176,16 +188,18 @@ APIFUNC(brdimpl_rx_fill_buffer)(sys_pkt_t *pkt) REENTRANT
 
     return (*soc->rx_fill_buffer)(0, spkt);
 }
-
-APISTATIC void
-APIFUNC(brdimpl_tx_cbk)(struct soc_tx_packet_s *pkt) REENTRANT
+/**发送包的回调函数
+ * pkt：为发送的包
+*/
+APISTATIC void APIFUNC(brdimpl_tx_cbk)(struct soc_tx_packet_s *pkt) REENTRANT
 {
     sys_pkt_t *kpkt;
     BOARD_TX_CALLBACK cbk;
     sys_error_t r;
 
     SAL_ASSERT(pkt != NULL);
-    if (pkt == NULL) {
+    if (pkt == NULL) 
+    {
         return;
     }
 
@@ -202,51 +216,79 @@ APIFUNC(brdimpl_tx_cbk)(struct soc_tx_packet_s *pkt) REENTRANT
     /* Invoke callback */ 
     (*cbk)(kpkt, r);
 }
-
-sys_error_t
-APIFUNC(brdimpl_tx)(sys_pkt_t *pkt, BOARD_TX_CALLBACK cbk) REENTRANT
+/**数据包发包时包的相关参数的封装和调用最底层的发包接口
+ * pkt：数据包
+ * cbk：回调函数
+*/
+sys_error_t APIFUNC(brdimpl_tx)(sys_pkt_t *pkt, BOARD_TX_CALLBACK cbk) REENTRANT
 {
+    //发送数据包
     soc_tx_packet_t *spkt;
+    //交换机实例
     soc_switch_t *soc;
+    //标记值
     uint16 flags = 0;
+    //错误信息
     sys_error_t r;
 
     SAL_ASSERT(board_unit_count() == 1);
-    
-    if (pkt == NULL || cbk == NULL) {
+    //包为空或者回调函数为空的处理
+    if (pkt == NULL || cbk == NULL) 
+    {
         return SYS_ERR_PARAMETER;
     }
     
     soc = board_get_soc_by_unit(0);
     SAL_ASSERT(soc != NULL);
-
+    //获取发送数据的数据包列表
     spkt = tx_pkt_list;
-    if (spkt == NULL) {
+    //发送包列表为空的处理
+    if (spkt == NULL) 
+    {
         spkt = (soc_tx_packet_t *)sal_malloc(sizeof(soc_tx_packet_t));
-        if (spkt == NULL) {
+        if (spkt == NULL) 
+        {
             return SYS_ERR_OUT_OF_RESOURCE;
         }
-    } else {
+    } 
+    //对于发送包列表不为空设置其值为当前发送包的下一个包
+    else 
+    {
         tx_pkt_list = spkt->next;
     }
-
+    //设置发送数据包的值为0
     sal_memset(spkt, 0, sizeof(soc_tx_packet_t));
+    //设置缓存区为发送包的数据指针
     spkt->buffer = pkt->pkt_data;
+    //设置发送数据的长度
     spkt->pktlen = pkt->pkt_len;
+    //将用户列表转换为位图
     board_uplist_to_lpbmp(pkt->tx_uplist, 0, &spkt->port_bitmap);
+    //设置路径消耗
     spkt->traffic_class = pkt->cos;
-    if (pkt->flags & SYS_TX_FLAG_TIMESTAMP_REQUEST) {
+    /**对于包的标记值为发送标记时间戳*/
+    if (pkt->flags & SYS_TX_FLAG_TIMESTAMP_REQUEST) 
+    {
         flags |= SOC_TX_FLAG_TIMESTAMP_REQUEST;
     }
-    if (pkt->flags & SYS_TX_FLAG_USE_UNTAG_PORT_LIST) {
+    //对于包的标记值为使用无标签的端口列表的处理
+    if (pkt->flags & SYS_TX_FLAG_USE_UNTAG_PORT_LIST) 
+    {
         flags |= SOC_TX_FLAG_USE_UNTAG_PORT_BITMAP;
         board_uplist_to_lpbmp(pkt->tx_untag_uplist, 0, &spkt->untag_bitmap);
-    } else {
+    } 
+    //对于包的标记值为使用有标签的端口列表的处理
+    else 
+    {
         flags &= ~SOC_TX_FLAG_USE_UNTAG_PORT_BITMAP;
         BCM_PBMP_CLEAR(spkt->untag_bitmap);
     }
-    if (uplist_is_empty(pkt->tx_uplist) == SYS_OK) {
-        switch(pkt->tx_tag_mode) {
+    /**对于包的发送用户列表为空的处理*/
+    if (uplist_is_empty(pkt->tx_uplist) == SYS_OK) 
+    {
+        /**根据发送标签的模式进行处理*/
+        switch(pkt->tx_tag_mode) 
+        {
         case SYS_TX_TAG_MODE_FOLLOW_SWITCH_RULES:
             spkt->tag_mode = SOC_TX_TAG_MODE_FOLLOW_SWITCH_RULES; 
             break;
@@ -261,22 +303,32 @@ APIFUNC(brdimpl_tx)(sys_pkt_t *pkt, BOARD_TX_CALLBACK cbk) REENTRANT
             break;
         }
     }
+    //设置标记值
     spkt->flags = flags;
+    //设置回调函数
     spkt->callback = brdimpl_tx_cbk;
+    //设置缓存的值为这个包的地址
     spkt->cookie = (void *)pkt;
+    //设置回调函数
     pkt->internal1 = (uint32)cbk;
-    
+    //调用芯片的发送函数发送
     r = (*soc->tx)(0, spkt);
-    if (r != SYS_OK) {
+    //对于发送失败的处理，将此包添加至下一个发送的包中
+    if (r != SYS_OK) 
+    {
         spkt->next = tx_pkt_list;
         tx_pkt_list = spkt;
     }
-    
+    //返回数据的发送结果
     return r;
 }
-
-void
-APIFUNC(brdimpl_rxtx_init)(void) REENTRANT
+/**设备级的发送接收数据初始化
+ * 设置接收处理函数
+ * 接收系统包列表设置为空
+ * 接收包列表设置为空
+ * 发送包列表的设置为空
+*/
+void APIFUNC(brdimpl_rxtx_init)(void) REENTRANT
 {
     rx_handler = NULL;
     rx_syspkt_list = NULL;

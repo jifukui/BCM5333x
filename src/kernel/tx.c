@@ -58,39 +58,54 @@
 /* Forwards */
 void APIFUNC(sys_tx_init)(void) REENTRANT;
 APISTATIC void sys_tx_sync_cbk(sys_pkt_t *pkt, sys_error_t status) REENTRANT;
-
-APISTATIC void
-APIFUNC(sys_tx_sync_cbk)(sys_pkt_t *pkt, sys_error_t status) REENTRANT
+/**系统发送同步回调函数
+ * pkt：为数据包
+ * status：记录错误状态
+*/
+APISTATIC void APIFUNC(sys_tx_sync_cbk)(sys_pkt_t *pkt, sys_error_t status) REENTRANT
 {
+    //校验数据包是否是错误的
     SAL_ASSERT(pkt != NULL);
-    if (pkt == NULL) {
+    if (pkt == NULL) 
+    {
         return;
     }
 
-    /* Mark packet as done */    
+    /* Mark packet as done */  
+    //标记数据包已经发送完成  
     pkt->internal0 = (uint32)status;
 }
-
-sys_error_t
-APIFUNC(sys_tx)(sys_pkt_t *pkt, SYS_TX_CALLBACK cbk) REENTRANT
+/**系统发送函数‘
+ * pkt：
+ * cbk：
+ * 返回发送状态值
+*/
+sys_error_t APIFUNC(sys_tx)(sys_pkt_t *pkt, SYS_TX_CALLBACK cbk) REENTRANT
 {
     sys_error_t r;
-    
-    if (pkt == NULL || pkt->pkt_data == NULL || pkt->pkt_len == 0) {
+    //对于包的地址没有被分配，包的包数据为空，包的数据包长度为0的处理；返回错误
+    if (pkt == NULL || pkt->pkt_data == NULL || pkt->pkt_len == 0) 
+    {
         return SYS_ERR_PARAMETER;
     }
-    
-    if (cbk == NULL) {
+    //对于没有回调函数的处理
+    if (cbk == NULL) 
+    {
         
         /* We make use of this field to mark packet being processing */
         pkt->internal0 = 1;
         
-        /* TX out */
+        /**调用实际的数据发送函数*/
         r = board_tx(pkt, sys_tx_sync_cbk);
-        if (r == SYS_OK) {
-            for(;;) {
+        //根据返回值进行处理
+        if (r == SYS_OK) 
+        {
+            for(;;) 
+            {
                 POLL();
-                if (pkt->internal0 != 1) {
+                //对于状态值不为1的处理，设置返回值为包的发送状态
+                if (pkt->internal0 != 1) 
+                {
                     r = (sys_error_t)pkt->internal0;
                     break;
                 }
@@ -100,17 +115,16 @@ APIFUNC(sys_tx)(sys_pkt_t *pkt, SYS_TX_CALLBACK cbk) REENTRANT
 
         return r;
 
-    } else {
-
-        /* TX out */
+    } 
+    //对于有回调函数的处理
+    else 
+    {
         r = board_tx(pkt, (BOARD_TX_CALLBACK)cbk);
-
         return r;
     }
 }
-
-void
-APIFUNC(sys_tx_init)(void) REENTRANT
+/**发送初始化函数，没有具体实现*/
+void APIFUNC(sys_tx_init)(void) REENTRANT
 {
 }
 

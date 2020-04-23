@@ -62,8 +62,10 @@
  * Returns:     
  *      CDK_E_xxx
  */
-int
-ge_phy_reset(phy_ctrl_t *pc)
+/**设置PHY复位
+ * pc:为PHY的控制结构体
+*/
+int ge_phy_reset(phy_ctrl_t *pc)
 {
     uint32_t ctrl;
     int cnt;
@@ -73,16 +75,23 @@ ge_phy_reset(phy_ctrl_t *pc)
     PHY_CTRL_CHECK(pc);
 
     /* Reset PHY */
+    //向PHY的控制寄存器的bit15设置为1
     ioerr += PHY_BUS_WRITE(pc, MII_CTRL_REG, MII_CTRL_RESET);
 
     /* Wait for reset completion */
-    for (cnt = 0; cnt < PHY_RESET_POLL_MAX; cnt++) {
+    //等待复位完成
+    for (cnt = 0; cnt < PHY_RESET_POLL_MAX; cnt++) 
+    {
+        //读取PHY控制寄存器的值，一直到控制寄存器的复位位的值为0
         ioerr += PHY_BUS_READ(pc, MII_CTRL_REG, &ctrl);
-        if ((ctrl & MII_CTRL_RESET) == 0) {
+        if ((ctrl & MII_CTRL_RESET) == 0) 
+        {
             break;
         }
     }
-    if (cnt >= PHY_RESET_POLL_MAX) {
+    //如果在规定时间内没有复位成功返回超时
+    if (cnt >= PHY_RESET_POLL_MAX) 
+    {
         rv = CDK_E_TIMEOUT;
     }
  

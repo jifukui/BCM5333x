@@ -132,9 +132,13 @@ STATIC uint8 rx_buffers[DEFAULT_RX_BUFFER_COUNT][DEFAULT_RX_BUFFER_SIZE];
 /*
  * uIP rx handler for loader.
  */
-STATICCBK void
-loader_rx_handler(soc_rx_packet_t *pkt) REENTRANT
+/**加载接收处理函数
+ * pkt：数据包
+ * 根据接收到的数据包进行数据包的处理，将数据包的内容设置到uip_buf中，将数据包的长度无源目的地址以太网类型和TAG协议存储在uip_len中
+*/
+STATICCBK void loader_rx_handler(soc_rx_packet_t *pkt) REENTRANT
 {
+    //存储以太网的类型
     uint16 etype;
 
 #if CFG_XGS_CHIP
@@ -145,7 +149,8 @@ loader_rx_handler(soc_rx_packet_t *pkt) REENTRANT
 #if CFG_UIP_IPV6_ENABLED
         etype == uip_htons(UIP_ETHTYPE_IP6) ||
 #endif /* CFG_UIP_IPV6_ENABLED */
-        etype == uip_htons(UIP_ETHTYPE_ARP)) {
+        etype == uip_htons(UIP_ETHTYPE_ARP)) 
+    {
         sal_memcpy(uip_buf, pkt->buffer, DA_SA_MAC_LEN);
 
         sal_memcpy(uip_buf + DA_SA_MAC_LEN,
@@ -157,33 +162,46 @@ loader_rx_handler(soc_rx_packet_t *pkt) REENTRANT
 #else /* !CFG_XGS_CHIP */
 
     /* Ethertype or VLAN tag */
+    //获取设备的以太网类型
     etype = *(uint16 *)(pkt->buffer + DA_SA_MAC_LEN);
 
     /* Check and strip off VLAN tag*/
-    if (etype == uip_htons(VLAN_TAG_PROTOCOL)) {
+    //对于以太网的类型为TAG协议的处理0x8100
+    if (etype == uip_htons(VLAN_TAG_PROTOCOL)) 
+    {
 
         /* Accept only IP or ARP packets */
+        //获取以太网协议类型
         etype = *(uint16 *)(pkt->buffer + LLH_ETYPE_OFFSET);
+        //对于是IP数据包和ARP协议的处理
         if (etype == uip_htons(UIP_ETHTYPE_IP) ||
 #if CFG_UIP_IPV6_ENABLED
             etype == uip_htons(UIP_ETHTYPE_IP6) ||
 #endif /* CFG_UIP_IPV6_ENABLED */
-            etype == uip_htons(UIP_ETHTYPE_ARP)) {
+            etype == uip_htons(UIP_ETHTYPE_ARP)) 
+        {
+            //获取源和目的MAC地址
             sal_memcpy(uip_buf, pkt->buffer, DA_SA_MAC_LEN);
+            //获取处VLAN标签之外的所有内容
             sal_memcpy(uip_buf+DA_SA_MAC_LEN,
                        pkt->buffer + DA_SA_MAC_LEN + VLAN_TAG_LEN,
                        pkt->pktlen - DA_SA_MAC_LEN - VLAN_TAG_LEN);
+            //设置包长度为收到的数据包的长度减去源目的地址长度以太网类型长度和VLAN标签长度
             uip_len = pkt->pktlen - DA_SA_MAC_LEN - ETYPE_LEN - VLAN_TAG_LEN;
         }
 
-    } else {
+    } 
+    //对于不是802.1Q协议的实现
+    else 
+    {
 
         /* Accept only IP or ARP packets */
         if (etype == uip_htons(UIP_ETHTYPE_IP) ||
 #if CFG_UIP_IPV6_ENABLED
             etype == uip_htons(UIP_ETHTYPE_IP6) ||
 #endif /* CFG_UIP_IPV6_ENABLED */
-            etype == uip_htons(UIP_ETHTYPE_ARP)) {
+            etype == uip_htons(UIP_ETHTYPE_ARP)) 
+        {
             sal_memcpy(uip_buf, pkt->buffer, pkt->pktlen);
             uip_len = pkt->pktlen - DA_SA_MAC_LEN - ETYPE_LEN;
         }
@@ -196,11 +214,12 @@ loader_rx_handler(soc_rx_packet_t *pkt) REENTRANT
 /*
  * Main uIP tx callback routine for firmware.
  */
-STATICCBK void
-loader_uip_tx_async_cbk(struct soc_tx_packet_s *pkt) REENTRANT
+STATICCBK void loader_uip_tx_async_cbk(struct soc_tx_packet_s *pkt) REENTRANT
 {
-    if (pkt) {
-        if (pkt->buffer) {
+    if (pkt) 
+    {
+        if (pkt->buffer) 
+        {
             sal_dma_free(pkt->buffer);
         }
         sal_free(pkt);
@@ -209,26 +228,28 @@ loader_uip_tx_async_cbk(struct soc_tx_packet_s *pkt) REENTRANT
 /*
  * Main uIP tx routine for loader.
  */
-static sys_error_t
-uip_task_send(void)
+static sys_error_t uip_task_send(void)
 {
     /* Send packet in uip_buf */
     soc_tx_packet_t *spkt;
 
 #if CFG_ROBO_CHIP
-    if (uip_len < MIN_PACKET_LENGTH) {
+    if (uip_len < MIN_PACKET_LENGTH) 
+    {
         uip_len = MIN_PACKET_LENGTH;
     }
 #endif
 
     spkt = (soc_tx_packet_t *)sal_malloc(sizeof(soc_tx_packet_t));
-    if (spkt == NULL) {
+    if (spkt == NULL) 
+    {
         return SYS_ERR_OUT_OF_RESOURCE;
     }
     sal_memset(spkt, 0, sizeof(soc_tx_packet_t));
 
     spkt->buffer = (uint8 *)sal_dma_malloc(uip_len + CRC_PADDING);
-    if (spkt->buffer == NULL) {
+    if (spkt->buffer == NULL) 
+    {
         sal_free(spkt);
         return SYS_ERR_OUT_OF_RESOURCE;
     }
@@ -242,7 +263,7 @@ uip_task_send(void)
 /*
  * Init routine for loader.
  */
-/***/
+/**任务初始化*/
 void uip_task_init()
 {
     uint8 i;
@@ -287,14 +308,17 @@ void uip_task_init()
         BOOT_FUNC_RX_FILL_BUFFER(0, spkt);
     }
 #ifdef CFG_ZEROCONF_MDNS_INCLUDED
+    mdns服务初始化//
     mdns_init();
 #endif /* CFG_ZEROCONF_MDNS_INCLUDED */
 
 #if  CFG_HTTPD_ENABLED
+    //http服务初始化
     httpd_init();
 #endif  /* CFG_HTTPD_ENABLED */
 
     /* Register a background task for RX handling */
+    //向任务队列中添加ip任务
     task_add(uip_task, (void *)NULL);
 
     if ((board_loader_mode_get(&bk_data, FALSE) == LM_UPGRADE_FIRMWARE)) 
@@ -339,8 +363,11 @@ void uip_task_init()
 /*
  * uIP rx handler for firmware.
  */
-STATICCBK sys_rx_t
-uip_task_rx_handler(sys_pkt_t *pkt, void *cookie) REENTRANT
+/**接收到数据包的处理
+ * pkt：
+ * cookie：
+*/
+STATICCBK sys_rx_t uip_task_rx_handler(sys_pkt_t *pkt, void *cookie) REENTRANT
 {
     /*
      * Note: Currently the uIP process handles packet in one shot
@@ -406,7 +433,9 @@ uip_task_rx_handler(sys_pkt_t *pkt, void *cookie) REENTRANT
                pkt->pkt_len - DA_SA_MAC_LEN - VLAN_TAG_LEN);
         uip_len = pkt->pkt_len - DA_SA_MAC_LEN - ETYPE_LEN - VLAN_TAG_LEN;
 
-    } else {
+    } 
+    else 
+    {
 
         /* Accept only IP or ARP packets */
         if (etype != uip_htons(UIP_ETHTYPE_IP) &&
@@ -428,8 +457,7 @@ uip_task_rx_handler(sys_pkt_t *pkt, void *cookie) REENTRANT
 /*
  * Main uIP tx callback routine for firmware.
  */
-STATICCBK void
-uip_tx_async_cbk(sys_pkt_t *pkt, sys_error_t status) REENTRANT
+STATICCBK void uip_tx_async_cbk(sys_pkt_t *pkt, sys_error_t status) REENTRANT
 {
     if (status != SYS_OK) {
         UIP_TASK_LOG(("\n uIP TX cbk ERROR(%d)!\n", (int16)status));
@@ -444,18 +472,23 @@ uip_tx_async_cbk(sys_pkt_t *pkt, sys_error_t status) REENTRANT
 /*
  * Main uIP tx routine for firmware.
  */
-static sys_error_t
-uip_task_send(void)
+/**发送数据
+ * 
+*/
+static sys_error_t uip_task_send(void)
 {
     sys_error_t r;
     sys_pkt_t *pkt;
 
     /* Send packet in uip_buf */
+    //给发送的数据的分配内存空间
     pkt = (sys_pkt_t *)sal_malloc(sizeof(sys_pkt_t));
-    if (pkt == NULL) {
+    if (pkt == NULL) 
+    {
         UIP_TASK_LOG(("Out of memory!\n"));
         return SYS_ERR_OUT_OF_RESOURCE;
     }
+    /**设置数据包的值为0*/
     sal_memset(pkt, 0, sizeof(sys_pkt_t));
 #if CFG_ROBO_CHIP
     if (uip_len < MIN_PACKET_LENGTH) {
@@ -464,30 +497,42 @@ uip_task_send(void)
 #endif
 
 #ifdef CFG_IP_FRAGMENT_INCLUDED
-    if (uip_len > MAX_PACKET_LENGTH) {
+    //对于数据包的长度大于最大定义的数据包的长度的处理
+    if (uip_len > MAX_PACKET_LENGTH) 
+    {
+        //用于存储剩下需要发送的数据包
         uint16 remain_len = uip_len - MAX_PACKET_LENGTH;
+        //在dma上申请数据包的空间
         pkt->pkt_data = (uint8 *)sal_dma_malloc(MAX_PACKET_LENGTH + CRC_PADDING);
-        if (pkt->pkt_data == NULL) {
+        //分配失败的处理
+        if (pkt->pkt_data == NULL) 
+        {
             UIP_TASK_LOG(("Out of memory!\n"));
             sal_free(pkt);
             return SYS_ERR_OUT_OF_RESOURCE;
         }
-
+        //设置数据的长度值的高位
         UDPBUF->len[0] = (MAX_IP_TOTAL_LENGTH >> 8);
+        //设置数据的长度值的地位
         UDPBUF->len[1] = (MAX_IP_TOTAL_LENGTH & 0xff);
 
         /* More fragment */
+        //
         UDPBUF->ipoffset[0] = 0x20;
+        //
         UDPBUF->ipoffset[1] = 0;
-
+        //
         UDPBUF->ipchksum = 0;
+        //
         UDPBUF->ipchksum = uip_ipchksum();
 
         sal_memcpy(pkt->pkt_data, BUF, MAX_PACKET_LENGTH);
+        //设置包的长度
         pkt->pkt_len = MAX_PACKET_LENGTH + CRC_PADDING;
-
+        //
         r = sys_tx(pkt, uip_tx_async_cbk);
-        if (r != SYS_OK) {
+        if (r != SYS_OK) 
+        {
             UIP_TASK_LOG(("\n uIP TX ERROR(%d)!\n", (int16)r));
             return r;
         }
@@ -529,7 +574,8 @@ uip_task_send(void)
         if (r != SYS_OK) {
             UIP_TASK_LOG(("\n uIP TX ERROR(%d)!\n", (int16)r));
         }
-    } else
+    } 
+    else
 #endif /* CFG_IP_FRAGMENT_INCLUDED */
     {
         pkt->pkt_data = (uint8 *)sal_dma_malloc(uip_len + CRC_PADDING);
@@ -551,24 +597,31 @@ uip_task_send(void)
 /*
  * Init routine for firmware.
  */
-void
-uip_task_init()
+/**初始化微型的TCP/IP协议栈*/
+void uip_task_init()
 {
+    //ip地址
     uip_ipaddr_t ipaddr;
+    //Mac地址
     struct uip_eth_addr mac_addr;
 
     /* Update mac address info in uIP. */
+    /**获取定义的设备的MAC地址*/
     get_system_mac((uint8 *)&mac_addr);
+    //设置以太网数据的头部的MAC地址
     uip_setethaddr(mac_addr);
-
+    //设置
     timer_set(&periodic_timer, SAL_USEC_TO_TICKS(PERIODIC_TIMER_INTERVAL));
+    //设置
     timer_set(&arp_timer, SAL_USEC_TO_TICKS(ARP_TIMER_INTERVAL));
-
+    //随机获取
     sal_srand(sal_get_ticks());
-
+    //收发TCP数据包的初始化
     uip_init();
+    //ARP的初始化
     uip_arp_init(FALSE);
 #ifdef CFG_NET_LINKCHANGE_NOTIFY_INCLUDED
+    //
     net_register_linkchange(uip_arp_init);
 #endif /* CFG_NET_LINKCHANGE_NOTIFY_INCLUDED */
 
@@ -578,23 +631,27 @@ uip_task_init()
     net_register_linkchange(uip_ds6_init);
 #endif /* CFG_NET_LINKCHANGE_NOTIFY_INCLUDED */
 #endif /* CFG_UIP_IPV6_ENABLED */
-
+    //设置设备的IP地址
     uip_ipaddr(&ipaddr, 0,0,0,0);
+    //设置设备的短地址
     uip_sethostaddr(&ipaddr);
 
 #ifdef CFG_DHCPC_INCLUDED
     /* DHCP is not actually started until serializer enables it */
+    //DHCP的初始化
     dhcpc_init(&mac_addr);
 #endif /* CFG_DHCPC_INCLUDED */
 
 #ifdef CFG_ZEROCONF_MDNS_INCLUDED
+    //MDNS的初始化
     mdns_init();
 #endif /* CFG_ZEROCONF_MDNS_INCLUDED */
 
 #if  CFG_HTTPD_ENABLED
+    //http的初始化
     httpd_init();
 #endif  /* CFG_HTTPD_ENABLED */
-
+    //系统接收寄存器的设置
     sys_rx_register(
         uip_task_rx_handler,
         CFG_UIP_RX_PRIORITY,
@@ -602,6 +659,7 @@ uip_task_init()
         0);
 
     /* Register a background task for RX handling */
+    //添加uip任务
     task_add(uip_task, (void *)NULL);
 }
 #endif /* __BOOTLOADER__ */
@@ -619,18 +677,22 @@ uip_task_init()
  *  Note :
  *
  */
-STATICFN void
-tcpip_out(void)
+/**TCP发送数据包
+ * 
+*/
+STATICFN void tcpip_out(void)
 {
     /*
      * If previous function invocation resulted in data that
      *  should be sent out on the network, the global variable
      *  uip_len is set to a value > 0.
      */
-    if(uip_len == 0) {
+    /**对于发送的数据的数据长度等于0的处理直接返回0*/
+    if(uip_len == 0) 
+    {
         return;
     }
-
+    //对于发送的数据的长度大于0的处理
 #if CFG_UIP_IPV6_ENABLED
     if (uip_ipv6) {
 
@@ -648,7 +710,9 @@ tcpip_out(void)
 #endif /* !CFG_UIP_IPV6_ENABLED */
 
     /* IPv4 */
+    //使用ARP协议封装数据包头
     uip_arp_out();
+    //
     uip_task_send();
     uip_len = 0;
 }
@@ -667,12 +731,13 @@ tcpip_out(void)
  *  Note :
  *
  */
-void
-tcp_conns_periodic(void)
+/**检测TCP的连接*/
+void tcp_conns_periodic(void)
 {
     register uint8 i;
 
-    for(i = 0; i < UIP_CONNS; i++) {
+    for(i = 0; i < UIP_CONNS; i++) 
+    {
         uip_periodic(i);
         tcpip_out();
     }
@@ -693,12 +758,12 @@ tcp_conns_periodic(void)
  *  Note :
  *
  */
-void
-udp_conns_periodic(void)
+void udp_conns_periodic(void)
 {
     register uint8 i;
 
-    for(i = 0; i < UIP_UDP_CONNS; i++) {
+    for(i = 0; i < UIP_UDP_CONNS; i++) 
+    {
         uip_udp_periodic(i);
         tcpip_out();
     }
@@ -718,43 +783,52 @@ udp_conns_periodic(void)
  *  Note :
  *
  */
-void
-uip_task(void *param) REENTRANT
+/**微型TCP/IP协议的实现*/
+void uip_task(void *param) REENTRANT
 {
     UNREFERENCED_PARAMETER(param);
-
-    if(uip_len > 0) {
-        if(BUF->type == uip_htons(UIP_ETHTYPE_IP)) {
-
+    /**对于数据包的长度大于0的处理*/
+    if(uip_len > 0) 
+    {
+        //对于类型是以太网数据的处理
+        if(BUF->type == uip_htons(UIP_ETHTYPE_IP)) 
+        {
             uip_input();
             tcpip_out();
-
-        } else if(BUF->type == uip_htons(UIP_ETHTYPE_ARP)) {
-
+        } 
+        //对于类型个是ARP的处理
+        else if(BUF->type == uip_htons(UIP_ETHTYPE_ARP)) 
+        {
             uip_arp_arpin();
-            if(uip_len > 0) {
+            if(uip_len > 0) 
+            {
                 uip_task_send();
                 uip_len = 0;
             }
-
 #if CFG_UIP_IPV6_ENABLED
-        } else if(BUF->type == uip_htons(UIP_ETHTYPE_IP6)) {
-
+        } 
+        //如果支持IPV6对于IPv6的支持
+        else if(BUF->type == uip_htons(UIP_ETHTYPE_IP6)) 
+        {
             uip6_input();
             tcpip_out();
-
 #endif /* CFG_UIP_IPV6_ENABLED */
 
-        } else {
-
+        } 
+        //对于其他的设置数据长度为0
+        else 
+        {
             uip_len = 0;
         }
-
-    } else if (uip_task_prev_ticks != sal_get_ticks()) {
+    } 
+    //对于数据的长度不大于0
+    else if (uip_task_prev_ticks != sal_get_ticks()) 
+    {
 
         uip_task_prev_ticks = sal_get_ticks();
 
-        if (timer_expired(&periodic_timer)) {
+        if (timer_expired(&periodic_timer)) 
+        {
 
             timer_reset(&periodic_timer);
 
@@ -768,7 +842,8 @@ uip_task(void *param) REENTRANT
 
 #ifndef __BOOTLOADER__
             /* Call the ARP timer function every 10 seconds. */
-            if(timer_expired(&arp_timer)) {
+            if(timer_expired(&arp_timer)) 
+            {
                 timer_reset(&arp_timer);
                 uip_arp_timer();
             }
@@ -814,6 +889,7 @@ uip_task(void *param) REENTRANT
 }
 
 #if  UIP_TCP
+/**根据端口号调用相关的TCP的应用*/
 void uip_appcall(void)
 {
     switch (uip_htons(uip_conn->lport)) {
@@ -829,17 +905,20 @@ void uip_appcall(void)
 #endif  /* UIP_TCP */
 
 #if UIP_UDP
-void
-udp_appcall(void)
+/**根据端口号进行相关协议的调用*/
+void udp_appcall(void)
 {
-    switch (uip_htons(uip_udp_conn->lport)) {
+    switch (uip_htons(uip_udp_conn->lport)) 
+    {
 #ifdef CFG_DHCPC_INCLUDED
+        //调用DHCP协议
         case DHCPC_CLIENT_PORT:
             dhcpc_appcall();
             break;
 #endif /* CFG_DHCPC_INCLUDED */
 
 #ifdef CFG_ZEROCONF_MDNS_INCLUDED
+        //调用MDNS协议
         case DNS_MULTICAST_PORT:
             mdns_appcall();
             break;
@@ -867,8 +946,7 @@ void uip6_appcall(void)
 #endif  /* UIP_TCP */
 
 #if UIP_UDP
-void
-udp6_appcall(void)
+void udp6_appcall(void)
 {
     switch (uip_htons(uip_udp_conn->lport)) {
 #ifdef CFG_ZEROCONF_MDNS_INCLUDED
@@ -884,8 +962,8 @@ udp6_appcall(void)
 #endif /* CFG_UIP_IPV6_ENABLED */
 
 #if UIP_LOGGING
-void
-uip_log(char *m)
+/**微型TCP/IP协议调试信息*/
+void uip_log(char *m)
 {
 #if CFG_CONSOLE_ENABLED
     sal_printf("uIP log message: %s\n", m);

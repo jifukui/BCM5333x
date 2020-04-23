@@ -52,15 +52,16 @@
  * pc为PHY控制结构体
  * addr为地址
  * data用于存储数据
+ * 比如读取对端的节能以太网的能力0x7803e0e
 */
 int phy_brcm_shadow_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
 {
     int ioerr = 0;
-    //获取寄存器的地址
+    //获取寄存器的地址  E
     uint32_t reg_addr = addr & 0x1f;
-    //获取块地址
+    //获取块地址  803e
     uint32_t reg_bank = (addr >> 8) & 0xffff;
-    //获取
+    //获取 7
     uint32_t reg_dev = (addr >> 24) & 0xf;
     //根据寄存器的地址进行处理
     switch(reg_addr) 

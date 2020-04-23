@@ -85,6 +85,7 @@
  *     RESET            PHY reset.
  *
  ******************************************************************************/
+//MII控制寄存器，定义控制寄存器的大小为4个字节
 #define BCM54282_MII_CTRLr (0x00000000 | PHY_REG_ACC_RAW)
 
 #define BCM54282_MII_CTRLr_SIZE 4
@@ -98,15 +99,18 @@ typedef union BCM54282_MII_CTRLr_s {
 	uint32_t mii_ctrl[1];
 	uint32_t _mii_ctrl;
 } BCM54282_MII_CTRLr_t;
-
+//清除控制寄存器的值
 #define BCM54282_MII_CTRLr_CLR(r) (r).mii_ctrl[0] = 0
+//设置控制寄存器的值
 #define BCM54282_MII_CTRLr_SET(r,d) (r).mii_ctrl[0] = d
+//获取控制寄存器的值
 #define BCM54282_MII_CTRLr_GET(r) (r).mii_ctrl[0]
 
 /*
  * These macros can be used to access individual fields.
  *
  */
+//复位
 #define BCM54282_MII_CTRLr_RESETf_GET(r) ((((r).mii_ctrl[0]) >> 15) & 0x1)
 #define BCM54282_MII_CTRLr_RESETf_SET(r,f) (r).mii_ctrl[0]=(((r).mii_ctrl[0] & ~((uint32_t)0x1 << 15)) | ((((uint32_t)f) & 0x1) << 15))
 #define BCM54282_MII_CTRLr_LOOPBACKf_GET(r) ((((r).mii_ctrl[0]) >> 14) & 0x1)
@@ -136,7 +140,9 @@ typedef union BCM54282_MII_CTRLr_s {
  * These macros can be used to access MII_CTRL.
  *
  */
+//读取寄存器0的值
 #define BCM54282_READ_MII_CTRLr(_pc,_r) PHY_BUS_READ(_pc,BCM54282_MII_CTRLr,_r._mii_ctrl)
+//设置寄存器0的值
 #define BCM54282_WRITE_MII_CTRLr(_pc,_r) PHY_BUS_WRITE(_pc,BCM54282_MII_CTRLr,_r._mii_ctrl)
 
 /*
@@ -216,6 +222,7 @@ typedef BCM54282_MII_CTRLr_t MII_CTRLr_t;
  *     CAP_100BASE_T4   100BASE-T4 capable.
  *
  ******************************************************************************/
+//定义MII状态寄存器的值为1
 #define BCM54282_MII_STATr (0x00000001 | PHY_REG_ACC_RAW)
 
 #define BCM54282_MII_STATr_SIZE 4
@@ -348,6 +355,7 @@ typedef BCM54282_MII_STATr_t MII_STATr_t;
  *     REGID            16 MSBs of PHY identifier.
  *
  ******************************************************************************/
+//定义MII寄存器2为芯片OUI高位寄存器
 #define BCM54282_MII_PHY_ID0r (0x00000002 | PHY_REG_ACC_RAW)
 
 #define BCM54282_MII_PHY_ID0r_SIZE 4
@@ -420,6 +428,7 @@ typedef BCM54282_MII_PHY_ID0r_t MII_PHY_ID0r_t;
  *     REGID            16 LSBs of PHY identifier.
  *
  ******************************************************************************/
+//定义寄存器3位芯片OUI低位
 #define BCM54282_MII_PHY_ID1r (0x00000003 | PHY_REG_ACC_RAW)
 
 #define BCM54282_MII_PHY_ID1r_SIZE 4
@@ -501,6 +510,7 @@ typedef BCM54282_MII_PHY_ID1r_t MII_PHY_ID1r_t;
  *     NEXT_PAGE        Next Page ability supported.
  *
  ******************************************************************************/
+//定义寄存器4，寄存器4位自协商适配寄存器
 #define BCM54282_MII_ANAr (0x00000004 | PHY_REG_ACC_RAW)
 
 #define BCM54282_MII_ANAr_SIZE 4
@@ -619,6 +629,7 @@ typedef BCM54282_MII_ANAr_t MII_ANAr_t;
  *     NEXT_PAGE        Link partner has Next Page ability.
  *
  ******************************************************************************/
+//定义寄存器5 为自适应连接伙伴能力寄存器
 #define BCM54282_MII_ANPr (0x00000005 | PHY_REG_ACC_RAW)
 
 #define BCM54282_MII_ANPr_SIZE 4
@@ -735,6 +746,7 @@ typedef BCM54282_MII_ANPr_t MII_ANPr_t;
  *     PARDET_FAULT     Parallel link fault detected.
  *
  ******************************************************************************/
+//寄存器6位自适应扩展寄存器
 #define BCM54282_MII_AN_EXPr (0x00000006 | PHY_REG_ACC_RAW)
 
 #define BCM54282_MII_AN_EXPr_SIZE 4
@@ -828,6 +840,7 @@ typedef BCM54282_MII_AN_EXPr_t MII_AN_EXPr_t;
  *     TEST_MODE        Test mode.
  *
  ******************************************************************************/
+//寄存器9 为1000BASE-T双工半双工能力寄存器
 #define BCM54282_MII_GB_CTRLr (0x00000009 | PHY_REG_ACC_RAW)
 
 #define BCM54282_MII_GB_CTRLr_SIZE 4
@@ -926,6 +939,7 @@ typedef BCM54282_MII_GB_CTRLr_t MII_GB_CTRLr_t;
  *     MS_CFG_FAULT     Master/slave configuration fault detected.
  *
  ******************************************************************************/
+//寄存器10位
 #define BCM54282_MII_GB_STATr (0x0000000a | PHY_REG_ACC_RAW)
 
 #define BCM54282_MII_GB_STATr_SIZE 4
@@ -3548,6 +3562,7 @@ typedef BCM54282_TEST1r_t TEST1r_t;
  *     SUPER_ISOLATE    Super Isolate enable.
  *
  ******************************************************************************/
+//超级隔离寄存器
 #define BCM54282_POWER_MII_CTRLr (0x0000002a | PHY_REG_ACC_BRCM_RDB)
 
 #define BCM54282_POWER_MII_CTRLr_SIZE 4
