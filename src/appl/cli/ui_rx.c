@@ -71,9 +71,8 @@ STATIC uint32   rx_count;
 void APIFUNC(ui_rx_init)(void) REENTRANT;
 APISTATIC void cli_cmd_switch_rx_mon(CLI_CMD_OP op) REENTRANT;
 APISTATIC sys_rx_t cli_switch_rx_handler(sys_pkt_t *pkt, void *cookie) REENTRANT;
-
-APISTATIC sys_rx_t
-APIFUNC(cli_switch_rx_handler)(sys_pkt_t *pkt, void *cookie) REENTRANT
+/**交换机接收处理*/
+APISTATIC sys_rx_t APIFUNC(cli_switch_rx_handler)(sys_pkt_t *pkt, void *cookie) REENTRANT
 {
     UNREFERENCED_PARAMETER(cookie);
     

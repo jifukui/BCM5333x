@@ -67,10 +67,10 @@ int phy_reg_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
     /**根据寄存器的类型调用不同的寄存器读取接口*/
     switch (PHY_REG_ACCESS_METHOD(addr)) 
     {
-        /**读取原始数据*/
+        /**原始寄存器读取模式*/
         case PHY_REG_ACC_RAW:
             return PHY_BUS_READ(pc, addr, data);
-        /***/
+        /**隐藏寄存器读取模式*/
         case PHY_REG_ACC_BRCM_SHADOW:
             return phy_brcm_shadow_read(pc, addr, data);
         case PHY_REG_ACC_BRCM_1000X:
@@ -85,6 +85,7 @@ int phy_reg_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
             return phy_brcm_xe_read(pc, addr, data);
         case PHY_REG_ACC_TSC_IBLK:
             return phy_tsc_iblk_read(pc, addr, data);
+        //使用RDB的方式访问寄存器
         case PHY_REG_ACC_BRCM_RDB:
             return phy_brcm_rdb_read(pc, addr, data);
         default:

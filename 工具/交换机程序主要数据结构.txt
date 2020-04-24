@@ -329,3 +329,28 @@ typedef struct dcb_s {
     uint32 w14;
     uint32 w15;
 } dcb_t;
+夏工定义的芯片寄存器信息结构体
+typedef struct soc_reg_info_s {
+    char    *name;                  寄存器名称
+    uint32  base;                   寄存器的基地址
+    uint32  block_id;               块地址
+    uint32  flags;                  标记值
+    int     nFields;                
+    soc_field_info_t  *fields;      域信息
+    char   **views;                 视角
+    uint16 bytes;                   
+}soc_reg_info_t;
+夏工定义的内存信息表
+typedef struct soc_mem_info_s {
+    char    *name;              表名称
+    uint32  flags;              标记值
+    int     index_min;          最小索引号
+    int     index_max;          最大索引号
+    uint32  block_id;           块ID
+    uint32  base;               偏移地址
+    uint32  gran;               颗粒度
+    uint16  bytes;              数据长度
+    uint16  nFields;            域数量 
+    soc_field_info_t    *fields;    域信息表
+    char                **views;    视角
+} soc_mem_info_t;

@@ -46,7 +46,7 @@
  */
 
 #include "system.h"
-
+//定义计时器0的计时单元
 #define TIMER0_TICK         1UL  /* unit:ms */
 
 /******************************************************************************
@@ -54,6 +54,7 @@
  *   COMPARE configuration
  *
  ******************************************************************************/
+//定义每毫秒的tick时钟数
 #if CONFIG_HURRICANE2_EMULATION
 /* Clock is too slow in emulation */
 #define TICKS_PER_US    (1)
@@ -62,11 +63,12 @@
 #endif
 
 #define COMPARE_VALUE   (TIMER0_TICK*1000UL*TICKS_PER_US)
-
+//记录当前的系统tick值
 volatile STATIC uint32 sys_ticks;
+//记录上一次tick值
 volatile STATIC uint32 last_sys_ticks;
 volatile STATIC uint32 sys_seconds;
-
+//定义在汇编程序中的获取当前计时器的tick值
 extern uint32 _getticks(void);
 
 #if !CFG_TIMER_USE_INTERRUPT
@@ -74,15 +76,13 @@ STATIC uint32 timer_oldcount; /* For keeping track of ticks */
 STATIC uint32 timer_remticks;
 STATIC uint32 clockspertick;
 #endif /* !CFG_TIMER_USE_INTERRUPT */
-
-tick_t
-sal_get_ticks(void)
+/**获取当前滴答计时器的时间*/
+tick_t sal_get_ticks(void)
 {
     return (tick_t)sys_ticks;
 }
 
-uint32
-APIFUNC(sal_get_seconds)(void) REENTRANT
+uint32 APIFUNC(sal_get_seconds)(void) REENTRANT
 {
     uint32 delta;
 
@@ -92,9 +92,8 @@ APIFUNC(sal_get_seconds)(void) REENTRANT
 
     return sys_seconds;
 }
-
-uint32
-sal_get_us_per_tick(void)
+/**获取*/
+uint32 sal_get_us_per_tick(void)
 {
     return TIMER0_TICK * 1000UL;
 }
@@ -106,23 +105,27 @@ STATICFN void arm_counter_compapre_isr(int ip)
 }
 #else
 extern void sal_timer_task(void *param);
-void
-sal_timer_task(void *param)
+/**添加计时器任务*/
+void sal_timer_task(void *param)
 {
     uint32 count, delta;
     uint32 (*funcptr)(void) = (uint32 (*)(void))_getticks;
-
+    //调用获取计时器值的函数获取数值
     count = (*funcptr)();
+    //获取时间差值
     delta = count - timer_oldcount;
-
+    //
     timer_remticks += delta;
     
-    if (timer_remticks > (clockspertick << 4)) {
+    if (timer_remticks > (clockspertick << 4)) 
+    {
         sys_ticks += (timer_remticks / clockspertick);
         timer_remticks %= clockspertick;
-        }
-    else {
-        while (timer_remticks > clockspertick) {
+    }
+    else 
+    {
+        while (timer_remticks > clockspertick) 
+        {
             timer_remticks -= clockspertick;
             sys_ticks++;
         }
@@ -130,15 +133,15 @@ sal_timer_task(void *param)
     timer_oldcount = count;
 }
 #endif /* CFG_TIMER_USE_INTERRUPT */
-
-void
-sal_timer_init(uint32 clk_hz, BOOL init)
+/**计时器初始化*/
+void sal_timer_init(uint32 clk_hz, BOOL init)
 {
 #if CFG_TIMER_USE_INTERRUPT
     uint32 val;
 
     /* Init global variable system tick */
-    if (init) {
+    if (init) 
+    {
         sys_ticks = 0;
         last_sys_ticks = 0;
         sys_seconds = 0;
@@ -170,8 +173,7 @@ sal_timer_init(uint32 clk_hz, BOOL init)
 }
 
 
-void
-sal_usleep(uint32 usec)
+void sal_usleep(uint32 usec)
 {
     tick_t curr, ticks;
     uint32 (*funcptr)(void) = (uint32 (*)(void))_getticks;
@@ -196,15 +198,17 @@ sal_usleep(uint32 usec)
 #endif
 }
 #ifndef __BOOTLOADER__
-void
-sal_sleep(tick_t ticks)
+
+void sal_sleep(tick_t ticks)
 {
     tick_t curr;
-    if (ticks == 0) {
+    if (ticks == 0) 
+    {
         return;
     }
     curr = sal_get_ticks();
-    while(!SAL_TIME_EXPIRED(curr, ticks)) {
+    while(!SAL_TIME_EXPIRED(curr, ticks)) 
+    {
         POLL();
     }
 }

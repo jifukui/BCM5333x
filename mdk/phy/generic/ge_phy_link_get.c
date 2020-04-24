@@ -65,7 +65,7 @@
 /**获取link状态
  * pc：为PHY的控制结构
  * link：用于存储端口的连接状态
- * autoneg_done：用于存储
+ * autoneg_done：用于存储自适应状态的结果
 */
 int ge_phy_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
 {

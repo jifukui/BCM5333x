@@ -52,21 +52,25 @@
 
 int phymod_osr_mode_to_actual_os(phymod_osr_mode_t osr_mode, uint32_t* os_int, uint32_t* os_remainder)
 {
-    if(PHYMOD_E_OK != phymod_osr_mode_t_validate(osr_mode)) {
+    if(PHYMOD_E_OK != phymod_osr_mode_t_validate(osr_mode)) 
+    {
         PHYMOD_RETURN_WITH_ERR(PHYMOD_E_PARAM, (_PHYMOD_MSG("osr_mode validation failed")));
     }
 
-    if(os_int == NULL) {
+    if(os_int == NULL) 
+    {
         PHYMOD_RETURN_WITH_ERR(PHYMOD_E_PARAM, (_PHYMOD_MSG("os_int NULL parameter")));
     }
-    if(os_remainder == NULL) {
+    if(os_remainder == NULL) 
+    {
         PHYMOD_RETURN_WITH_ERR(PHYMOD_E_PARAM, (_PHYMOD_MSG("os_remainder NULL parameter")));
     }
 
     *os_int = 0;
     *os_remainder = 0;
 
-    switch (osr_mode) {
+    switch (osr_mode) 
+    {
         case phymodOversampleMode1: 
             *os_int = 1;
             break;
@@ -118,7 +122,8 @@ int phymod_osr_mode_to_actual_os(phymod_osr_mode_t osr_mode, uint32_t* os_int, u
 int phymod_osr_mode_t_validate(phymod_osr_mode_t phymod_osr_mode)
 {
         
-    if(phymod_osr_mode >= phymodOversampleModeCount) {
+    if(phymod_osr_mode >= phymodOversampleModeCount) 
+    {
         PHYMOD_RETURN_WITH_ERR(PHYMOD_E_PARAM, (_PHYMOD_MSG("Parameter is out of range")));
     }
         

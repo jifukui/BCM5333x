@@ -74,24 +74,27 @@ APISTATIC void cli_cmd_8051_sfr_get(CLI_CMD_OP op) REENTRANT;
 #endif /* __C51__ */
 
 extern void APIFUNC(ui_system_init)(void) REENTRANT;
-
-APISTATIC void
-APIFUNC(cli_cmd_show_tick)(CLI_CMD_OP op) REENTRANT
+/**显示当前tick的值和每tick的微秒数*/
+APISTATIC void APIFUNC(cli_cmd_show_tick)(CLI_CMD_OP op) REENTRANT
 {
-    if (op == CLI_CMD_OP_HELP) {
+    if (op == CLI_CMD_OP_HELP) 
+    {
         sal_printf("Ticks - Show current system ticks.\n");
-    } else if (op == CLI_CMD_OP_DESC) {
+    } 
+    else if (op == CLI_CMD_OP_DESC) 
+    {
         sal_printf("Show current system ticks");
-    } else {
+    } 
+    else 
+    {
         sal_printf("System ticks: %lu / 0x%lX\n",
             (uint32)sal_get_ticks(), (uint32)sal_get_ticks());
         sal_printf("  - Every tick is %lu micro seconds\n",
             sal_get_us_per_tick());
     }
 }
-
-void
-APISTATIC APIFUNC(cli_cmd_memory_dump)(CLI_CMD_OP op) REENTRANT
+/**输出内存数据*/
+void APISTATIC APIFUNC(cli_cmd_memory_dump)(CLI_CMD_OP op) REENTRANT
 {
     if (op == CLI_CMD_OP_HELP) {
         sal_printf("This command displays data from memory as bytes in hex.\n"
@@ -114,9 +117,8 @@ APISTATIC APIFUNC(cli_cmd_memory_dump)(CLI_CMD_OP op) REENTRANT
         }
     }
 }
-
-APISTATIC void
-APIFUNC(cli_cmd_memory_edit)(CLI_CMD_OP op) REENTRANT
+/**编辑内存数据*/
+APISTATIC void APIFUNC(cli_cmd_memory_edit)(CLI_CMD_OP op) REENTRANT
 {
     if (op == CLI_CMD_OP_HELP) {
         sal_printf("This command edits the contents of memory in a byte "
@@ -201,8 +203,7 @@ APIFUNC(cli_cmd_access_ctrl)(CLI_CMD_OP op) REENTRANT
 #endif /* CFG_UIP_STACK_ENABLED */
 
 #ifdef __C51__
-APISTATIC void
-APIFUNC(cli_cmd_8051_sfr_get)(CLI_CMD_OP op) REENTRANT
+APISTATIC void APIFUNC(cli_cmd_8051_sfr_get)(CLI_CMD_OP op) REENTRANT
 {
     if (op == CLI_CMD_OP_HELP) {
         sal_printf("This command displays 8051 SFRs (Special Function "
@@ -225,8 +226,7 @@ APIFUNC(cli_cmd_8051_sfr_get)(CLI_CMD_OP op) REENTRANT
 #endif /* __C51__ */
 
 #ifdef CFG_DUAL_IMAGE_INCLUDED
-APISTATIC void
-APIFUNC(cli_cmd_dual_image)(CLI_CMD_OP op) REENTRANT
+APISTATIC void APIFUNC(cli_cmd_dual_image)(CLI_CMD_OP op) REENTRANT
 {
     uint32 partition;
     uint8  ver[4];
@@ -267,8 +267,7 @@ APIFUNC(cli_cmd_dual_image)(CLI_CMD_OP op) REENTRANT
 #endif /* CFG_DUAL_IMAGE_INCLUDED */
 
 #ifdef CFG_RESET_BUTTON_INCLUDED
-APISTATIC void
-APIFUNC(cli_cmd_reset_button)(CLI_CMD_OP op) REENTRANT
+APISTATIC void APIFUNC(cli_cmd_reset_button)(CLI_CMD_OP op) REENTRANT
 {
     char c;
     uint8 uint8_temp;
@@ -329,9 +328,15 @@ APIFUNC(cli_cmd_reset_button)(CLI_CMD_OP op) REENTRANT
     }
 }
 #endif /* CFG_RESET_BUTTON_INCLUDED */
-
-void
-APIFUNC(ui_system_init)(void) REENTRANT
+/**添加系统命令
+ * T命令获取系统的
+ * d命令
+ * e命令
+ * a命令
+ * D命令
+ * B命令
+*/
+void APIFUNC(ui_system_init)(void) REENTRANT
 {
     cli_add_cmd('T', cli_cmd_show_tick);
     cli_add_cmd('d', cli_cmd_memory_dump);

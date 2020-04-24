@@ -308,7 +308,7 @@ void uip_task_init()
         BOOT_FUNC_RX_FILL_BUFFER(0, spkt);
     }
 #ifdef CFG_ZEROCONF_MDNS_INCLUDED
-    mdns服务初始化//
+    //mdns服务初始化
     mdns_init();
 #endif /* CFG_ZEROCONF_MDNS_INCLUDED */
 

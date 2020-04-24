@@ -582,14 +582,14 @@ APIFUNC(cli_cmd_switch_tx)(CLI_CMD_OP op) REENTRANT
         }
     }
 }
-
-void
-APIFUNC(ui_tx_init)(void) REENTRANT
+/**向任务队列中添加对于发包的处理*/
+void APIFUNC(ui_tx_init)(void) REENTRANT
 {
     uint8 i;
     
     /* TX */
-    for(i=0; i<CFG_CLI_TX_MAX_PKTCFGS; i++) {
+    for(i=0; i<CFG_CLI_TX_MAX_PKTCFGS; i++) 
+    {
         tx_pkts[i] = NULL;
     }
     cli_add_cmd('t', cli_cmd_switch_tx);

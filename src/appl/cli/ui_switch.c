@@ -86,6 +86,7 @@ extern void APIFUNC(ui_switch_init)(void) REENTRANT;
 #define PHY_REG_ACCESS_METHOD_SHIFT     28
 
 /* Access methods */
+//定义访问模式
 #define PHY_REG_ACC_RAW                 LSHIFT32(0, PHY_REG_ACCESS_METHOD_SHIFT)
 #define PHY_REG_ACC_BRCM_SHADOW         LSHIFT32(1, PHY_REG_ACCESS_METHOD_SHIFT)
 #define PHY_REG_ACC_BRCM_1000X          LSHIFT32(2, PHY_REG_ACCESS_METHOD_SHIFT)
@@ -160,8 +161,7 @@ char xcmd_builder_buffer[XCMD_BUILDER_BUFFER_LEN];
 #endif /* CFG_XCOMMAND_INCLUDED */
 
 #ifdef CFG_XCOMMAND_INCLUDED
-APISTATIC void
-APIFUNC(cli_cmd_switch_xcmd_shell)(CLI_CMD_OP op) REENTRANT
+APISTATIC void APIFUNC(cli_cmd_switch_xcmd_shell)(CLI_CMD_OP op) REENTRANT
 
 {
     char user_name[16];
@@ -939,30 +939,41 @@ APIFUNC(cli_cmd_snake)(CLI_CMD_OP op) REENTRANT
 #endif
 uint8 board_linkdown_message = 0;
 uint8 board_upload_vc = 0;
-
-APISTATIC void
-APIFUNC(ui_switch_misc)(CLI_CMD_OP op) REENTRANT {
+/***/
+APISTATIC void APIFUNC(ui_switch_misc)(CLI_CMD_OP op) REENTRANT 
+{
 
         uint8 select = 0;
-        if (op == CLI_CMD_OP_HELP) {
+        if (op == CLI_CMD_OP_HELP) 
+        {
             sal_printf("Command to configure switch misc feature\n");
-        } else if (op == CLI_CMD_OP_DESC) {
+        } 
+        else if (op == CLI_CMD_OP_DESC) 
+        {
             sal_printf("Command to configure switch misc feature");
-        } else {
+        } 
+        else 
+        {
             sal_printf("0: Link scan enable/disable\n");
             sal_printf("1: Link down message enable/disable\n");
 #ifdef CFG_VENDOR_CONFIG_SUPPORT_INCLUDED
             sal_printf("2: Upload vendor config enable/disable\n");
 #endif /* CFG_VENDOR_CONFIG_SUPPORT_INCLUDED */
-            if (ui_get_byte(&select, "Please select: ") == UI_RET_OK) {
-                 switch (select) {
+            if (ui_get_byte(&select, "Please select: ") == UI_RET_OK) 
+            {
+                 switch (select) 
+                 {
                     case 0:
                          sal_printf("  0: Enable link scan \n"
                                     "  1: Disable link scan \n");
-                         if (ui_get_byte(&select, "select: ") == UI_RET_OK) { 
-                             if (select == 0) {
+                         if (ui_get_byte(&select, "select: ") == UI_RET_OK) 
+                         { 
+                             if (select == 0) 
+                             {
                                 board_linkscan_disable = 0;
-                             } else if (select == 1) {
+                             } 
+                             else if (select == 1) 
+                             {
                                 board_linkscan_disable = 1;
                              }
                          }
@@ -970,10 +981,14 @@ APIFUNC(ui_switch_misc)(CLI_CMD_OP op) REENTRANT {
                     case 1:
                          sal_printf("  0: Disable link down message \n"
                                     "  1: Enable link down message \n");
-                         if (ui_get_byte(&select, "select: ") == UI_RET_OK) { 
-                             if (select == 0) {
+                         if (ui_get_byte(&select, "select: ") == UI_RET_OK) 
+                         { 
+                             if (select == 0) 
+                             {
                                 board_linkdown_message = 0;
-                             } else if (select == 1) {
+                             } 
+                             else if (select == 1) 
+                             {
                                 board_linkdown_message = 1;
                              }
                          }
@@ -982,10 +997,14 @@ APIFUNC(ui_switch_misc)(CLI_CMD_OP op) REENTRANT {
                     case 2:
                          sal_printf("  0: Disable vendor config upload \n"
                                     "  1: Enable vendor config upload \n");
-                         if (ui_get_byte(&select, "select: ") == UI_RET_OK) { 
-                             if (select == 0) {
+                         if (ui_get_byte(&select, "select: ") == UI_RET_OK) 
+                         { 
+                             if (select == 0) 
+                             {
                                 board_upload_vc = 0;
-                             } else if (select == 1) {
+                             } 
+                             else if (select == 1) 
+                             {
                                 board_upload_vc = 1;
                              }
                          }
@@ -1007,8 +1026,7 @@ char *discard_mode[] = {
 };
 
 
-static char *
-_if_fmt_speed(char *b, int speed)
+static char * _if_fmt_speed(char *b, int speed)
 {
     if (speed >= 1000) {
         if (speed % 1000) {
@@ -1024,7 +1042,11 @@ _if_fmt_speed(char *b, int speed)
     return (b);
 }
 
-/**端口简要信息*/
+/**端口简要信息
+ * unit：为设备单元号
+ * port：为端口号
+ * info：为端口信息
+*/
 void brief_port_info(int unit, int port, bcm_port_info_t *info)
 {
     char *spt_str, *discrd_str;
@@ -1034,7 +1056,8 @@ void brief_port_info(int unit, int port, bcm_port_info_t *info)
     //uint16 uport = 0;
     char buf[512];
 
-    if (info == NULL) {
+    if (info == NULL) 
+    {
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return;
     }
@@ -1061,16 +1084,20 @@ void brief_port_info(int unit, int port, bcm_port_info_t *info)
     lrn_ptr = 0;
     sal_memset(lrn_str, 0, sizeof(lrn_str));
     lrn_str[0] = 'D';
-    if (info->learn == BCM_PORT_DISCARD_NONE) {
+    if (info->learn == BCM_PORT_DISCARD_NONE) 
+    {
         lrn_str[lrn_ptr++] = 'F';
     }
-    if (info->learn == BCM_PORT_DISCARD_ALL) {
+    if (info->learn == BCM_PORT_DISCARD_ALL) 
+    {
         lrn_str[lrn_ptr++] = 'A';
     }
-    if (info->learn == BCM_PORT_DISCARD_UNTAG) {
+    if (info->learn == BCM_PORT_DISCARD_UNTAG) 
+    {
         lrn_str[lrn_ptr++] = 'U';
     }
-	if (info->learn == BCM_PORT_DISCARD_TAG) {
+	if (info->learn == BCM_PORT_DISCARD_TAG) 
+    {
         lrn_str[lrn_ptr++] = 'T';
     }
     sal_sprintf(buf + sal_strlen(buf), "%3s ", lrn_str);
@@ -1146,24 +1173,29 @@ APISTATIC void APIFUNC(ui_switch_port_status)(CLI_CMD_OP op) REENTRANT
         for (pport = 2; pport < 25; pport ++)
         {	   
             //board_uport_to_lport(uport, &unit, &lport);	
+            //将PHY端口转换为逻辑端口
 			lport = SOC_PORT_P2L_MAPPING(pport);
             (*soc->port_info_get)(0, lport, &info);
             brief_port_info(0, pport, &info);
 	    }
     }
 }
-
-APISTATIC void
-APIFUNC(ui_switch_table_dump)(CLI_CMD_OP op) REENTRANT 
+/***/
+APISTATIC void APIFUNC(ui_switch_table_dump)(CLI_CMD_OP op) REENTRANT 
 {
     uint8 select = 0;
     uint8 table_change = 0;
 
-    if (op == CLI_CMD_OP_HELP) {
+    if (op == CLI_CMD_OP_HELP) 
+    {
         sal_printf("Command to dump soc table\n");
-    } else if (op == CLI_CMD_OP_DESC) {
+    } 
+    else if (op == CLI_CMD_OP_DESC) 
+    {
         sal_printf("Command to dump soc table\n");
-    } else {
+    } 
+    else 
+    {
         sal_printf("0: Dump mac address table\n");
         sal_printf("1: Dump port table\n");
         sal_printf("2: Dump vlan table\n");
@@ -1173,8 +1205,10 @@ APIFUNC(ui_switch_table_dump)(CLI_CMD_OP op) REENTRANT
         sal_printf("6: Dump vlan profile  table\n");
         sal_printf("7: Dump vlan profile 2 table\n");
 		sal_printf("8: Dump L2 MC table\n");		
-        if (ui_get_byte(&select, "Please select: ") == UI_RET_OK) {
-            switch (select) {
+        if (ui_get_byte(&select, "Please select: ") == UI_RET_OK) 
+        {
+            switch (select) 
+            {
                 case 0:
                     sal_printf("  0: Dump unchanged mac address table \n"
                                "  1: Dump changed mac address table \n");
@@ -1235,19 +1269,33 @@ APIFUNC(ui_switch_table_dump)(CLI_CMD_OP op) REENTRANT
             }
         }
     }
+    /**soc_mem_dump函数是夏工实现的功能用于获取内存的信息
+     * 
+    */
 }
-
-APISTATIC void
-APIFUNC(ui_switch_reg_dump)(CLI_CMD_OP op) REENTRANT 
+/**交换机寄存器信息输出这个函数没有实现啊
+ * 0命令
+ * 1命令
+ * 2命令
+ * 3命令
+ * 4命令
+ * 5命令
+*/
+APISTATIC void APIFUNC(ui_switch_reg_dump)(CLI_CMD_OP op) REENTRANT 
 {
     uint8 select = 0;
 	uint8 i;
 
-    if (op == CLI_CMD_OP_HELP) {
+    if (op == CLI_CMD_OP_HELP) 
+    {
         sal_printf("Command to dump soc register\n");
-    } else if (op == CLI_CMD_OP_DESC) {
+    } 
+    else if (op == CLI_CMD_OP_DESC) 
+    {
         sal_printf("Command to dump soc register\n");
-    } else {
+    } 
+    else 
+    {
         sal_printf("0: Dump REG_ING_CONFIG_64 register\n");
         sal_printf("1: Dump IGMP_MLD_PKT_CONTROL register\n");
 		sal_printf("2: Dump L2_AGE_TIMER register\n");
@@ -1285,33 +1333,64 @@ APIFUNC(ui_switch_reg_dump)(CLI_CMD_OP op) REENTRANT
         }
     }
 }
-
+/**端口统计
+ * 
+*/
 APISTATIC void APIFUNC(ui_switch_port_counters)(CLI_CMD_OP op) REENTRANT 
 {
 	uint8 select = 0; 
-    if (op == CLI_CMD_OP_HELP) {
+    if (op == CLI_CMD_OP_HELP) 
+    {
         sal_printf("Command to show port traffic counters\n");
-    } else if (op == CLI_CMD_OP_DESC) {
+    } 
+    else if (op == CLI_CMD_OP_DESC) 
+    {
         sal_printf("Command to show port traffic counters\n");
-    } else {
+    } 
+    else 
+    {
 		sal_printf("0: Dump all port counters\n");
         sal_printf("1: Dump the choiced port counters\n");
-		if (ui_get_byte(&select, "Please select: ") == UI_RET_OK) {
-			if (select == 0) {
+		if (ui_get_byte(&select, "Please select: ") == UI_RET_OK) 
+        {
+            //对于获取所有端口的统计信息处理
+			if (select == 0) 
+            {
                ;
-			} else {
+			} 
+            //对于获取指定端口的统计信息的处理
+            else 
+            {
 			    ui_get_byte(&select, "select: ");			   
-				if (SAL_UPORT_IS_NOT_VALID(select)){
+				if (SAL_UPORT_IS_NOT_VALID(select))
+                {
 					sal_printf("Invalid port.\n");
                     return;
 				}
 			}			
+            //输出端口状态信息，这个函数没有实现
             soc_port_status_dump(select); 
         }       
     }
 }
 
-
+/**添加交换机功能命令
+ * p获取PHY寄存器的值
+ * q设置PHY寄存器的值
+ * g获取交换机寄存器的值
+ * s设置交换机寄存器的值
+ * r获取交换机的表
+ * w设置交换机的表
+ * ksnake测试
+ * v显示VLAN的信息
+ * xshell
+ * b
+ * l
+ * P
+ * S
+ * R
+ * C
+*/
 void APIFUNC(ui_switch_init)(void) REENTRANT
 {
     /* Phy register get/set */

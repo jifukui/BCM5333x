@@ -288,22 +288,31 @@ bcm5333x_qvlan_port_set(uint8 unit, uint16  vlan_id, pbmp_t lpbmp, pbmp_t tag_lp
  }
 
 
-
- sys_error_t
-bcm5333x_qvlan_port_get(uint8 unit, uint16  vlan_id, pbmp_t *lpbmp, pbmp_t *tag_lpbmp)
+/**基于协议的VLAN的端口的获取
+ * unit：设备单元号
+ * vlan_id：VLAN的ID号
+ * lpbmp：逻辑端口的位图
+ * tag_lpbmp：标记的逻辑端口的位图
+*/
+ sys_error_t bcm5333x_qvlan_port_get(uint8 unit, uint16  vlan_id, pbmp_t *lpbmp, pbmp_t *tag_lpbmp)
 {
     sys_error_t rv = SYS_OK;
 
     uint32 entry[4];
 
     /* Check VALID[Bit 38] filed for existence */
+    //判断这个VLAN是否是有效的
+    //#define M_VLAN(idx)                 10,0x14000000+(idx)
     rv = bcm5333x_mem_get(0, M_VLAN(vlan_id), entry, 4);
-    if((entry[1] & 0x40) != 0x40) {
+    if((entry[1] & 0x40) != 0x40) 
+    {
         return SYS_ERR;
     }
-
+    //#define M_EGR_VLAN(idx)             11,0x100C0000+(idx)
     rv = bcm5333x_mem_get(0, M_EGR_VLAN(vlan_id), entry, 3);
+    //获取参加这个端口的VLAN
     *lpbmp = (entry[0] >> 30) | ((entry[1] & 0xFFFFFFF) << 2);
+    //出端口是带标签的端口
     *tag_lpbmp = (~entry[0] & 0x3fffffff) & (*lpbmp);
 
     return rv;
@@ -322,13 +331,19 @@ bcm5333x_qvlan_port_get(uint8 unit, uint16  vlan_id, pbmp_t *lpbmp, pbmp_t *tag_
  *  Note :
  *
  */
-sys_error_t
-bcm5333x_vlan_create(uint8 unit, vlan_type_t type, uint16  vlan_id)
+/**创建VLAN
+ * unit：设备单元号
+ * type：VLAN类型
+ * vlan_id：VLAN的ID号
+*/
+sys_error_t bcm5333x_vlan_create(uint8 unit, vlan_type_t type, uint16  vlan_id)
 {
     sys_error_t rv = SYS_OK;
     uint32 entry[4];
-
-    switch (type) {
+    
+    switch (type) 
+    {
+        //对于创建基于协议的ID的处理
         case VT_DOT1Q:
             /* Create vlan in VLAN_TAB
              * set VALID=1,PBMP=0, VLAN_PROFILE_PTR=0, STG=1
@@ -367,8 +382,11 @@ bcm5333x_vlan_create(uint8 unit, vlan_type_t type, uint16  vlan_id)
  *  Note :
  *
  */
-sys_error_t
-bcm5333x_vlan_destroy(uint8 unit, uint16  vlan_id)
+/**销毁VLAN
+ * unit：设备单元号
+ * vlan_id：VLAN的ID号
+*/
+sys_error_t bcm5333x_vlan_destroy(uint8 unit, uint16  vlan_id)
 {
 
     sys_error_t rv;
@@ -397,8 +415,8 @@ bcm5333x_vlan_destroy(uint8 unit, uint16  vlan_id)
  *  Note :
  *
  */
-sys_error_t
-bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
+/**设置VLAN的类型*/
+sys_error_t bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
 {
     int i;
     uint32 entry[4], port_entry[8];
@@ -406,7 +424,7 @@ bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
     vlan_list_t     *this_vlan;
 
     sys_error_t rv = SYS_OK;
-
+    //对于类型不是基于协议的实现
     if ((type == VT_NONE) || (type == VT_PORT_BASED))
     {
 
@@ -435,7 +453,8 @@ bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
         entry[3] = 0x0;
 
         /* create 2-4094 vlans */
-        for (i = 2; i <= 4094; i++) {
+        for (i = 2; i <= 4094; i++) 
+        {
             bcm5333x_mem_set(0, M_VLAN(i), entry, 4);
         }
 
@@ -444,16 +463,19 @@ bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
         entry[1] = 0x1fffffff;
         entry[2] = 0x10;
 
-        for (i = 2; i <= 4094; i++) {
+        for (i = 2; i <= 4094; i++) 
+        {
             /* create vlan in EGR_VLAN */
             bcm5333x_mem_set(0, M_EGR_VLAN(i), entry, 3);
         }
         
         if (type == VT_PORT_BASED)
         {
-            if (VLAN_DEFAULT != 1){
+            if (VLAN_DEFAULT != 1)
+            {
                 this_vlan = vlan_info.head;
-                if (this_vlan == NULL) {
+                if (this_vlan == NULL) 
+                {
                     sal_printf("%s..:%s..:this_vlan == NULL. Should not happen after brdimpl_vlan_reset()\n", __FILE__, __func__);
                     return SYS_ERR_OUT_OF_RESOURCE;
                 }
@@ -475,7 +497,8 @@ bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
                 bcm5333x_mem_set(0, M_EGR_VLAN(1), entry, 3);
                 
                 /* Reset PVID to default vlan */
-                for (i = BCM5333X_LPORT_MIN; i <= BCM5333X_LPORT_MAX; i++) {
+                for (i = BCM5333X_LPORT_MIN; i <= BCM5333X_LPORT_MAX; i++) 
+                {
                     bcm5333x_mem_get(0, M_PORT(i), port_entry, 8);
                     port_entry[0] = (port_entry[0] & 0x00ffffff) | (this_vlan->vlan_id << 24);
             		port_entry[1] = (port_entry[1] & 0xfffffff0) | ((this_vlan->vlan_id & 0xf00) >> 8);   
@@ -486,11 +509,13 @@ bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
             }
         }
 
-    } else if (type == VT_DOT1Q)
+    } 
+    else if (type == VT_DOT1Q)
     {
 
         /* Don't have to do this again if it was 802.1Q vlan */
-        if (hr2_vlan_type == VT_DOT1Q) {
+        if (hr2_vlan_type == VT_DOT1Q) 
+        {
              hr2_vlan_type = type;
              return SYS_OK;
         }
@@ -501,7 +526,8 @@ bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
         bcm5333x_reg_set(0, R_VLAN_CTRL, val);
 
         /* Enable EN_IFILTER to check VLAN membership */
-        for (i = BCM5333X_LPORT_MIN; i <= BCM5333X_LPORT_MAX; i++) {
+        for (i = BCM5333X_LPORT_MIN; i <= BCM5333X_LPORT_MAX; i++) 
+        {
             bcm5333x_mem_get(0, M_PORT(i), port_entry, 8);
             port_entry[0] |= 0x00000020;
             bcm5333x_mem_set(0, M_PORT(i), port_entry, 8);
@@ -509,9 +535,12 @@ bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
 
         /* Clear VLAN and EGR_VLAN tables */
         entry[0] = entry[1] = entry[2] = entry[3] = 0;
-        for (i = 1; i <= 4094; i++) {
+        for (i = 1; i <= 4094; i++) 
+        {
             if (i==VLAN_DEFAULT)
+            {
                 continue;
+            }
                 
             /* destroy vlan in VLAN_TAB */
             rv = bcm5333x_mem_set(0, M_VLAN(i), entry, 4);
@@ -573,21 +602,28 @@ sys_error_t bcm5333x_vlan_reset(uint8 unit)
 
     /* Clear egr_mask for reconstruct */
     entry[0] = 0x0;
-    for (i = BCM5333X_PORT_MIN; i <= BCM5333X_PORT_MAX; i++) {
+    for (i = BCM5333X_PORT_MIN; i <= BCM5333X_PORT_MAX; i++) 
+    {
         rv = bcm5333x_mem_set(0, M_EGR_MASK(i), &entry[0], 1);
     }
 
     /* Recover egress_mask change in pvlan_port_set */
-    for (i = BCM5333X_PORT_MIN; i <= BCM5333X_PORT_MAX; i++) {
+    for (i = BCM5333X_PORT_MIN; i <= BCM5333X_PORT_MAX; i++) 
+    {
 #ifdef CFG_SWITCH_LAG_INCLUDED
         /*  Revise the all_mask based on trunk port bitmap */
         all_mask = BCM5333x_ALL_PORTS_MASK;
-        for (j = 0; j < BOARD_MAX_NUM_OF_LAG; j++) {
-            if (lag_lpbmp[j] != 0) {
+        for (j = 0; j < BOARD_MAX_NUM_OF_LAG; j++) 
+        {
+            if (lag_lpbmp[j] != 0) 
+            {
                 all_mask &= ~(lag_lpbmp[j]);
-                if (!(lag_lpbmp[j] & (1 << i))) {
-                    for (k = BCM5333X_PORT_MIN; k <= BCM5333X_PORT_MAX; k++) {
-                        if (lag_lpbmp[j] & (1 << k)) {
+                if (!(lag_lpbmp[j] & (1 << i))) 
+                {
+                    for (k = BCM5333X_PORT_MIN; k <= BCM5333X_PORT_MAX; k++) 
+                    {
+                        if (lag_lpbmp[j] & (1 << k)) 
+                        {
                             all_mask |= (1 << k);
                             break;
                         }
@@ -605,7 +641,8 @@ sys_error_t bcm5333x_vlan_reset(uint8 unit)
     }
 
     /* Reset PVID to default vlan */
-    for (i = BCM5333X_LPORT_MIN; i <= BCM5333X_LPORT_MAX; i++) {
+    for (i = BCM5333X_LPORT_MIN; i <= BCM5333X_LPORT_MAX; i++) 
+    {
         bcm5333x_mem_get(0, M_PORT(i), entry, 8);
         entry[0] = (entry[0] & 0x00ffffff) | (VLAN_DEFAULT << 24);
 		entry[1] = (entry[1] & 0xfffffff0) | ((VLAN_DEFAULT & 0xf00) >> 8);   

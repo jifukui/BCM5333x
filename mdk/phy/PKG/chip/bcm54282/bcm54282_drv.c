@@ -281,7 +281,9 @@ static int bcm54282_phy_notify(phy_ctrl_t *pc, phy_event_t event)
 
     PHY_CTRL_CHECK(pc);
 
-    switch (event) {
+    switch (event) 
+    {
+    //对于是光纤的处理
     case PhyEvent_ChangeToCopper:
         PHY_CTRL_FLAGS(pc) &= ~PHY_F_FIBER_MODE;
         PHY_CTRL_FLAGS(pc) &= ~PHY_F_PASSTHRU;
@@ -292,7 +294,8 @@ static int bcm54282_phy_notify(phy_ctrl_t *pc, phy_event_t event)
     }
 
     /* Call up the PHY chain */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         rv = PHY_NOTIFY(PHY_CTRL_NEXT(pc), event);
     }
 
@@ -528,12 +531,14 @@ static int bcm54282_phy_init(phy_ctrl_t *pc)
     ioerr += WRITE_MII_ANAr(pc, mii_ana);
 
     /* Enable PHY temperature monitor */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         rv = PHY_CONFIG_SET(pc, PhyConfig_TempMon, 1, NULL);
     }
 
     /* Call up the PHY chain */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         rv = PHY_INIT(PHY_CTRL_NEXT(pc));
     }
 
@@ -631,21 +636,26 @@ static int bcm54282_phy_duplex_set(phy_ctrl_t *pc, int duplex)
 
     PHY_CTRL_CHECK(pc);
 
-    if (duplex) {
+    if (duplex) 
+    {
         duplex = 1;
     }
 
     /* Call up the PHY chain */
     rv = PHY_DUPLEX_SET(PHY_CTRL_NEXT(pc), duplex);
-    if (CDK_FAILURE(rv)) {
+    if (CDK_FAILURE(rv)) 
+    {
         return rv;
     }
 
-    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) {
+    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) 
+    {
         ioerr += READ_SERDES_100FX_CTRLr(pc, &fx100_ctrl);
         SERDES_100FX_CTRLr_FD_FX_SERDESf_SET(fx100_ctrl, duplex);
         ioerr += WRITE_SERDES_100FX_CTRLr(pc, fx100_ctrl);
-    } else {
+    } 
+    else 
+    {
         rv = ge_phy_duplex_set(pc, duplex);
     }
 
@@ -664,8 +674,7 @@ static int bcm54282_phy_duplex_set(phy_ctrl_t *pc, int duplex)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_duplex_get(phy_ctrl_t *pc, int *duplex)
+static int bcm54282_phy_duplex_get(phy_ctrl_t *pc, int *duplex)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -674,24 +683,30 @@ bcm54282_phy_duplex_get(phy_ctrl_t *pc, int *duplex)
 
     PHY_CTRL_CHECK(pc);
 
-    if (duplex == NULL) {
+    if (duplex == NULL) 
+    {
         return CDK_E_PARAM;
     }
 
     *duplex = 1;
 
-    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) {
+    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) 
+    {
         rv = PHY_SPEED_GET(pc, &speed);
-        if (CDK_FAILURE(rv)) {
+        if (CDK_FAILURE(rv)) 
+        {
             return rv;
         }
 
-        if (speed == 100) {
+        if (speed == 100) 
+        {
             ioerr += READ_EXP_OPT_MODE_STATr(pc, &exp_opt_mode_stat);
             *duplex = EXP_OPT_MODE_STATr_FIBER_DUPLEXf_GET(exp_opt_mode_stat);
         }
 
-    } else {
+    } 
+    else 
+    {
         rv = ge_phy_duplex_get(pc, duplex);
     }
 
@@ -709,8 +724,7 @@ bcm54282_phy_duplex_get(phy_ctrl_t *pc, int *duplex)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
+static int bcm54282_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -721,20 +735,25 @@ bcm54282_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
     PHY_CTRL_CHECK(pc);
 
     /* Call up the PHY chain */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         rv = PHY_SPEED_SET(PHY_CTRL_NEXT(pc), speed);
     }
 
     /* Set copper speed */
-    if (CDK_SUCCESS(rv)) {
-        if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) {
-            if (speed == 10) {
+    if (CDK_SUCCESS(rv)) 
+    {
+        if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) 
+        {
+            if (speed == 10) 
+            {
                 return CDK_E_UNAVAIL;
             }
 
             ioerr += READ_MII_1000X_CTRLr(pc, &mii_1000x_ctrl);
             ioerr += READ_SERDES_100FX_CTRLr(pc, &fx100_ctrl);
-            switch(speed) {
+            switch(speed) 
+            {
             case 100:
                 MII_1000X_CTRLr_SS_MSBf_SET(mii_1000x_ctrl, 0);
                 MII_1000X_CTRLr_SS_LSBf_SET(mii_1000x_ctrl, 1);
@@ -755,26 +774,34 @@ bcm54282_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
             MII_1000X_CTRLr_FULL_DUPLEXf_SET(mii_1000x_ctrl, 1);
 
             rv = PHY_AUTONEG_GET(pc, &autoneg);
-            if (CDK_FAILURE(rv)) {
+            if (CDK_FAILURE(rv)) 
+            {
                 return rv;
             }
-            if ((autoneg) && (speed != 100)) {
+            if ((autoneg) && (speed != 100)) 
+            {
                 MII_1000X_CTRLr_AUTONEGf_SET(mii_1000x_ctrl, 1);
                 MII_1000X_CTRLr_RESTART_ANf_SET(mii_1000x_ctrl, 1);
             }
             ioerr += WRITE_MII_1000X_CTRLr(pc, mii_1000x_ctrl);
-        } else {
+        } 
+        else 
+        {
             rv = PHY_LOOPBACK_GET(pc, &lb_enable);
-            if (CDK_SUCCESS(rv) && lb_enable) {
+            if (CDK_SUCCESS(rv) && lb_enable) 
+            {
                 rv = PHY_LOOPBACK_SET(pc, 0);
             }
 
-            if (CDK_SUCCESS(rv)) {
+            if (CDK_SUCCESS(rv)) 
+            {
                 rv = ge_phy_speed_set(pc, speed);
             }
 
-            if (CDK_SUCCESS(rv)) {
-                if (lb_enable) {
+            if (CDK_SUCCESS(rv)) 
+            {
+                if (lb_enable) 
+                {
                     rv = PHY_LOOPBACK_SET(pc, lb_enable);
                 }
             }
@@ -796,8 +823,7 @@ bcm54282_phy_speed_set(phy_ctrl_t *pc, uint32_t speed)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
+static int bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -807,13 +833,16 @@ bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
 
     PHY_CTRL_CHECK(pc);
 
-    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) {
+    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) 
+    {
         ioerr  += READ_OPER_MODE_STATUSr(pc, &oper_mode_status);
-        if (ioerr) {
+        if (ioerr) 
+        {
             return CDK_E_IO;
         }
         sp_mode = OPER_MODE_STATUSr_SERDES_SPEEDf_GET(oper_mode_status);
-        switch(sp_mode) {
+        switch(sp_mode) 
+        {
         case 0: /* SERDES_SPEED_10 */
             *speed = 10;
             break;
@@ -826,20 +855,27 @@ bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
         default:
             return CDK_E_UNAVAIL;
         }
-    } else {
+    } 
+    else 
+    {
         ioerr += PHY_BUS_READ(pc, MII_CTRL_REG, &ctrl);
         ioerr += READ_MII_AUX_STATUSr(pc, &mii_aux_status);
-        if (ioerr) {
+        if (ioerr) 
+        {
             return CDK_E_IO;
         }
 
-        if (ctrl & MII_CTRL_AE) {
+        if (ctrl & MII_CTRL_AE) 
+        {
             /* Auto-negotiation enabled */
             anc = MII_AUX_STATUSr_ANCf_GET(mii_aux_status);
-            if (!anc) {
+            if (!anc) 
+            {
                 /* Auto-neg NOT complete */
                 *speed = 0;
-            } else {
+            } 
+            else 
+            {
                 hcd = MII_AUX_STATUSr_HCDf_GET(mii_aux_status);
                 switch(hcd) {
                 case 7: /* HCD_FD_1000 */
@@ -860,9 +896,12 @@ bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
                     break;
                 }
             }
-        } else {
+        } 
+        else 
+        {
             /* Auto-negotiation disabled. Simply pick up the values we force in CTRL register. */
-            switch (MII_CTRL_SS(ctrl)) {
+            switch (MII_CTRL_SS(ctrl)) 
+            {
             case MII_CTRL_SS_10:
                 *speed = 10;
                 break;
@@ -892,8 +931,7 @@ bcm54282_phy_speed_get(phy_ctrl_t *pc, uint32_t *speed)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_autoneg_set(phy_ctrl_t *pc, int autoneg)
+static int bcm54282_phy_autoneg_set(phy_ctrl_t *pc, int autoneg)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -902,18 +940,22 @@ bcm54282_phy_autoneg_set(phy_ctrl_t *pc, int autoneg)
 
     PHY_CTRL_CHECK(pc);
 
-    if (autoneg) {
+    if (autoneg) 
+    {
         autoneg = 1;
     }
 
-    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) {
+    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) 
+    {
         /*
          * When enabling auto-neg, set the default speed to 1000Mbps first.
          * PHY will not enable auto-neg if the PHY is in 100FX mode.
          */
-        if (autoneg) {
+        if (autoneg) 
+        {
             rv = PHY_SPEED_SET(pc, 1000);
-            if (CDK_FAILURE(rv)) {
+            if (CDK_FAILURE(rv)) 
+            {
                 return rv;
             }
         }
@@ -928,7 +970,9 @@ bcm54282_phy_autoneg_set(phy_ctrl_t *pc, int autoneg)
         MII_1000X_CTRLr_AUTONEGf_SET(mii_1000x_ctrl, autoneg);
         MII_1000X_CTRLr_RESTART_ANf_SET(mii_1000x_ctrl, autoneg);
         ioerr += WRITE_MII_1000X_CTRLr(pc, mii_1000x_ctrl);
-    } else {
+    } 
+    else 
+    {
         rv = ge_phy_autoneg_set(pc, autoneg);
     }
 
@@ -946,8 +990,7 @@ bcm54282_phy_autoneg_set(phy_ctrl_t *pc, int autoneg)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_autoneg_get(phy_ctrl_t *pc, int *autoneg)
+static int bcm54282_phy_autoneg_get(phy_ctrl_t *pc, int *autoneg)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -956,22 +999,28 @@ bcm54282_phy_autoneg_get(phy_ctrl_t *pc, int *autoneg)
 
     PHY_CTRL_CHECK(pc);
 
-    if (autoneg == NULL) {
+    if (autoneg == NULL) 
+    {
         return CDK_E_PARAM;
     }
 
     *autoneg = 0;
 
-    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) {
+    if (PHY_CTRL_FLAGS(pc) & PHY_F_FIBER_MODE) 
+    {
         rv = PHY_SPEED_GET(pc, &speed);
-        if (CDK_FAILURE(rv)) {
+        if (CDK_FAILURE(rv)) 
+        {
             return rv;
         }
-        if (speed != 100) {
+        if (speed != 100) 
+        {
             ioerr += READ_MII_1000X_CTRLr(pc, &mii_1000x_ctrl);
             *autoneg = MII_1000X_CTRLr_AUTONEGf_GET(mii_1000x_ctrl);
         }
-    } else {
+    } 
+    else 
+    {
         rv = ge_phy_autoneg_get(pc, autoneg);
     }
 

@@ -54,6 +54,6 @@
 int phy_bus_read(phy_ctrl_t *pc, uint32_t reg, uint32_t *data)
 {
     /* Read raw PHY data */
-    /**读取PHY的数据pc->unit为设备单元号在这里为0，PHY_CTRL_BUS_ADDR为，reg为寄存器的地址，data为读取回来的数据*/
+    /**读取PHY的数据pc->unit为设备单元号在这里为0，PHY_CTRL_BUS_ADDR为PHY的总线地址，reg为寄存器的地址，data为读取回来的数据*/
     return pc->bus->read(pc->unit, PHY_CTRL_BUS_ADDR(pc), reg, data);
 }
