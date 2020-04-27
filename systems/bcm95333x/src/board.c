@@ -389,8 +389,7 @@ sys_error_t board_port_enable_get(uint16 uport, BOOL *enable)
     }    
 
     pport = SOC_PORT_L2P_MAPPING(lport);
-    //#define PHY_CONFIG_GET(_pc, _c, _v, _cd) \
-        _PHY_CALL((_pc), pd_config_get, ((_pc), (_c), (_v), (_cd)))
+    //#define PHY_CONFIG_GET(_pc, _c, _v, _cd) _PHY_CALL((_pc), pd_config_get, ((_pc), (_c), (_v), (_cd)))
     if (!SOC_IS_DEERHOUND(unit) && pport < PHY_SECOND_QGPHY_PORT0) 
     {
         r = PHY_CONFIG_GET(BMD_PORT_PHY_CTRL(unit, pport), PhyConfig_Enable, &en, NULL);
