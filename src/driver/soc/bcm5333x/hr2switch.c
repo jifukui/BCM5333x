@@ -580,7 +580,7 @@ void bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags
         /**更新状态灯的变化*/
         val = READCSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)));
         //val |= 0x01;
-        val |= 0x00;
+        val &= 0xfd;
         WRITECSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)), val);
 
         MAC_SPEED_SET(hr2_sw_info.p_mac[lport], unit, lport, speed);
@@ -681,7 +681,7 @@ void bcm5333x_handle_link_down(uint8 unit, uint8 lport, int changed)
         /* Update LED status */
         val = READCSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)));
         //val &= 0xfc;
-        val &= 0xfd;
+        val |= 0x01;
         WRITECSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)), val);
 
         MAC_ENABLE_SET(hr2_sw_info.p_mac[lport], unit, lport, FALSE);
