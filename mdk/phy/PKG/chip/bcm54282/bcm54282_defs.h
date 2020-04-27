@@ -83,7 +83,7 @@
  *     SPEED_SEL0       Speed selection (LSB).
  *     LOOPBACK         Loopback mode.
  *     RESET            PHY reset.
- *
+ *	   	IEEE标准的控制寄存器
  ******************************************************************************/
 //MII控制寄存器，定义控制寄存器的大小为4个字节
 #define BCM54282_MII_CTRLr (0x00000000 | PHY_REG_ACC_RAW)
@@ -110,29 +110,40 @@ typedef union BCM54282_MII_CTRLr_s {
  * These macros can be used to access individual fields.
  *
  */
-//复位
+//复位状态为
 #define BCM54282_MII_CTRLr_RESETf_GET(r) ((((r).mii_ctrl[0]) >> 15) & 0x1)
 #define BCM54282_MII_CTRLr_RESETf_SET(r,f) (r).mii_ctrl[0]=(((r).mii_ctrl[0] & ~((uint32_t)0x1 << 15)) | ((((uint32_t)f) & 0x1) << 15))
+//内部环回
 #define BCM54282_MII_CTRLr_LOOPBACKf_GET(r) ((((r).mii_ctrl[0]) >> 14) & 0x1)
 #define BCM54282_MII_CTRLr_LOOPBACKf_SET(r,f) (r).mii_ctrl[0]=(((r).mii_ctrl[0] & ~((uint32_t)0x1 << 14)) | ((((uint32_t)f) & 0x1) << 14))
+//速度选择
 #define BCM54282_MII_CTRLr_SPEED_SEL0f_GET(r) ((((r).mii_ctrl[0]) >> 13) & 0x1)
 #define BCM54282_MII_CTRLr_SPEED_SEL0f_SET(r,f) (r).mii_ctrl[0]=(((r).mii_ctrl[0] & ~((uint32_t)0x1 << 13)) | ((((uint32_t)f) & 0x1) << 13))
+//自协商使能状态
 #define BCM54282_MII_CTRLr_AUTONEGf_GET(r) ((((r).mii_ctrl[0]) >> 12) & 0x1)
 #define BCM54282_MII_CTRLr_AUTONEGf_SET(r,f) (r).mii_ctrl[0]=(((r).mii_ctrl[0] & ~((uint32_t)0x1 << 12)) | ((((uint32_t)f) & 0x1) << 12))
+//光口下电状态
 #define BCM54282_MII_CTRLr_POWER_DOWNf_GET(r) ((((r).mii_ctrl[0]) >> 11) & 0x1)
 #define BCM54282_MII_CTRLr_POWER_DOWNf_SET(r,f) (r).mii_ctrl[0]=(((r).mii_ctrl[0] & ~((uint32_t)0x1 << 11)) | ((((uint32_t)f) & 0x1) << 11))
+//隔离状态
 #define BCM54282_MII_CTRLr_ISOLATEf_GET(r) ((((r).mii_ctrl[0]) >> 10) & 0x1)
 #define BCM54282_MII_CTRLr_ISOLATEf_SET(r,f) (r).mii_ctrl[0]=(((r).mii_ctrl[0] & ~((uint32_t)0x1 << 10)) | ((((uint32_t)f) & 0x1) << 10))
+//端口重新自协商
 #define BCM54282_MII_CTRLr_RESTART_ANf_GET(r) ((((r).mii_ctrl[0]) >> 9) & 0x1)
 #define BCM54282_MII_CTRLr_RESTART_ANf_SET(r,f) (r).mii_ctrl[0]=(((r).mii_ctrl[0] & ~((uint32_t)0x1 << 9)) | ((((uint32_t)f) & 0x1) << 9))
+//双工模式
 #define BCM54282_MII_CTRLr_FULL_DUPLEXf_GET(r) ((((r).mii_ctrl[0]) >> 8) & 0x1)
 #define BCM54282_MII_CTRLr_FULL_DUPLEXf_SET(r,f) (r).mii_ctrl[0]=(((r).mii_ctrl[0] & ~((uint32_t)0x1 << 8)) | ((((uint32_t)f) & 0x1) << 8))
+//速度选择的高位
 #define BCM54282_MII_CTRLr_COLL_TEST_ENf_GET(r) ((((r).mii_ctrl[0]) >> 7) & 0x1)
 #define BCM54282_MII_CTRLr_COLL_TEST_ENf_SET(r,f) (r).mii_ctrl[0]=(((r).mii_ctrl[0] & ~((uint32_t)0x1 << 7)) | ((((uint32_t)f) & 0x1) << 7))
+//速度选择的高位
 #define BCM54282_MII_CTRLr_SPEED_SEL1f_GET(r) ((((r).mii_ctrl[0]) >> 6) & 0x1)
 #define BCM54282_MII_CTRLr_SPEED_SEL1f_SET(r,f) (r).mii_ctrl[0]=(((r).mii_ctrl[0] & ~((uint32_t)0x1 << 6)) | ((((uint32_t)f) & 0x1) << 6))
+
 #define BCM54282_MII_CTRLr_UNIDIRECTIONAL_ENf_GET(r) ((((r).mii_ctrl[0]) >> 5) & 0x1)
 #define BCM54282_MII_CTRLr_UNIDIRECTIONAL_ENf_SET(r,f) (r).mii_ctrl[0]=(((r).mii_ctrl[0] & ~((uint32_t)0x1 << 5)) | ((((uint32_t)f) & 0x1) << 5))
+
 #define BCM54282_MII_CTRLr_RESERVEDf_GET(r) (((r).mii_ctrl[0]) & 0x1f)
 #define BCM54282_MII_CTRLr_RESERVEDf_SET(r,f) (r).mii_ctrl[0]=(((r).mii_ctrl[0] & ~((uint32_t)0x1f)) | (((uint32_t)f) & 0x1f))
 
@@ -220,7 +231,7 @@ typedef BCM54282_MII_CTRLr_t MII_CTRLr_t;
  *     CAP_100BASE_X_HD 100BASE-X half-duplex capable.
  *     CAP_100BASE_X_FD 100BASE-X full-duplex capable.
  *     CAP_100BASE_T4   100BASE-T4 capable.
- *
+ *		IEEE标准的状态寄存器
  ******************************************************************************/
 //定义MII状态寄存器的值为1
 #define BCM54282_MII_STATr (0x00000001 | PHY_REG_ACC_RAW)
@@ -353,7 +364,7 @@ typedef BCM54282_MII_STATr_t MII_STATr_t;
  * SIZE:     32
  * FIELDS:
  *     REGID            16 MSBs of PHY identifier.
- *
+ * IEEE标准的生产厂商的高位
  ******************************************************************************/
 //定义MII寄存器2为芯片OUI高位寄存器
 #define BCM54282_MII_PHY_ID0r (0x00000002 | PHY_REG_ACC_RAW)
@@ -426,7 +437,7 @@ typedef BCM54282_MII_PHY_ID0r_t MII_PHY_ID0r_t;
  * SIZE:     32
  * FIELDS:
  *     REGID            16 LSBs of PHY identifier.
- *
+ *		IEEE标准的生产厂商低位
  ******************************************************************************/
 //定义寄存器3位芯片OUI低位
 #define BCM54282_MII_PHY_ID1r (0x00000003 | PHY_REG_ACC_RAW)
@@ -508,7 +519,7 @@ typedef BCM54282_MII_PHY_ID1r_t MII_PHY_ID1r_t;
  *     ASYM_PAUSE       Advertise asymmetric pause.
  *     REMOTE_FAULT     Advertise remote fault detected.
  *     NEXT_PAGE        Next Page ability supported.
- *
+ *	IEEE标准的自协商宣传寄存器
  ******************************************************************************/
 //定义寄存器4，寄存器4位自协商适配寄存器
 #define BCM54282_MII_ANAr (0x00000004 | PHY_REG_ACC_RAW)
@@ -627,7 +638,7 @@ typedef BCM54282_MII_ANAr_t MII_ANAr_t;
  *     REMOTE_FAULT     Link partner has detected remote fault.
  *     ACK              Link partner has received link code word.
  *     NEXT_PAGE        Link partner has Next Page ability.
- *
+ *		IEEE标准的自协商对端的能力
  ******************************************************************************/
 //定义寄存器5 为自适应连接伙伴能力寄存器
 #define BCM54282_MII_ANPr (0x00000005 | PHY_REG_ACC_RAW)
@@ -744,7 +755,7 @@ typedef BCM54282_MII_ANPr_t MII_ANPr_t;
  *     NEXT_PAGE        Local Next Page capability.
  *     LP_NEXT_PAGE     Link partner has Next Page capability.
  *     PARDET_FAULT     Parallel link fault detected.
- *
+ *		IEEE标准的自协商扩展寄存器
  ******************************************************************************/
 //寄存器6位自适应扩展寄存器
 #define BCM54282_MII_AN_EXPr (0x00000006 | PHY_REG_ACC_RAW)
@@ -838,7 +849,7 @@ typedef BCM54282_MII_AN_EXPr_t MII_AN_EXPr_t;
  *     MASTER           Configure PHY as master.
  *     MS_MAN           Enable manual master/slave configuration.
  *     TEST_MODE        Test mode.
- *
+ *		IEEE标准的1000BASE-T控制寄存器
  ******************************************************************************/
 //寄存器9 为1000BASE-T双工半双工能力寄存器
 #define BCM54282_MII_GB_CTRLr (0x00000009 | PHY_REG_ACC_RAW)
@@ -937,7 +948,7 @@ typedef BCM54282_MII_GB_CTRLr_t MII_GB_CTRLr_t;
  *     LOCAL_RCV_OK     Local receiver OK.
  *     LOCAL_MASTER     Local transmitter is master.
  *     MS_CFG_FAULT     Master/slave configuration fault detected.
- *
+ *		IEEE标准的1000BASE-T状态寄存器
  ******************************************************************************/
 //寄存器10位
 #define BCM54282_MII_GB_STATr (0x0000000a | PHY_REG_ACC_RAW)
@@ -1037,7 +1048,7 @@ typedef BCM54282_MII_GB_STATr_t MII_GB_STATr_t;
  *     FORCE_LINK       Force Link 10/100/1000BASE-T.
  *     TX_ERR_CODE      Transmit Error Code visibility.
  *     CRC_ERR_CNT      CRC Error Counter Selector.
- *
+ *		测试寄存器1
  ******************************************************************************/
 #define BCM54282_TEST_1r (0x0000000e | PHY_REG_ACC_BRCM_RDB)
 
@@ -1124,7 +1135,7 @@ typedef BCM54282_TEST_1r_t TEST_1r_t;
  *     CAP_1000BASE_T_FD 1000BASE-T full-duplex capable.
  *     CAP_1000BASE_X_HD 1000BASE-X half-duplex capable.
  *     CAP_1000BASE_X_FD 1000BASE-X full-duplex capable.
- *
+ *		IEEE标准扩展状态寄存器
  ******************************************************************************/
 #define BCM54282_MII_ESRr (0x0000000f | PHY_REG_ACC_RAW)
 
@@ -1221,7 +1232,7 @@ typedef BCM54282_MII_ESRr_t MII_ESRr_t;
  *     INT_DIS          INTR disable.
  *     TX_DIS           Copper transmitter disable.
  *     AUTO_MDIX_DIS    Automatic MDI crossover disable.
- *
+ *		扩展控制寄存器
  ******************************************************************************/
 #define BCM54282_MII_PHY_ECRr (0x00000010 | PHY_REG_ACC_RAW)
 
@@ -1345,6 +1356,7 @@ typedef BCM54282_MII_PHY_ECRr_t MII_PHY_ECRr_t;
  * SIZE:     32
  * FIELDS:
  *     MII_PHY_ESR      MII_PHY_ESR
+ * 		扩展的状态寄存器
  *
  ******************************************************************************/
 #define BCM54282_MII_PHY_ESRr (0x00000011 | PHY_REG_ACC_RAW)
@@ -1420,7 +1432,7 @@ typedef BCM54282_MII_PHY_ESRr_t MII_PHY_ESRr_t;
  *     ENABLE_DSP_CLOCK Enable state machine DSP clock.
  *     EXT_PKT_LEN      Receive extended packets.
  *     EXT_LPBK         External copper loopback enable.
- *
+ *		辅助状态控制器
  ******************************************************************************/
 #define BCM54282_MII_AUX_CTRLr (0x00000018 | PHY_REG_ACC_BRCM_SHADOW)
 
@@ -1504,7 +1516,7 @@ typedef BCM54282_MII_AUX_CTRLr_t MII_AUX_CTRLr_t;
  * SIZE:     32
  * FIELDS:
  *     MII_10BASE_T     MII_10BASE_T
- *
+ *	10BASE_T寄存器
  ******************************************************************************/
 #define BCM54282_MII_10BASE_Tr (0x00000118 | PHY_REG_ACC_BRCM_SHADOW)
 
@@ -1576,7 +1588,7 @@ typedef BCM54282_MII_10BASE_Tr_t MII_10BASE_Tr_t;
  * SIZE:     32
  * FIELDS:
  *     MII_POWER_CTRL   MII_POWER_CTRL
- *
+ *		MII控制寄存器
  ******************************************************************************/
 #define BCM54282_MII_POWER_CTRLr (0x00000218 | PHY_REG_ACC_BRCM_SHADOW)
 

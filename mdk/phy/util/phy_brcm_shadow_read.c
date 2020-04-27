@@ -48,7 +48,7 @@
  */
 
 #include <phy/phy_brcm_shadow.h>
-/**影子寄存器的读取
+/**读取隐藏寄存器的值
  * pc为PHY控制结构体
  * addr为地址
  * data用于存储数据
@@ -57,9 +57,9 @@
 int phy_brcm_shadow_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
 {
     int ioerr = 0;
-    //获取寄存器的地址  E
+    //获取寄存器的地址  E 为数据的低5位
     uint32_t reg_addr = addr & 0x1f;
-    //获取块地址  803e
+    //获取块地址  803e 为第8~24位数据
     uint32_t reg_bank = (addr >> 8) & 0xffff;
     //获取 7
     uint32_t reg_dev = (addr >> 24) & 0xf;

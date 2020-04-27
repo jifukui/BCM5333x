@@ -51,6 +51,7 @@
 /*
  * These are the possible debug types/flags for cdk_debug_level (below).
  */
+//定义错误类型
 #define CDK_DBG_ERR       (1 << 0)    /* Print errors */
 #define CDK_DBG_WARN      (1 << 1)    /* Print warnings */
 #define CDK_DBG_VERBOSE   (1 << 2)    /* General verbose output */
@@ -128,6 +129,7 @@ extern int cdk_printf(const char *fmt, ...);
 /*
  * Standard MII Registers
  */
+/**标准的MII控制寄存器*/
 #define MII_CTRL_REG            0x00    /* MII Control Register : r/w */
 #define MII_STAT_REG            0x01    /* MII Status Register: ro */
 #define MII_PHY_ID0_REG         0x02    /* MII PHY ID register: r/w */
@@ -239,6 +241,7 @@ extern int cdk_printf(const char *fmt, ...);
 /*
  * PHY Interface Types
  */
+//定义PHY的接口类型
 #define PHY_IF_NOCXN            0
 #define PHY_IF_NULL             1
 #define PHY_IF_MII              2
@@ -262,6 +265,7 @@ extern int cdk_printf(const char *fmt, ...);
 /*
  * Port MDIX Modes/Status
  */
+//定义PHY的MDIX模式
 #define PHY_MDIX_AUTO           0
 #define PHY_MDIX_FORCEAUTO      1
 #define PHY_MDIX_NORMAL         2
@@ -270,6 +274,7 @@ extern int cdk_printf(const char *fmt, ...);
 /*
  * PHY Medium Configuration/Status
  */
+//定义PHY的媒介
 #define PHY_MEDIUM_NONE         0
 #define PHY_MEDIUM_AUTO         1
 #define PHY_MEDIUM_FIBER_PREF   2
@@ -479,28 +484,18 @@ typedef struct phy_port_cable_diag_s {
  * external PHYs will be board-specific because the PHY address typically
  * is strappable.
  */
-/**phy总线
+/**phy总线结构体
  * 驱动的名字
  * 获取PHY地址
- * 读数据
- * 写数据
+ * 读数据 原始
+ * 写数据 原始
  * 获取实例
 */
 typedef struct phy_bus_s {
-
-    /* String to identify PHY bus driver */
     const char *drv_name;
-
-    /* Get PHY address from port number */
     uint32_t (*phy_addr)(int port);
-
-    /* Read raw PHY data */
     int (*read)(int unit, uint32_t addr, uint32_t reg, uint32_t *data);
-
-    /* Write raw PHY data */
     int (*write)(int unit, uint32_t addr, uint32_t reg, uint32_t data);
-
-    /* Get instance within multi-PHY package (dual, quad, octal) */
     int (*phy_inst)(int port);
 
 } phy_bus_t;
@@ -513,6 +508,26 @@ typedef struct phy_bus_s {
  * directly by PHY drivers (or application code) except through
  * the provided macros.
  */
+/**PHY的控制结构体
+ * next：下一个操作对象
+ * drv：驱动实例
+ * bus：总线结构体实例
+ * fw_helper：
+ * addr_type：
+ * unit：
+ * port：
+ * addr_offset：
+ * flags：
+ * addr：
+ * lane：
+ * lane_mask
+ * line_intf：
+ * num_phys
+ * blk_id
+ * blk_idx
+ * lane_num
+ * lane_idx
+*/
 typedef struct phy_ctrl_s {
     struct phy_ctrl_s *next;
     struct phy_driver_s *drv;
@@ -565,7 +580,28 @@ typedef struct phy_ctrl_s {
 /* Provided for backward compatibility */
 #define PHY_CTRL_INST(_pc) ((_pc)->bus->phy_inst ? \
         ((_pc)->bus->phy_inst((_pc)->port) | PHY_INST_VALID) : 0)
-
+/**PHY的驱动结构体
+ * drv_name：驱动名称
+ * drv_desc：驱动描述符
+ * flags：标记值
+ * pd_probe：PHY探测函数
+ * pd_notify：通知函数
+ * pd_reset：复位函数
+ * pd_init：初始化函数
+ * pd_link_get：link状态获取函数
+ * pd_duplex_set：双工模式设置函数
+ * pd_duplex_get：双工模式获取函数
+ * pd_speed_set：速度设置函数
+ * pd_duplex_get：速度获取函数
+ * pd_autoneg_set：自协商设置函数
+ * pd_autoneg_get：自协商获取函数
+ * pd_loopback_set：环回检测设置函数
+ * pd_loopback_get：环回检测获取函数
+ * pd_config_set：配置设置函数
+ * pd_config_get：配置获取函数
+ * pd_status_get：状态获取函数
+ * pd_cable_diag：线缆检测函数
+*/
 typedef struct phy_driver_s {
     const char *drv_name;
     const char *drv_desc;

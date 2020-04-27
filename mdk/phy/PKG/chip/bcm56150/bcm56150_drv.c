@@ -82,20 +82,25 @@
  * Returns:
  *      PHY instance
  */
-static int
-_bcm56150_inst(phy_ctrl_t *pc)
+static int _bcm56150_inst(phy_ctrl_t *pc)
 {
     int inst = PHY_CTRL_PHY_INST(pc);
 
-    if (inst < 0) {
+    if (inst < 0) 
+    {
         uint32_t addr = PHY_CTRL_PHY_ADDR(pc) & 0x1f;
         addr -= 10;
         inst  = addr + ((addr > 0) ? (-1) : 1);
-    } else {
-        if ((inst >= 0) && (inst < 8)) {
+    } 
+    else 
+    {
+        if ((inst >= 0) && (inst < 8)) 
+        {
             inst &= LANE_NUM_MASK;
             inst  = 8 - (inst + inst / 4);
-        } else if (inst < 16) {
+        } 
+        else if (inst < 16) 
+        {
             inst &= LANE_NUM_MASK;
             inst  = 8 + (inst + inst / 4);
         }
@@ -120,7 +125,9 @@ _bcm56150_inst(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-/**探测设备*/
+/**探测设备
+ * 获取设备的OUI值根据OUI的值是否匹配返回响应的探测状态值
+*/
 static int bcm56150_phy_probe(phy_ctrl_t *pc)
 {
     uint32_t phyid0, phyid1;
@@ -148,8 +155,7 @@ static int bcm56150_phy_probe(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_notify(phy_ctrl_t *pc, phy_event_t event)
+static int bcm56150_phy_notify(phy_ctrl_t *pc, phy_event_t event)
 {
     return bcm54282_drv.pd_notify(pc, event);
 }
@@ -164,8 +170,7 @@ bcm56150_phy_notify(phy_ctrl_t *pc, phy_event_t event)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm56150_phy_reset(phy_ctrl_t *pc)
+static int bcm56150_phy_reset(phy_ctrl_t *pc)
 {
     return bcm54282_drv.pd_reset(pc);
 }
@@ -186,54 +191,88 @@ bcm56150_phy_init(phy_ctrl_t *pc)
     int ioerr = 0;
     int rv = CDK_E_NONE;
     int offset = -1, orig_inst;
+    //顶层复位寄存器
     TOP_MISC_GLOBAL_RESETr_t top_misc_global_reset;
+    //
     DSP_TAP10r_t dsp_tap10;
+    //MII供能控制寄存器
     POWER_MII_CTRLr_t power_mii_ctrl;
+    //
     LED_GPIO_CTRLr_t led_gpio_ctrl;
+    //
     LED_SELECTOR_1r_t led_selector_1;
+    //
     LED_SELECTOR_2r_t led_selector_2;
+    //
     LED_CTRLr_t led_ctrl;
+    //
     EXP_LED_SELECTORr_t exp_led_selector;
+    //
     SPARE_CTRLr_t spare_ctrl;
+    //
     MII_AUX_CTRLr_t mii_aux_ctrl;
+    //
     MII_PHY_ECRr_t mii_phy_ecr;
+    //
     MODE_CTRLr_t mode_ctrl;
+    //
     MII_CTRLr_t mii_ctrl;
+    //
     MII_GB_CTRLr_t mii_gb_ctrl;
+    //
     SGMII_SLAVEr_t sgmii_slave;
+    //
     AUTO_DETECT_MEDIUMr_t auto_detect_medium;
+    //
     EEE_803Dr_t eee_803d;
+    //
     EEE_ADVr_t eee_adv;
+    //
     EEE_STAT_CTRLr_t eee_stat_ctrl;
+    //
     MII_BUFFER_CONTROL_0r_t mii_buf_ctrl;
+    //
     MII_ANAr_t mii_ana;
-
+    //判断控制总线是否正确
     PHY_CTRL_CHECK(pc);
 
     /* Default is copper mode */
+    //设置PHY的状态标记为电口模式
     PHY_CTRL_FLAGS(pc) &= ~PHY_F_FIBER_MODE;
 
+
+    //设置顶层的寄存器复位
     /* Reset Top level register block*/
+    //设置top_misc_global_reset的top_misc_global_reset[0]的值为0
     TOP_MISC_GLOBAL_RESETr_CLR(top_misc_global_reset);
+    //设置op_misc_global_reset的top_misc_global_reset[0]的值为保留不变但是Bit 15的值为1
     TOP_MISC_GLOBAL_RESETr_TOP_MII_REG_SOFT_RSTf_SET(top_misc_global_reset, 1);
+    //设置op_misc_global_reset的top_misc_global_reset[0]的值为保留不变但是Bit 10的值为1
     TOP_MISC_GLOBAL_RESETr_RESET_1588f_SET(top_misc_global_reset, 1);
+    //其实调用的是phy_brcm_rdb_write函数使用RDB的方式访问寄存器，寄存器的地址为0x82b
     ioerr += WRITE_TOP_MISC_GLOBAL_RESETr(pc, top_misc_global_reset);
 
     /* Recommended DSP_TAP10 setting for all the revisions */
+    //使用隐藏寄存器18，使用的是传统的模式寄存器为COPPER_AUXILIARY_CONTROL寄存器
     MII_AUX_CTRLr_CLR(mii_aux_ctrl);
+    //设置使能DSP时钟
     MII_AUX_CTRLr_ENABLE_DSP_CLOCKf_SET(mii_aux_ctrl, 1);
+    //设置
     MII_AUX_CTRLr_RESERVEDf_SET(mii_aux_ctrl, 1);
     ioerr += WRITE_MII_AUX_CTRLr(pc, mii_aux_ctrl);
 
+    //使能
     DSP_TAP10r_SET(dsp_tap10, 0x011B);
     ioerr += WRITE_DSP_TAP10r(pc, dsp_tap10);
 
     /* Disable SuperIsolate */
+    //禁能隔离，使用rdb模式设置禁止隔离
     ioerr += READ_POWER_MII_CTRLr(pc, &power_mii_ctrl);
     POWER_MII_CTRLr_SUPER_ISOLATEf_SET(power_mii_ctrl, 0);
     ioerr += WRITE_POWER_MII_CTRLr(pc, power_mii_ctrl);
 
     /* Enable current mode LED */
+    //设置使用LED的模式
     ioerr += READ_LED_GPIO_CTRLr(pc, &led_gpio_ctrl);
     LED_GPIO_CTRLr_CURRENT_LED_DISABLEf_SET(led_gpio_ctrl, 0);
     ioerr += WRITE_LED_GPIO_CTRLr(pc, led_gpio_ctrl);
@@ -244,17 +283,20 @@ bcm56150_phy_init(phy_ctrl_t *pc)
     ioerr += WRITE_MODE_CTRLr(pc, mode_ctrl);
 
     /* Power up copper interface */
+    //电口上电，设置IEEE标准寄存器0关闭端口下电
     ioerr += READ_MII_CTRLr(pc, &mii_ctrl);
     MII_CTRLr_POWER_DOWNf_SET(mii_ctrl, 0);
     ioerr += WRITE_MII_CTRLr(pc, mii_ctrl);
 
     /* Set port mode */
+    //设置端口的模式，设置端口支持千兆的能力的值
     MII_GB_CTRLr_CLR(mii_gb_ctrl);
     MII_GB_CTRLr_SWITCH_DEVf_SET(mii_gb_ctrl, 1);
     MII_GB_CTRLr_CAP_1000BASE_T_FDf_SET(mii_gb_ctrl, 1);
     ioerr += WRITE_MII_GB_CTRLr(pc, mii_gb_ctrl);
 
     /* Set speed duplex and autoneg */
+    //设置双工和自协商模式
     MII_CTRLr_CLR(mii_ctrl);
     MII_CTRLr_FULL_DUPLEXf_SET(mii_ctrl, 1);
     MII_CTRLr_SPEED_SEL1f_SET(mii_ctrl, 1);
@@ -263,14 +305,18 @@ bcm56150_phy_init(phy_ctrl_t *pc)
     ioerr += WRITE_MII_CTRLr(pc, mii_ctrl);
 
     /* Enable auto-detection between SGMII-slave and 1000BASE-X */
+    //
     ioerr += READ_SGMII_SLAVEr(pc, &sgmii_slave);
     SGMII_SLAVEr_SGMII_SLAVE_AUTO_DETECTf_SET(sgmii_slave, 1);
     ioerr += WRITE_SGMII_SLAVEr(pc, sgmii_slave);
 
     /* Configure Auto-detect Medium (0x1c shadow 11110) */
+    //
     ioerr += READ_AUTO_DETECT_MEDIUMr(pc, &auto_detect_medium);
     AUTO_DETECT_MEDIUMr_SIGNAL_DETECT_INVERTf_SET(auto_detect_medium, 0);
+    
     /* Qualify fiber link with SYNC from PCS. */
+    //
     AUTO_DETECT_MEDIUMr_QFSD_WITH_SYNC_STATUSf_SET(auto_detect_medium, 1);
     AUTO_DETECT_MEDIUMr_AUTO_DETECT_MEDIA_DEFAULTf_SET(auto_detect_medium, 0);
     AUTO_DETECT_MEDIUMr_AUTO_DETECT_MEDIA_PRIORITYf_SET(auto_detect_medium, 0);
@@ -278,12 +324,16 @@ bcm56150_phy_init(phy_ctrl_t *pc)
     ioerr += WRITE_AUTO_DETECT_MEDIUMr(pc, auto_detect_medium);
 
     /* Configure Extended Control Register */
+    //配置扩展控制寄存器
     ioerr += READ_MII_PHY_ECRr(pc, &mii_phy_ecr);
+
     /* Enable LEDs to indicate traffic status */
+    //设置使能LEDs
     MII_PHY_ECRr_LED_TRAFFIC_ENf_SET(mii_phy_ecr, 1);
     ioerr += WRITE_MII_PHY_ECRr(pc, mii_phy_ecr);
 
     /* Enable extended packet length (4.5k through 25k) */
+    //
     ioerr += READ_MII_AUX_CTRLr(pc, &mii_aux_ctrl);
     MII_AUX_CTRLr_EXT_PKT_LENf_SET(mii_aux_ctrl, 1);
     ioerr += WRITE_MII_AUX_CTRLr(pc, mii_aux_ctrl);
@@ -314,13 +364,17 @@ bcm56150_phy_init(phy_ctrl_t *pc)
     It can be used to get to the phy_addr associated with the phy
     base port */
 
-    if (PHY_CTRL_INST(pc) & PHY_INST_VALID) {
+    if (PHY_CTRL_INST(pc) & PHY_INST_VALID) 
+    {
         offset = PHY_CTRL_INST(pc) & LANE_NUM_MASK;
-    } else {
+    } 
+    else 
+    {
         offset = pc->addr & LANE_NUM_MASK;
     }
 
-    if (offset < 0) {
+    if (offset < 0) 
+    {
         return CDK_E_IO;
     }
 
@@ -328,7 +382,8 @@ bcm56150_phy_init(phy_ctrl_t *pc)
     orig_inst = _bcm56150_inst(pc);
 
     /* Switch to instance 0 for AutogrEEEn configuration */
-    if (phy_ctrl_change_inst(pc, 8, _bcm56150_inst) < 0) {
+    if (phy_ctrl_change_inst(pc, 8, _bcm56150_inst) < 0) 
+    {
         return CDK_E_FAIL;
     }
 
@@ -361,23 +416,27 @@ bcm56150_phy_init(phy_ctrl_t *pc)
     ioerr += WRITE_EXP_LED_SELECTORr(pc, exp_led_selector);
 
     /* Change link speed LED mode */
+    //改变link
     ioerr += READ_SPARE_CTRLr(pc, &spare_ctrl);
     SPARE_CTRLr_LINK_SPEED_LED_MODEf_SET(spare_ctrl, 0);
     SPARE_CTRLr_LINK_LED_MODEf_SET(spare_ctrl, 0);
     ioerr += WRITE_SPARE_CTRLr(pc, spare_ctrl);
 
     /* Set pause enable */
+    //设置暂停使能
     ioerr += READ_MII_ANAr(pc, &mii_ana);
     MII_ANAr_PAUSEf_SET(mii_ana, 1);
     ioerr += WRITE_MII_ANAr(pc, mii_ana);
 
     /* Call up the PHY chain */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         rv = PHY_INIT(PHY_CTRL_NEXT(pc));
     }
 
     /* Set default medium */
-    if (CDK_SUCCESS(rv)) {
+    if (CDK_SUCCESS(rv)) 
+    {
         PHY_NOTIFY(pc, PhyEvent_ChangeToCopper);
     }
 

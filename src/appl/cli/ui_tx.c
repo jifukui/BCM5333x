@@ -477,16 +477,21 @@ APIFUNC(cli_cmd_switch_tx)(CLI_CMD_OP op) REENTRANT
     ui_ret_t r;
 
 
-    if (op == CLI_CMD_OP_HELP) {
+    if (op == CLI_CMD_OP_HELP) 
+    {
         sal_printf("Command to transmit one or more packets.\n"
                    "You can configure packet attributes and content\n"
                    "and sent them at a later time.\n"
                    "Note: Be sure to clear the packet configuration after\n"
                    "you're done with it since it occupies system memory.\n"
                    );
-    } else if (op == CLI_CMD_OP_DESC) {
+    } 
+    else if (op == CLI_CMD_OP_DESC) 
+    {
         sal_printf("Transmit packet(s)");
-    } else {
+    } 
+    else 
+    {
         char c;
         sal_printf("  l - List packet configurations\n"
                    "  e - Edit packet configuration\n"
@@ -496,43 +501,53 @@ APIFUNC(cli_cmd_switch_tx)(CLI_CMD_OP op) REENTRANT
                    "Enter your choice: ");
         c = sal_getchar();
         sal_putchar('\n');
-        if (c == 'e' || c == 't' || c == 'c') {
+        if (c == 'e' || c == 't' || c == 'c') 
+        {
             idx = cli_switch_tx_select_config();
             if (idx < 0) {
                 return;
             }
             pkt = tx_pkts[idx];
         }
-        if (c == 'e') {
-            if (pkt == NULL) {
+        if (c == 'e') 
+        {
+            if (pkt == NULL) 
+            {
                 sal_printf("Packet length (%u ~ %u) in decimal: [%u] ",
                     (uint16)MIN_PACKET_LENGTH, 
                     (uint16)MAX_PACKET_LENGTH,
                     (uint16)MIN_PACKET_LENGTH);
                 r = ui_get_decimal(&val32, " ");
-                if (r == UI_RET_EMPTY) {
+                if (r == UI_RET_EMPTY) 
+                {
                     val32 = MIN_PACKET_LENGTH;
-                } else if (r != UI_RET_OK) {
+                } 
+                else if (r != UI_RET_OK) 
+                {
                     return;
                 }
-                if (val32 < MIN_PACKET_LENGTH || val32 > MAX_PACKET_LENGTH) {
+                if (val32 < MIN_PACKET_LENGTH || val32 > MAX_PACKET_LENGTH) 
+                {
                     sal_printf("Invalid packet length!\n");
                     return;
                 }
                 pkt = (sys_pkt_t *)sal_malloc(sizeof(sys_pkt_t));
-                if (pkt == NULL) {
+                if (pkt == NULL) 
+                {
                     sal_printf("Out of memory!\n");
                     return;
                 }
                 sal_memset(pkt, 0, sizeof(sys_pkt_t));
                 pkt->pkt_data = (uint8 *)sal_dma_malloc(val32 + 4); /* CRC */
-                if (pkt->pkt_data == NULL) {
+                if (pkt->pkt_data == NULL) 
+                {
                     sal_printf("Out of memory!\n");
                     sal_free(pkt);
                     return;
                 }
                 pkt->cookie = (void *)sal_malloc(sizeof(tx_async_t));
-                if (pkt->cookie == NULL) {
+                if (pkt->cookie == NULL) 
+                {
                     sal_printf("Out of memory!\n");
                     sal_dma_free(pkt->pkt_data);
                     sal_free(pkt);
@@ -551,33 +566,46 @@ APIFUNC(cli_cmd_switch_tx)(CLI_CMD_OP op) REENTRANT
             
             cli_switch_tx_edit_pktcfg(pkt);
 
-        } else if (c == 's') {
+        } 
+        else if (c == 's') 
+        {
             if (ui_get_bytes(tx_src_mac, 6, "SA", TRUE) != UI_RET_OK) {
                 sal_printf("Cancelled.\n");
             }
-        } else if (c == 'l') {
+        } 
+        else if (c == 'l') 
+        {
             
             for(idx=0; idx<CFG_CLI_TX_MAX_PKTCFGS; idx++) {
                 cli_switch_tx_list_pktcfg(idx, tx_pkts[idx]);
             }
 
-        } else if (c == 't') {
+        } 
+        else if (c == 't') 
+        {
             
             cli_switch_tx_send_pktcfg(pkt);
             
-        } else if (c == 'c') {
-            if (pkt != NULL) {
-                if (pkt->cookie != NULL) {
+        } 
+        else if (c == 'c') 
+        {
+            if (pkt != NULL) 
+            {
+                if (pkt->cookie != NULL) 
+                {
                     sal_free(pkt->cookie);
                 }
-                if (pkt->pkt_data != NULL) {
+                if (pkt->pkt_data != NULL) 
+                {
                     sal_dma_free(pkt->pkt_data);
                 }
                 sal_free(pkt);
                 tx_pkts[idx] = NULL;
             }
             sal_printf("Done.\n");
-        } else {
+        } 
+        else 
+        {
             sal_printf("Invalid choice.\n");
         }
     }

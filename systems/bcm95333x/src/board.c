@@ -332,7 +332,7 @@ sys_error_t board_uport_to_lpbmp(uint8 uport, uint8 unit, pbmp_t *lpbmp)
  *             SYS_ERR_PARAMETER : fail, because parameter is invalid
  *   
  */
-
+/**bitmap转换为用户列表*/
 sys_error_t board_lpbmp_to_uplist(uint8 unit, pbmp_t lpbmp, uint8 *uplist)
 {
 
@@ -362,7 +362,7 @@ sys_error_t board_lpbmp_to_uplist(uint8 unit, pbmp_t lpbmp, uint8 *uplist)
     }
     return SYS_OK;
 }
-
+/**获取芯片的控制单元*/
 soc_switch_t * board_get_soc_by_unit(uint8 unit)
 {
     if (unit > 0) 
@@ -389,18 +389,15 @@ sys_error_t board_port_enable_get(uint16 uport, BOOL *enable)
     }    
 
     pport = SOC_PORT_L2P_MAPPING(lport);
-
+    //#define PHY_CONFIG_GET(_pc, _c, _v, _cd) \
+        _PHY_CALL((_pc), pd_config_get, ((_pc), (_c), (_v), (_cd)))
     if (!SOC_IS_DEERHOUND(unit) && pport < PHY_SECOND_QGPHY_PORT0) 
     {
-        /* Get chip local port for BMD_PORT_PHY_CTRL for FH */
-        r = PHY_CONFIG_GET(BMD_PORT_PHY_CTRL(unit, pport), 
-                       PhyConfig_Enable, &en, NULL);
+        r = PHY_CONFIG_GET(BMD_PORT_PHY_CTRL(unit, pport), PhyConfig_Enable, &en, NULL);
     } 
     else 
     {   
-    
-        r = PHY_CONFIG_GET(BMD_PORT_PHY_CTRL(unit, lport), 
-                       PhyConfig_Enable, &en, NULL);
+        r = PHY_CONFIG_GET(BMD_PORT_PHY_CTRL(unit, lport), PhyConfig_Enable, &en, NULL);
     }
 
     *enable = en;

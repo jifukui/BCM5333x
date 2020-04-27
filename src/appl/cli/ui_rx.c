@@ -146,7 +146,7 @@ APISTATIC sys_rx_t APIFUNC(cli_switch_rx_handler)(sys_pkt_t *pkt, void *cookie) 
     
     return SYS_RX_NOT_HANDLED;    
 }
-/****/
+/**监控接收到的数据包*/
 APISTATIC void APIFUNC(cli_cmd_switch_rx_mon)(CLI_CMD_OP op) REENTRANT
 {
     uint8 uplist[MAX_UPLIST_WIDTH];

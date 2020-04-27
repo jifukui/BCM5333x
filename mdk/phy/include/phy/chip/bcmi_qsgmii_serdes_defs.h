@@ -78,7 +78,7 @@
  *     MANUAL_SPEED_0   
  *     LOOPBACK         
  *     RST_SW           
- *
+ *标准的IEEE的控制寄存器
  ******************************************************************************/
 #define BCMI_QSGMII_SERDES_MIICNTLr (0x00000000 | PHY_REG_ACC_AER_IBLK)
 
@@ -200,7 +200,7 @@ typedef BCMI_QSGMII_SERDES_MIICNTLr_t MIICNTLr_t;
  *     CAP_100BASEX_HALF_DUPLEX 
  *     CAP_100BASEX_FULL_DUPLEX 
  *     CAP_100BASE_T4   
- *
+ *IEEE标准的状态寄存器
  ******************************************************************************/
 #define BCMI_QSGMII_SERDES_MIISTATr (0x00000001 | PHY_REG_ACC_AER_IBLK)
 

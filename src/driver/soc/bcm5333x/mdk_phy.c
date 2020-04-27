@@ -401,7 +401,12 @@ sys_error_t phy_reg_write(uint8 lport, uint16 reg_addr, uint16 value)
     }
 }
 
-/***/
+/**MIIM管理接口读取数据
+ * unit：设备单元号
+ * phy_addr：phy地址
+ * reg:寄存器地址
+ * val：为读取的数据值的缓存区
+*/
 int cdk_xgsm_miim_read(int unit, uint32_t phy_addr, uint32_t reg, uint32_t *val)
 {
     int rv = CDK_E_NONE;
@@ -413,15 +418,18 @@ int cdk_xgsm_miim_read(int unit, uint32_t phy_addr, uint32_t reg, uint32_t *val)
      * Use clause 45 access if DEVAD specified.
      * Note that DEVAD 32 (0x20) can be used to access special DEVAD 0.
      */
+    //对于寄存器的值与上3f0000的值为真的处理
     if (reg & 0x003f0000) 
     {
+        //设置使用规程45
         phy_addr |= CDK_XGSM_MIIM_CLAUSE45;
+        //设置寄存器的地址
         reg &= 0x001fffff;
     }
-
+    //
     phy_param = (phy_addr << MIIM_PARAM_ID_OFFSET);
 
-    /**设置编程寄存器*/
+    /**设置编程寄存器，WRITECSR的作用是读取指定内存的值*/
     WRITECSR(CMIC_CMC1_MIIM_PARAM, phy_param);
     /**设置读地址寄存器*/
     WRITECSR(CMIC_CMC1_MIIM_ADDRESS, reg);
@@ -511,18 +519,21 @@ int cdk_xgsm_miim_write(int unit, uint32_t phy_addr, uint32_t reg, uint32_t val)
 
     return rv;
 }
-/**PHY的初始化*/
+/**PHY的初始化，设置PHY复位并进行PHY的初始化对于存在初始化回调函数进行调用初始化回调函数*/
 int bmd_phy_init(int unit, int lport)
 {
     int rv = CDK_E_NONE;
 
     if (BMD_PORT_PHY_CTRL(unit, lport)) 
     {
+        //设置PHY复位
         rv = PHY_RESET(BMD_PORT_PHY_CTRL(unit, lport));
+        //复位成功且存在PHY复位回调函数的处理
         if (CDK_SUCCESS(rv) && phy_reset_cb) 
         {
             rv = phy_reset_cb(BMD_PORT_PHY_CTRL(unit, lport));
         }
+        //对于成功的处理
         if (CDK_SUCCESS(rv)) 
         {
             rv = PHY_INIT(BMD_PORT_PHY_CTRL(unit, lport));
@@ -534,19 +545,23 @@ int bmd_phy_init(int unit, int lport)
     }
     return rv;
 }
-
+/**给逻辑端口添加
+ * unit:设备单元号
+ * lport:逻辑端口
+*/
 int bmd_phy_attach(int unit, int lport)
 {
     int rv;
 
     CDK_VERB(("bmd_phy_attach: lport=%d\n", lport));
-
+    //给逻辑端口添加总线函数
     BMD_PORT_PHY_BUS(unit, lport) = bcm5333xmdk_phy_bus;
-
+    //添加驱动程序
     rv = bmd_phy_probe_default(unit, lport, bmd_phy_drv_list);
-
+    //对于探测成功进行处理
     if (CDK_SUCCESS(rv)) 
     {
+        //调用初始化函数
         rv = bmd_phy_init(unit, lport);
     }
 
@@ -654,7 +669,7 @@ int bmd_phy_fw_helper_set(int unit, int lport,
     }
     return CDK_E_NONE;
 }
-/**PHY的线性接口设置*/
+/**PHY的接口设置*/
 int bmd_phy_line_interface_set(int unit, int lport, int intf)
 {
     int pref_intf;
@@ -720,21 +735,28 @@ int bmd_phy_ability_set(int unit, int lport, char *name, int ability)
 /**节能以太网的设置*/
 int bmd_phy_eee_set(int unit, int lport, int mode)
 {
-    if (BMD_PORT_PHY_CTRL(unit, lport)) {
+    if (BMD_PORT_PHY_CTRL(unit, lport)) 
+    {
         uint32_t eee_mode = PHY_EEE_NONE;
         int rv;
     
-        if (!PHY_EXTERNAL_MODE(lport) && !PHY_EGPHY_MODE(lport)) {
+        if (!PHY_EXTERNAL_MODE(lport) && !PHY_EGPHY_MODE(lport)) 
+        {
             /* serdes, set to no EEE */
             eee_mode = PHY_EEE_NONE;
-        } else if (mode == BMD_PHY_M_EEE_802_3) {
+        } 
+        else if (mode == BMD_PHY_M_EEE_802_3) 
+        {
             eee_mode = PHY_EEE_802_3;
-        } else if (mode == BMD_PHY_M_EEE_AUTO) {
+        } 
+        else if (mode == BMD_PHY_M_EEE_AUTO) 
+        {
             eee_mode = PHY_EEE_AUTO;
         }
         rv = PHY_CONFIG_SET(BMD_PORT_PHY_CTRL(unit, lport),
                             PhyConfig_EEE, eee_mode, NULL);
-        if (mode == PHY_EEE_NONE && rv == CDK_E_UNAVAIL) {
+        if (mode == PHY_EEE_NONE && rv == CDK_E_UNAVAIL) 
+        {
             rv = CDK_E_NONE;
         }
         return rv;
@@ -785,7 +807,7 @@ typedef struct _bcast_sig_s {
 
 #define MAX_BCAST_SIG   8
 #define MAX_INIT_STAGE  8
-
+/**PHY的状态的初始化*/
 int bmd_phy_staged_init(int unit)
 {
     int rv = CDK_E_NONE;
@@ -796,38 +818,47 @@ int bmd_phy_staged_init(int unit)
     int num_sig, stage, done;
 
     num_sig = 0;
-    SOC_LPORT_ITER(lport) {
+    SOC_LPORT_ITER(lport) 
+    {
         pc = BMD_PORT_PHY_CTRL(unit, lport);
-        for (; pc != NULL; pc = pc->next) {
+        for (; pc != NULL; pc = pc->next) 
+        {
             /* Let driver know that staged init is being used */
             PHY_CTRL_FLAGS(pc) |= PHY_F_STAGED_INIT;
             /* Mark as broadcast slave by default */
             PHY_CTRL_FLAGS(pc) &= ~PHY_F_BCAST_MSTR;
             /* Get broadcast signature */
             rv = PHY_CONFIG_GET(pc, PhyConfig_BcastAddr, &addr, NULL);
-            if (CDK_FAILURE(rv)) {
+            if (CDK_FAILURE(rv)) 
+            {
                 continue;
             }
-            if (pc->drv == NULL ||  pc->drv->drv_name == NULL) {
+            if (pc->drv == NULL ||  pc->drv->drv_name == NULL) 
+            {
                 continue;
             }
-            if (pc->bus == NULL ||  pc->bus->drv_name == NULL) {
+            if (pc->bus == NULL ||  pc->bus->drv_name == NULL) 
+            {
                 continue;
             }
             /* Check if broadcast signature exists */
             found = 0;
-            for (idx = 0; idx < num_sig; idx++) {
+            for (idx = 0; idx < num_sig; idx++) 
+            {
                 if (bcast_sig[idx].drv_name == pc->drv->drv_name &&
                     bcast_sig[idx].bus_name == pc->bus->drv_name &&
-                    bcast_sig[idx].addr == addr) {
+                    bcast_sig[idx].addr == addr) 
+                    {
                     found = 1;
                     break;
                 }
             }
-            if (found) {
+            if (found) 
+            {
                 continue;
             }
-            if (idx >= MAX_BCAST_SIG) {
+            if (idx >= MAX_BCAST_SIG) 
+            {
                 return CDK_E_FAIL;
             }
             /* Add new broadcast signature */
@@ -847,11 +878,13 @@ int bmd_phy_staged_init(int unit)
     /* Reset all PHYs */
     SOC_LPORT_ITER(lport) {
         pc = BMD_PORT_PHY_CTRL(unit, lport);
-        if (pc == NULL) {
+        if (pc == NULL) 
+        {
             continue;
         }
         rv = PHY_RESET(pc);
-        if (CDK_FAILURE(rv)) {
+        if (CDK_FAILURE(rv)) 
+        {
             return rv;
         }
     }

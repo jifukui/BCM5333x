@@ -49,10 +49,11 @@
 
 #include <phy/phy_brcm_rdb.h>
 
-/**使用RDB方式设置寄存器*/
+/**使用RDB方式设置寄存器，RDB方式访问寄存器主要是用于访问每端口寄存器和顶层MII寄存器*/
 int phy_brcm_rdb_write(phy_ctrl_t *pc, uint32_t addr, uint32_t data)
 {
     int ioerr = 0;
+    //获取寄存器的地址，地址为传入地址的低16bit
     uint32_t regaddr = addr & 0xffff;
     //设置进入RDB模式
     ioerr += PHY_BUS_WRITE(pc, 0x17, 0x0f7e);

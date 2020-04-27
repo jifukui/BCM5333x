@@ -354,3 +354,16 @@ typedef struct soc_mem_info_s {
     soc_field_info_t    *fields;    域信息表
     char                **views;    视角
 } soc_mem_info_t;
+夏工定义的数据域信息结构体
+typedef struct soc_field_info_s {
+	soc_field_t	field;
+	uint16		len;	数据域的bit位数
+	uint16		bp;     bit的起始位
+	uint16  	flags;	 标记值
+} soc_field_info_t;
+
+typedef union BCM54282_TOP_MISC_GLOBAL_RESETr_s {
+	uint32_t v[1];
+	uint32_t top_misc_global_reset[1];
+	uint32_t _top_misc_global_reset;
+} BCM54282_TOP_MISC_GLOBAL_RESETr_t;

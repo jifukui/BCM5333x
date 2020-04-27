@@ -579,7 +579,8 @@ void bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags
         /* Update LED status */
         /**更新状态灯的变化*/
         val = READCSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)));
-        val |= 0x01;
+        //val |= 0x01;
+        val |= 0x00;
         WRITECSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)), val);
 
         MAC_SPEED_SET(hr2_sw_info.p_mac[lport], unit, lport, speed);
@@ -679,7 +680,8 @@ void bcm5333x_handle_link_down(uint8 unit, uint8 lport, int changed)
     {
         /* Update LED status */
         val = READCSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)));
-        val &= 0xfc;
+        //val &= 0xfc;
+        val &= 0xfd;
         WRITECSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)), val);
 
         MAC_ENABLE_SET(hr2_sw_info.p_mac[lport], unit, lport, FALSE);
@@ -3309,9 +3311,8 @@ bcm5333x_xy_to_dm(uint32 *xy_entry, uint32 *dm_entry, int data_words, int bit_le
     }
     sal_memcpy(dm_entry, temp_tcam_entry, data_bytes);
 }
-
-void
-bcm5333x_loopback_enable(uint8 unit, uint8 lport, int loopback_mode)
+/***/
+void bcm5333x_loopback_enable(uint8 unit, uint8 lport, int loopback_mode)
 {
     int rv;
     int link;
@@ -3368,19 +3369,32 @@ bcm5333x_loopback_enable(uint8 unit, uint8 lport, int loopback_mode)
 */
 sys_error_t bcm5333x_port_info_get(uint8 unit, uint8 lport, bcm_port_info_t *info)
 {
+    //获取数据的状态值
     int rv;    
+    //双工状态
     int duplex;
+    //速度
     uint32 speed;
+    //是否支持暂停
     BOOL   tx_pause, rx_pause;
+    //自协商状态
     int an = 0;
+    //环回检测状态
     int loopback;
+    //link状态
     int link;
+    //
     int andone;
+    //PHY端口号
     uint8 pport;
+    //使能状态
     uint32 en;
+    //最大传输单元
     uint32 mtu;
+    //
     uint32 disard;
-	uint32 stg;
+	//
+    uint32 stg;
 	//sal_printf("%s:%d  lport = %d\n", __FUNCTION__, __LINE__, lport);
     //对于信息结构体未分配空间的处理
     if (info == NULL) 
@@ -3425,8 +3439,9 @@ sys_error_t bcm5333x_port_info_get(uint8 unit, uint8 lport, bcm_port_info_t *inf
         tx_pause = TRUE;
         rx_pause = TRUE;
     }
+    //环回检测状态
     PHY_LOOPBACK_GET(BMD_PORT_PHY_CTRL(unit, lport), &loopback);
-
+    //PHY端口号
     pport = SOC_PORT_L2P_MAPPING(lport);
     if (!SOC_IS_DEERHOUND(unit) && pport < PHY_SECOND_QGPHY_PORT0) 
     {
@@ -3445,6 +3460,7 @@ sys_error_t bcm5333x_port_info_get(uint8 unit, uint8 lport, bcm_port_info_t *inf
         sal_printf("error 3:%d\n", rv);
         return SYS_ERR;
     }
+    //最大传输单元
     MAC_MTU_GET(hr2_sw_info.p_mac[lport], unit, lport, &mtu);
     info->enable = en;
     info->linkstatus = link;
@@ -3464,7 +3480,7 @@ sys_error_t bcm5333x_port_info_get(uint8 unit, uint8 lport, bcm_port_info_t *inf
 	info->stp_state = stg;
     return SYS_OK;
 }
-/**定义BCM5333的相关参数*/
+/**定义BCM5333的相关参数，即相关功能的接口*/
 soc_switch_t soc_switch_bcm5333x =
 {
     bcm5333x_chip_type,

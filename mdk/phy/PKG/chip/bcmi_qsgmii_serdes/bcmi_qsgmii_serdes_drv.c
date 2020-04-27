@@ -77,12 +77,12 @@
  * Returns:
  *      Lane number or -1 if lane is unknown
  */
-static int
-bcmi_qsgmii_serdes_lane(phy_ctrl_t *pc)
+static int bcmi_qsgmii_serdes_lane(phy_ctrl_t *pc)
 {
     uint32_t inst = PHY_CTRL_INST(pc);
 
-    if (inst & PHY_INST_VALID) {
+    if (inst & PHY_INST_VALID) 
+    {
         return inst & LANE_NUM_MASK;
     }
     return -1;
@@ -98,8 +98,7 @@ bcmi_qsgmii_serdes_lane(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_stop(phy_ctrl_t *pc)
+static int bcmi_qsgmii_serdes_stop(phy_ctrl_t *pc)
 {
     int ioerr = 0;
     MIICNTLr_t mii_ctrl;
@@ -150,17 +149,18 @@ extern cdk_symbols_t bcmi_qsgmii_serdes_symbols;
  * Returns:
  *      CDK_E_xxx
  */
+/***/
 static int bcmi_qsgmii_serdes_probe(phy_ctrl_t *pc)
 {
     uint32_t phyid0, phyid1;
     SERDES_ID0r_t serdesid0;
     uint32_t model;
     int ioerr = 0;
-
+    //获取QSGMII芯片的ID
     ioerr += phy_brcm_serdes_id(pc, &phyid0, &phyid1);
 
     phyid1 &= ~PHY_ID1_REV_MASK;
-
+    //判断芯片的ID正确的处理
     if (phyid0 == BCM_SERDES_PHY_ID0 && phyid1 == BCM_SERDES_PHY_ID1) 
     {
         /* Common PHY ID found - read specific SerDes ID */
@@ -189,8 +189,7 @@ static int bcmi_qsgmii_serdes_probe(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_notify(phy_ctrl_t *pc, phy_event_t event)
+static int bcmi_qsgmii_serdes_notify(phy_ctrl_t *pc, phy_event_t event)
 {
     int ioerr = 0;
     CONTROL1000X1r_t ctrl_1000x1;
@@ -246,8 +245,7 @@ bcmi_qsgmii_serdes_notify(phy_ctrl_t *pc, phy_event_t event)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_reset(phy_ctrl_t *pc)
+static int bcmi_qsgmii_serdes_reset(phy_ctrl_t *pc)
 {
     return CDK_E_NONE;
 }
@@ -262,8 +260,7 @@ bcmi_qsgmii_serdes_reset(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_NONE
  */
-static int
-bcmi_qsgmii_serdes_init(phy_ctrl_t *pc)
+static int bcmi_qsgmii_serdes_init(phy_ctrl_t *pc)
 {
     int rv = CDK_E_NONE;
     int ioerr = 0;
@@ -274,6 +271,7 @@ bcmi_qsgmii_serdes_init(phy_ctrl_t *pc)
     PHY_CTRL_CHECK(pc);
 
     /* Adjust default Tx xdriver output for external PHY */
+    //
     ioerr += READ_TX_DRIVERr(pc, &tx_drv);
     TX_DRIVERr_DRIVER_FIXED_ENBf_SET(tx_drv, 1);
     TX_DRIVERr_DRV_AMPf_SET(tx_drv, 5);
@@ -294,6 +292,7 @@ bcmi_qsgmii_serdes_init(phy_ctrl_t *pc)
     ioerr += WRITE_RX_CONTROL_PCIEr(pc, rx_ctrl_pcie);
 
     /* Default mode is fiber */
+    //默认的模式是光的模式
     PHY_NOTIFY(pc, PhyEvent_ChangeToFiber);
 
     return ioerr ? CDK_E_IO : rv;
@@ -312,8 +311,7 @@ bcmi_qsgmii_serdes_init(phy_ctrl_t *pc)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
+static int bcmi_qsgmii_serdes_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
 {
     int ioerr = 0;
     MIISTATr_t miistat;
@@ -344,8 +342,7 @@ bcmi_qsgmii_serdes_link_get(phy_ctrl_t *pc, int *link, int *autoneg_done)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_duplex_set(phy_ctrl_t *pc, int duplex)
+static int bcmi_qsgmii_serdes_duplex_set(phy_ctrl_t *pc, int duplex)
 {
     int ioerr = 0;
     MIICNTLr_t miictrl;
@@ -376,8 +373,7 @@ bcmi_qsgmii_serdes_duplex_set(phy_ctrl_t *pc, int duplex)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_duplex_get(phy_ctrl_t *pc, int *duplex)
+static int bcmi_qsgmii_serdes_duplex_get(phy_ctrl_t *pc, int *duplex)
 {
     int ioerr = 0;
     STATUS1000X1r_t stat1;
@@ -407,8 +403,7 @@ bcmi_qsgmii_serdes_duplex_get(phy_ctrl_t *pc, int *duplex)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_speed_set(phy_ctrl_t *pc, uint32_t speed)
+static int bcmi_qsgmii_serdes_speed_set(phy_ctrl_t *pc, uint32_t speed)
 {
     int ioerr = 0;
     int rv;
@@ -474,8 +469,7 @@ bcmi_qsgmii_serdes_speed_set(phy_ctrl_t *pc, uint32_t speed)
  *      CDK_E_xxx
  */
 
-static int
-bcmi_qsgmii_serdes_speed_get(phy_ctrl_t *pc, uint32_t *speed)
+static int bcmi_qsgmii_serdes_speed_get(phy_ctrl_t *pc, uint32_t *speed)
 {
     int ioerr = 0;
     uint32_t speed_mode;
@@ -515,8 +509,7 @@ bcmi_qsgmii_serdes_speed_get(phy_ctrl_t *pc, uint32_t *speed)
  *      CDK_E_xxx
  */
 
-static int
-bcmi_qsgmii_serdes_autoneg_set(phy_ctrl_t *pc, int autoneg)
+static int bcmi_qsgmii_serdes_autoneg_set(phy_ctrl_t *pc, int autoneg)
 {
     int ioerr = 0;
     MISC1r_t misc1;
@@ -565,8 +558,7 @@ bcmi_qsgmii_serdes_autoneg_set(phy_ctrl_t *pc, int autoneg)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_autoneg_get(phy_ctrl_t *pc, int *autoneg)
+static int bcmi_qsgmii_serdes_autoneg_get(phy_ctrl_t *pc, int *autoneg)
 {
     int ioerr = 0;
     MIICNTLr_t mii_ctrl;
@@ -591,8 +583,7 @@ bcmi_qsgmii_serdes_autoneg_get(phy_ctrl_t *pc, int *autoneg)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_loopback_set(phy_ctrl_t *pc, int enable)
+static int bcmi_qsgmii_serdes_loopback_set(phy_ctrl_t *pc, int enable)
 {
     int ioerr = 0;
     MIICNTLr_t mii_ctrl;
@@ -616,8 +607,7 @@ bcmi_qsgmii_serdes_loopback_set(phy_ctrl_t *pc, int enable)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_loopback_get(phy_ctrl_t *pc, int *enable)
+static int bcmi_qsgmii_serdes_loopback_get(phy_ctrl_t *pc, int *enable)
 {
     int ioerr = 0;
     MIICNTLr_t mii_ctrl;
@@ -642,8 +632,7 @@ bcmi_qsgmii_serdes_loopback_get(phy_ctrl_t *pc, int *enable)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_ability_get(phy_ctrl_t *pc, uint32_t *abil)
+static int bcmi_qsgmii_serdes_ability_get(phy_ctrl_t *pc, uint32_t *abil)
 {
     PHY_CTRL_CHECK(pc);
 
@@ -666,15 +655,15 @@ bcmi_qsgmii_serdes_ability_get(phy_ctrl_t *pc, uint32_t *abil)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd)
+static int bcmi_qsgmii_serdes_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd)
 {
     PHY_CTRL_CHECK(pc);
 
     switch (cfg) {
     case PhyConfig_Enable:
         PHY_CTRL_FLAGS(pc) |= PHY_F_PHY_DISABLE;
-        if (val) {
+        if (val) 
+        {
             PHY_CTRL_FLAGS(pc) &= ~PHY_F_PHY_DISABLE;
         }
         return bcmi_qsgmii_serdes_stop(pc);
@@ -709,8 +698,7 @@ bcmi_qsgmii_serdes_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, vo
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcmi_qsgmii_serdes_config_get(phy_ctrl_t *pc, phy_config_t cfg, uint32_t *val, void *cd)
+static int bcmi_qsgmii_serdes_config_get(phy_ctrl_t *pc, phy_config_t cfg, uint32_t *val, void *cd)
 {
     PHY_CTRL_CHECK(pc);
 

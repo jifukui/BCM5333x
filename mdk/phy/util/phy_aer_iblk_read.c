@@ -52,7 +52,7 @@
  */
 
 #include <phy/phy_aer_iblk.h>
-
+/***/
 int phy_aer_iblk_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
 {
     int ioerr = 0;
@@ -62,43 +62,59 @@ int phy_aer_iblk_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
     uint32_t aer, lane_mask;
 
     /* Do not attempt to read write-only registers */
-    if (addr & PHY_REG_ACC_AER_IBLK_WR_ONLY) {
+    //对于读取的是只读寄存器的处理bit 23为1
+    if (addr & PHY_REG_ACC_AER_IBLK_WR_ONLY) 
+    {
         *data = 0;
         return  CDK_E_NONE;
     }
 
     /* Assume 4 lanes if lane_mask not set */
     lane_mask = PHY_CTRL_LANE_MASK(pc);
-    if (lane_mask == 0) {
+    if (lane_mask == 0) 
+    {
         lane_mask = 0x3;
     }
 
     aer = 0;
-    if (PHY_CTRL_LANE(pc) & PHY_LANE_VALID) {
+    if (PHY_CTRL_LANE(pc) & PHY_LANE_VALID) 
+    {
         /* Setting lane value overrides default behavior */
         aer = PHY_CTRL_LANE(pc) & ~PHY_LANE_VALID;
-    } else if (addr & PHY_REG_ACC_AER_IBLK_FORCE_LANE) {
+    } 
+    else if (addr & PHY_REG_ACC_AER_IBLK_FORCE_LANE) 
+    {
         /* Forcing lane overrides default behavior */
         aer = (addr >> PHY_REG_ACCESS_FLAGS_SHIFT) & 0x7;
-    } else if (PHY_CTRL_FLAGS(pc) & PHY_F_SERDES_MODE) {
+    } 
+    else if (PHY_CTRL_FLAGS(pc) & PHY_F_SERDES_MODE) 
+    {
         /* Set lane if independent lanes share PHY address */
-        if (PHY_CTRL_FLAGS(pc) & PHY_F_ADDR_SHARE) {
+        if (PHY_CTRL_FLAGS(pc) & PHY_F_ADDR_SHARE) 
+        {
             aer = PHY_CTRL_INST(pc) & lane_mask;
         }
-        if (reg_copies == 1) {
+        if (reg_copies == 1) 
+        {
             aer = 0;
-        } else if (reg_copies == 2) {
+        } 
+        else if (reg_copies == 2) 
+        {
             aer &= ~0x1;
         }
-    } else {
+    } 
+    else 
+    {
         /* Optional lane 0 override */
         aer = (addr >> PHY_REG_ACCESS_FLAGS_SHIFT) & lane_mask;
     }
 
-    if (PHY_CTRL_FLAGS(pc) & PHY_F_CLAUSE45) {
+    if (PHY_CTRL_FLAGS(pc) & PHY_F_CLAUSE45) 
+    {
         addr &= 0xffff;
         /* DEVAD 0 is not supported, so use DEVAD 1 instead */
-        if (devad == 0) {
+        if (devad == 0) 
+        {
             devad = 1;
         }
         ioerr += PHY_BUS_WRITE(pc, 0xffde | (devad << 16), aer);
@@ -107,7 +123,8 @@ int phy_aer_iblk_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
     }
 
     /* Select device if non-zero */
-    if (devad) {
+    if (devad) 
+    {
         aer |= (devad << 11);
     }
     ioerr += PHY_BUS_WRITE(pc, 0x1f, 0xffd0);
@@ -123,7 +140,8 @@ int phy_aer_iblk_read(phy_ctrl_t *pc, uint32_t addr, uint32_t *data)
 
     /* Read register value */
     regaddr = addr & 0xf;
-    if (addr & 0x8000) {
+    if (addr & 0x8000) 
+    {
         regaddr |= 0x10;
     }
     ioerr += PHY_BUS_READ(pc, regaddr, data);

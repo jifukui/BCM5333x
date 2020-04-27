@@ -51,7 +51,7 @@
  */
 
 #include <phy/phy_brcm_serdes_id.h>
-/**读取4倍串行内置PHY的id*/
+/**获取4被串行MII的芯片ID*/
 int phy_brcm_serdes_id(phy_ctrl_t *pc, uint32_t *phyid0, uint32_t *phyid1)
 {
     int ioerr = 0;
@@ -64,11 +64,15 @@ int phy_brcm_serdes_id(phy_ctrl_t *pc, uint32_t *phyid0, uint32_t *phyid1)
     }
 
     /* Use direct bus access for reading PHY IDs */
+    //读取ID的高位
     ioerr += PHY_BUS_READ(pc, MII_PHY_ID0_REG, phyid0);
+    //读取ID的低位
     ioerr += PHY_BUS_READ(pc, MII_PHY_ID1_REG, phyid1);
 
     /* If not a valid PHY ID, try resetting the block register */
-    if ((*phyid0 | *phyid1) == 0) {
+    //对于高位的值和低位的值都不为0的处理
+    if ((*phyid0 | *phyid1) == 0) 
+    {
         ioerr += PHY_BUS_WRITE(pc, 0x1f, 0);
         ioerr += PHY_BUS_READ(pc, MII_PHY_ID0_REG, phyid0);
         ioerr += PHY_BUS_READ(pc, MII_PHY_ID1_REG, phyid1);

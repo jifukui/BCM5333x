@@ -71,24 +71,24 @@ int ge_phy_reset(phy_ctrl_t *pc)
     int cnt;
     int ioerr = 0;
     int rv = CDK_E_NONE;
-
+    //检测PHY控制结构体是有效的
     PHY_CTRL_CHECK(pc);
 
     /* Reset PHY */
-    //向PHY的控制寄存器的bit15设置为1
+    //向MIIM的控制寄存器的bit15设置为1
     ioerr += PHY_BUS_WRITE(pc, MII_CTRL_REG, MII_CTRL_RESET);
 
-    /* Wait for reset completion */
     //等待复位完成
     for (cnt = 0; cnt < PHY_RESET_POLL_MAX; cnt++) 
     {
-        //读取PHY控制寄存器的值，一直到控制寄存器的复位位的值为0
+        //读取MIIM控制寄存器的值，一直到控制寄存器的复位位的值为0
         ioerr += PHY_BUS_READ(pc, MII_CTRL_REG, &ctrl);
         if ((ctrl & MII_CTRL_RESET) == 0) 
         {
             break;
         }
     }
+
     //如果在规定时间内没有复位成功返回超时
     if (cnt >= PHY_RESET_POLL_MAX) 
     {

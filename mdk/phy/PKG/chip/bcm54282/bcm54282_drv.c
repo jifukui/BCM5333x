@@ -319,10 +319,9 @@ static int bcm54282_phy_notify(phy_ctrl_t *pc, phy_event_t event)
 static int bcm54282_phy_reset(phy_ctrl_t *pc)
 {
     int rv;
-    //设置PHY复位
+    //设置PHY复位，并获取返回值
     rv = ge_phy_reset(pc);
-
-    /* Call up the PHY chain */
+  
     //根据状态值进行处理，如果
     if (CDK_SUCCESS(rv)) 
     {
@@ -347,8 +346,11 @@ static int bcm54282_phy_init(phy_ctrl_t *pc)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
+    //顶层MISC复位
     TOP_MISC_GLOBAL_RESETr_t top_misc_global_reset;
+    //
     AFE_VDACCTRL_2r_t afe_vdacc_ctrl_2;
+    //
     DSP_TAP10r_t dsp_tap10;
     POWER_MII_CTRLr_t power_mii_ctrl;
     LED_GPIO_CTRLr_t led_gpio_ctrl;
@@ -374,15 +376,18 @@ static int bcm54282_phy_init(phy_ctrl_t *pc)
     PHY_CTRL_CHECK(pc);
 
     /* Reset Top level register block*/
+    //设置复位顶层的寄存器
     TOP_MISC_GLOBAL_RESETr_CLR(top_misc_global_reset);
     TOP_MISC_GLOBAL_RESETr_TOP_MII_REG_SOFT_RSTf_SET(top_misc_global_reset, 1);
     TOP_MISC_GLOBAL_RESETr_RESET_1588f_SET(top_misc_global_reset, 1);
     ioerr += WRITE_TOP_MISC_GLOBAL_RESETr(pc, top_misc_global_reset);
 
+    //设置
     AFE_VDACCTRL_2r_SET(afe_vdacc_ctrl_2, 0x7);
     ioerr += WRITE_AFE_VDACCTRL_2r(pc, afe_vdacc_ctrl_2);
 
     /* Recommended DSP_TAP10 setting for all the revisions */
+    //设置
     MII_AUX_CTRLr_CLR(mii_aux_ctrl);
     MII_AUX_CTRLr_ENABLE_DSP_CLOCKf_SET(mii_aux_ctrl, 1);
     MII_AUX_CTRLr_RESERVEDf_SET(mii_aux_ctrl, 1);
@@ -417,6 +422,7 @@ static int bcm54282_phy_init(phy_ctrl_t *pc)
     }
 
     /* Enable QSGMII MDIO sharing feature and map QSGMII registers */
+    //设置
     ioerr += READ_TOP_MISC_CFGr(pc, &top_misc_cfg);
     TOP_MISC_CFGr_QSGMII_SELf_SET(top_misc_cfg, 1);
     TOP_MISC_CFGr_QSGMII_PHYAf_SET(top_misc_cfg, 1);
@@ -428,6 +434,7 @@ static int bcm54282_phy_init(phy_ctrl_t *pc)
     }
 
     /* QSGMII FIFO Elasticity */
+    //设置
     QSGMII_1000X_CONTROL_3r_CLR(qsgmii_1000x_ctrl_3);
     QSGMII_1000X_CONTROL_3r_FIFO_ELASTICITY_TX_RXf_SET(qsgmii_1000x_ctrl_3, 3);
     ioerr += WRITELN_QSGMII_1000X_CONTROL_3r(pc, orig_inst, qsgmii_1000x_ctrl_3);
@@ -1038,8 +1045,7 @@ static int bcm54282_phy_autoneg_get(phy_ctrl_t *pc, int *autoneg)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_loopback_set(phy_ctrl_t *pc, int enable)
+static int bcm54282_phy_loopback_set(phy_ctrl_t *pc, int enable)
 {
     int ioerr = 0;
     int rv = CDK_E_NONE;
@@ -1106,8 +1112,7 @@ bcm54282_phy_loopback_set(phy_ctrl_t *pc, int enable)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_loopback_get(phy_ctrl_t *pc, int *enable)
+static int bcm54282_phy_loopback_get(phy_ctrl_t *pc, int *enable)
 {
     int ioerr = 0;
     MII_1000X_CTRLr_t mii_1000x_ctrl;
@@ -1167,8 +1172,13 @@ static int bcm54282_phy_ability_get(phy_ctrl_t *pc, uint32_t *abil)
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd)
+/**56150使用的是这个函数实现功能
+ * pc:PHY控制结构体
+ * cfg:PHY控制结构体
+ * val：参数值
+ * cd:
+*/
+static int bcm54282_phy_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd)
 {
 
     EEE_803Dr_t eee_803d;
@@ -1177,8 +1187,10 @@ bcm54282_phy_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd
 
     PHY_CTRL_CHECK(pc);
 
-    switch (cfg) {
-    case PhyConfig_Enable: {
+    switch (cfg) 
+    {
+    case PhyConfig_Enable: 
+    {
             int ioerr = 0;
             MII_CTRLr_t mii_ctrl;
         
@@ -1186,22 +1198,25 @@ bcm54282_phy_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd
             MII_CTRLr_POWER_DOWNf_SET(mii_ctrl, !(val));
             ioerr += WRITE_MII_CTRLr(pc, mii_ctrl);
             return ioerr;
-        }
+    }
     case PhyConfig_PortInterface:
-        switch (val) {
+        switch (val) 
+        {
         case PHY_IF_SGMII:
             return CDK_E_NONE;
         default:
             break;
         }
         break;
-    case PhyConfig_RemoteLoopback: {
+    case PhyConfig_RemoteLoopback: 
+    {
         int ioerr = 0;
         MII_CTRLr_t mii_ctrl;
         COPPER_MISC_TESTr_t copper_misc_test;
 
         /* Used as field value */
-        if (val) {
+        if (val) 
+        {
             val = 1;
         }
         /* Set copper line-side loopback enable */
@@ -1214,21 +1229,26 @@ bcm54282_phy_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd
         ioerr += WRITE_MII_CTRLr(pc, mii_ctrl);
         return ioerr ? CDK_E_IO : CDK_E_NONE;
     }
-    case PhyConfig_TempMon: {
+    case PhyConfig_TempMon: 
+    {
         int ioerr = 0;
         int orig_inst, pwrdn;
         VOLT_TEMP_MON_CTRLr_t vt_mon_ctrl;
 
-        if (val) {
+        if (val) 
+        {
             pwrdn = 0;
-        } else {
+        } 
+        else 
+        {
             pwrdn = 1;
         }
 
         /* Get primary PHY instance */
         orig_inst = _bcm54282_inst(pc);
         /* Switch to instance 0 to enable VTMonitor configuration */
-        if (phy_ctrl_change_inst(pc, 0, _bcm54282_inst) < 0) {
+        if (phy_ctrl_change_inst(pc, 0, _bcm54282_inst) < 0) 
+        {
             return CDK_E_FAIL;
         }
 
@@ -1246,7 +1266,8 @@ bcm54282_phy_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd
     case PhyConfig_EEE:
     {
         int ioerr = 0;
-        if (val == PHY_EEE_802_3) {
+        if (val == PHY_EEE_802_3) 
+        {
             PHY_CONFIG_SET(PHY_CTRL_NEXT(pc), cfg, 1, NULL);
 
             /* Enable LPI feature */
@@ -1265,9 +1286,13 @@ bcm54282_phy_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd
             ioerr += READ_MII_CTRLr(pc, &mii_ctrl);
             MII_CTRLr_RESTART_ANf_SET(mii_ctrl, 1);
             ioerr += WRITE_MII_CTRLr(pc, mii_ctrl);
-        } else if (val == PHY_EEE_AUTO) {
+        } 
+        else if (val == PHY_EEE_AUTO) 
+        {
 
-        } else if (val == PHY_EEE_NONE) {
+        } 
+        else if (val == PHY_EEE_NONE) 
+        {
             /* Enable LPI feature */
             ioerr += READ_EEE_803Dr(pc, &eee_803d);
             EEE_803Dr_LPI_FEATURE_ENABLEf_SET(eee_803d, 0);
@@ -1307,24 +1332,28 @@ bcm54282_phy_config_set(phy_ctrl_t *pc, phy_config_t cfg, uint32_t val, void *cd
  * Returns:
  *      CDK_E_xxx
  */
-static int
-bcm54282_phy_config_get(phy_ctrl_t *pc, phy_config_t cfg, uint32_t *val, void *cd)
+/**获取端口的配置状态*/
+static int bcm54282_phy_config_get(phy_ctrl_t *pc, phy_config_t cfg, uint32_t *val, void *cd)
 {
     EEE_803Dr_t eee_803d;
 
     PHY_CTRL_CHECK(pc);
 
     switch (cfg) {
-    case PhyConfig_Enable: {
+    case PhyConfig_Enable: 
+    {
             int ioerr = 0;
             MII_CTRLr_t mii_ctrl;
             int en;
     
             ioerr += READ_MII_CTRLr(pc, &mii_ctrl);
             en = MII_CTRLr_POWER_DOWNf_GET(mii_ctrl);
-            if (en) {
+            if (en) 
+            {
                 *val = 0;
-            } else {
+            } 
+            else 
+            {
                 *val = 1;
             }
             return ioerr;
