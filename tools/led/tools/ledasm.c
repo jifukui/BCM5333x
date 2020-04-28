@@ -103,36 +103,38 @@ int num_labels;
 
 /* --------------------------- helpers -------------------------- */
 
-void
-warning(char *msg)
+void warning(char *msg)
 {
     g_warnings++;
 
     if (g_warnings_enabled)
-	printf("Warning, line %d: %s\n", g_curline, msg);
+	{
+		printf("Warning, line %d: %s\n", g_curline, msg);
+	}
 }
 
 
-void
-error(char *msg)
+void error(char *msg)
 {
     g_errs++;
 
     if (g_errors_enabled)
-	printf("Error, line %3d: %s\n", g_curline, msg);
+	{
+		printf("Error, line %3d: %s\n", g_curline, msg);
+	}
 }
-
-void
-init_tables(void)
+/**初始化表*/
+void init_tables(void)
 {
     int i;
 
     num_labels = 0;
 
-    for(i=0; i<MAX_SYMBOLS; i++) {
-	symtab[i].valid    = 0;
-	symtab[i].label[0] = 0;
-	symtab[i].value    = 0;
+    for(i=0; i<MAX_SYMBOLS; i++) 
+	{
+		symtab[i].valid    = 0;
+		symtab[i].label[0] = 0;
+		symtab[i].value    = 0;
     }
 }
 
@@ -141,17 +143,18 @@ init_tables(void)
  * look for a label that matches argument.
  * return 0 if not found, otherwise return the index.
  */
-int
-find_sym_idx(char *label)
+int find_sym_idx(char *label)
 {
     int i;
     int match = 0;
 
-    for(i=0; i<=num_labels; i++) {
-	if (symtab[i].valid && strcmp(label, symtab[i].label) == 0) {
-	    match = i;
-	    break;
-	}
+    for(i=0; i<=num_labels; i++) 
+	{
+		if (symtab[i].valid && strcmp(label, symtab[i].label) == 0) 
+		{
+			match = i;
+			break;
+		}
     }
 
     return match;
@@ -220,8 +223,7 @@ dump_hex_file(FILE *fp)
  * this dumps the program ram to a c file in 
  * unsigned char array format
  */
-void
-dump_c_file(FILE *fp, char* basename)
+void dump_c_file(FILE *fp, char* basename)
 {
     int i;
     
@@ -266,8 +268,7 @@ skip_ws(char **p)
  *    <null>
  *  | ;<anytext>
  */
-void
-parse_comment(char **p)
+void parse_comment(char **p)
 {
     char *pp = *p;
 
@@ -778,8 +779,7 @@ parse_d(char **p, int *field)
 
 
 /* emit byte to output */
-void
-emit(int v)
+void emit(int v)
 {
     static int size = 0;
     if (g_curpc > 0xFF) {
@@ -966,38 +966,45 @@ parse_args(char **p, int op, char *label)
  *   | ^<label>:
  *   | ^<optlabel><ws><opcode><ws><args>
  */
-void
-parse_mainpart(char **p)
+/***/
+void parse_mainpart(char **p)
 {
-  char labelbuf[MAX_SYMLEN];	/* storage for line label */
-  char opbuf[MAX_SYMLEN];	/* storage for opcode */
-    int  op, idx;
-    int  colon = 0;
+	char labelbuf[MAX_SYMLEN];	/* storage for line label */
+	char opbuf[MAX_SYMLEN];	/* storage for opcode */
+	int  op, idx;
+	int  colon = 0;
 
-    /* parse for optional label */
-    parse_label(p, labelbuf);
-    if (strlen(labelbuf)) {
-      /* colon after label is manditory */
-	colon = (**p == ':');
-	if (colon)
-	    (*p)++;
-    }
-    skip_ws(p);
+	/* parse for optional label */
+	parse_label(p, labelbuf);
+	if (strlen(labelbuf)) 
+	{
+		/* colon after label is manditory */
+		colon = (**p == ':');
+		if (colon)
+		{
+			(*p)++;
+		}
+	}
+	skip_ws(p);
 
-    /* parse for opcode */
-    op = 0;
-    parse_label(p, opbuf);
-    if (opbuf[0]) {	/* non-empty */
-	while (optable[op].token != OP_SENTINAL) {
-	    if (strcmp(optable[op].label,opbuf) == 0)
-		break;
-	    op++;
+	/* parse for opcode */
+	op = 0;
+	parse_label(p, opbuf);
+	if (opbuf[0]) {	/* non-empty */
+	while (optable[op].token != OP_SENTINAL) 
+	{
+		if (strcmp(optable[op].label,opbuf) == 0)
+		{
+			break;
+		}
+		op++;
 	}
-	if (optable[op].token == OP_SENTINAL) {
-	    error("bad opcode");
-	    return;
+		if (optable[op].token == OP_SENTINAL) 
+		{
+			error("bad opcode");
+			return;
+		}
 	}
-    }
 
     /* 
      * this minimizes chance of badly placed opcode
@@ -1026,7 +1033,9 @@ parse_mainpart(char **p)
 
     /* parse for args, specific to each opcode */
     if (opbuf[0])
-	parse_args(p, op, labelbuf);
+	{
+		parse_args(p, op, labelbuf);
+	}
 }
 
 
@@ -1034,33 +1043,40 @@ parse_mainpart(char **p)
  * syntax of a line: 
  *  [mainpart]?[comment]?
  */
-void
-parse_line(char *line)
+/**处理一行数据
+ * line:行号
+*/
+void parse_line(char *line)
 {
     char *p = line;
     parse_mainpart(&p);
     parse_comment(&p);
-    if (*p) {
-	warning("extra garbage at end of line");
+    if (*p) 
+	{
+		warning("extra garbage at end of line");
     }
 }
 
-
-void
-lower_buf(char *dst, char *src)
+//将字符串转换为小写形式
+void lower_buf(char *dst, char *src)
 {
-    while (*src) {
-	*dst = tolower(*src);
-	dst++;
-	src++;
+    while (*src) 
+	{
+		*dst = tolower(*src);
+		dst++;
+		src++;
     }
     *dst = '\0';
 }
 
 
 /* open the file after appending the extension. */
-FILE *
-my_fopen(char *basename, char *ext, char *access)
+/**打开文件
+ * basename:文件名
+ * ext:扩展名
+ * access:访问方式
+*/
+FILE * my_fopen(char *basename, char *ext, char *access)
 {
     char name[256];
     FILE *fp;
@@ -1068,14 +1084,14 @@ my_fopen(char *basename, char *ext, char *access)
     strcpy(name,basename);
     strcat(name,ext);
     fp = fopen(name, access);
-    if (!fp) {
-	printf("Error opening file '%s'\n", name);
+    if (!fp) 
+	{
+		printf("Error opening file '%s'\n", name);
     }
     return fp;
 }
 
-void
-my_unlink(char *basename, char *ext)
+void my_unlink(char *basename, char *ext)
 {
     char name[256];
 
@@ -1084,9 +1100,10 @@ my_unlink(char *basename, char *ext)
 
     (void) remove(name);
 }
-
-int
-parse_file(char *basename)
+/**分析文件
+ * basename：文件名
+*/
+int parse_file(char *basename)
 {
     char rawbuf[1024];
     char linebuf[1024];
@@ -1096,59 +1113,85 @@ parse_file(char *basename)
     FILE *c_fp   = 0;
 
     in_fp = my_fopen(basename, ".asm", "r");
-    if (in_fp == NULL) {
-	printf("Error: file %s.asm not found\n", basename);
-	return -1;
+    if (in_fp == NULL) 
+	{
+		printf("Error: file %s.asm not found\n", basename);
+		return -1;
     }
-
-    if (g_pass == 1) {
-	g_errs = g_warnings = 0;
-	init_tables();
-    } else {
-	lst_fp = my_fopen(basename, ".lst", "w");
-	if (lst_fp == NULL) {
-	    printf("Error: could not open output file %s.lst\n", basename);
-	    return -1;
-	}
-	hex_fp = my_fopen(basename, ".hex", "w");
-	if (hex_fp == NULL) {
-	    printf("Error: could not open output file %s.hex\n", basename);
-	    return -1;
-	}
-	c_fp = my_fopen(basename, ".c", "w");
-	if (c_fp == NULL) {
-	    printf("Error: could not open output file %s.c\n", basename);
-	    return -1;
-	}
+	//第一步初始化表
+    if (g_pass == 1) 
+	{
+		g_errs = g_warnings = 0;
+		init_tables();
+    } 
+	else 
+	{
+		//创建文件
+		lst_fp = my_fopen(basename, ".lst", "w");
+		if (lst_fp == NULL) 
+		{
+			printf("Error: could not open output file %s.lst\n", basename);
+			return -1;
+		}
+		//以十六进制的方式写文件
+		hex_fp = my_fopen(basename, ".hex", "w");
+		if (hex_fp == NULL) 
+		{
+			printf("Error: could not open output file %s.hex\n", basename);
+			return -1;
+		}
+		c_fp = my_fopen(basename, ".c", "w");
+		if (c_fp == NULL) 
+		{
+			printf("Error: could not open output file %s.c\n", basename);
+			return -1;
+		}
     }
 
     printf("starting pass %d ...\n",g_pass);
+	//当前行
     g_curline = 0;
-    g_curpc = 0;
+    //当前列
+	g_curpc = 0;
 
-    while (fgets(rawbuf, sizeof(rawbuf), in_fp)) {
-	int start_pc = g_curpc;
-	g_curline++;
-	lower_buf(linebuf,rawbuf);
-	parse_line(linebuf);
-	if (g_pass == 2) {
-      /* format listing */
-	    fprintf(lst_fp, "%02X: ", start_pc);
-	    if ((g_curpc - start_pc) < 1) fprintf(lst_fp, "   ");
-	    else fprintf(lst_fp, "%02X ", g_program[start_pc]);
-	    if ((g_curpc - start_pc) < 2) fprintf(lst_fp, "   ");
-	    else fprintf(lst_fp, "%02X ", g_program[start_pc+1]);
-	    fprintf(lst_fp, "  %s", rawbuf);
-	}
+    while (fgets(rawbuf, sizeof(rawbuf), in_fp)) 
+	{
+		int start_pc = g_curpc;
+		g_curline++;
+		lower_buf(linebuf,rawbuf);
+		parse_line(linebuf);
+		if (g_pass == 2) 
+		{
+		/* format listing */
+			fprintf(lst_fp, "%02X: ", start_pc);
+			if ((g_curpc - start_pc) < 1) 
+			{
+				fprintf(lst_fp, "   ");
+			}
+			else 
+			{
+				fprintf(lst_fp, "%02X ", g_program[start_pc]);
+			}
+			if ((g_curpc - start_pc) < 2) 
+			{
+				fprintf(lst_fp, "   ");
+			}
+			else 
+			{
+				fprintf(lst_fp, "%02X ", g_program[start_pc+1]);
+			}
+			fprintf(lst_fp, "  %s", rawbuf);
+		}
     }
 
-    if (g_pass == 2) {
-	dump_sym_table(lst_fp);
-	dump_hex_file(hex_fp);
-	dump_c_file(c_fp, basename);
-	fclose(lst_fp);
-	fclose(hex_fp);
-	fclose(c_fp);
+    if (g_pass == 2) 
+	{
+		dump_sym_table(lst_fp);
+		dump_hex_file(hex_fp);
+		dump_c_file(c_fp, basename);
+		fclose(lst_fp);
+		fclose(hex_fp);
+		fclose(c_fp);
     }
 
     fclose(in_fp);
@@ -1158,8 +1201,7 @@ parse_file(char *basename)
 
 
 /* --------------------------- main program -------------------------- */
-void
-help(void)
+void help(void)
 {
     printf("Usage: ledasm <filename>\n");
     printf("   This scans <filename>.asm, and produces <filename>.lst and <filename>.hex\n");
@@ -1167,15 +1209,17 @@ help(void)
 }
 
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     if (argc != 2)
-	help();
+	{
+		help();
+	}
 
-    if (strlen(argv[1]) > 250) {
-	printf("How about a shorter source file name?\n");
-	exit(1);
+    if (strlen(argv[1]) > 250) 
+	{
+		printf("How about a shorter source file name?\n");
+		exit(1);
     }
 
     /* at the current time, these can't be changed from the command line */
@@ -1186,21 +1230,27 @@ main(int argc, char *argv[])
 
     g_pass = 1;
     if (parse_file(argv[1]) < 0)
-	g_errs++;
-    else {
+	{
+		g_errs++;
+	}
+    else 
+	{
       /* ---------------- second pass ------------------ */
 
-	g_pass = 2;
-	if (parse_file(argv[1]) < 0)
-	    g_errs++;
+		g_pass = 2;
+		if (parse_file(argv[1]) < 0)
+		{
+			g_errs++;
+		}
     }
 
     printf("%8d errors, %d warnings\n", g_errs, g_warnings);
 
-    if (g_errs) {
-	my_unlink(argv[1],".lst");
-	my_unlink(argv[1],".hex");
-	exit(1);
+    if (g_errs) 
+	{
+		my_unlink(argv[1],".lst");
+		my_unlink(argv[1],".hex");
+		exit(1);
     }
 
     exit(0);

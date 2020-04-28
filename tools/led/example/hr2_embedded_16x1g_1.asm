@@ -65,7 +65,9 @@
 ;
 ;       Black on left and right: no link
 ;       Green on left: link up
+;       右边闪烁有收发数据
 ;       Alternating green on right: both RX and TX
+;       左右都闪烁表示环回测试
 ;       Alternating green on both left and right: Loop detected.
 ;
 ;

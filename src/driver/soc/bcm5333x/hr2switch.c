@@ -579,8 +579,8 @@ void bcm5333x_handle_link_up(uint8 unit, uint8 lport, int changed, uint32 *flags
         /* Update LED status */
         /**更新状态灯的变化*/
         val = READCSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)));
-        //val |= 0x01;
-        val &= 0xfc;
+        val |= 0x01;
+        //val &= 0xfc;
         WRITECSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)), val);
 
         MAC_SPEED_SET(hr2_sw_info.p_mac[lport], unit, lport, speed);
@@ -680,8 +680,8 @@ void bcm5333x_handle_link_down(uint8 unit, uint8 lport, int changed)
     {
         /* Update LED status */
         val = READCSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)));
-        //val &= 0xfc;
-        val |= 0x01;
+        val &= 0xfc;
+        //val |= 0x01;
         WRITECSR(LED_PORT_STATUS_OFFSET(SOC_PORT_L2P_MAPPING(lport)), val);
 
         MAC_ENABLE_SET(hr2_sw_info.p_mac[lport], unit, lport, FALSE);
@@ -1173,12 +1173,13 @@ static void bcm5333x_load_led_program(void)
     uint32 addr;
     uint8 *led_program;
     int byte_count = 0;
-    uint8 led_option = 1;    
+    uint8 led_option = 2;    
     uint8 led_program_3[256];
 #ifdef CFG_VENDOR_CONFIG_SUPPORT_INCLUDED    
     sys_error_t sal_config_rv = SYS_OK;
 #endif /* CFG_VENDOR_CONFIG_SUPPORT_INCLUDED */
     /* Port 2~9 are remapped */
+    //重新定义物理端口2~9的映射
     uint32 port_remap[9] = { 0x00187209, 0x00083105, 0x0034c2ca, 0x004503ce,
                              0x005544d2, 0x006585d6, 0x0069b71d, 0x0079f821,
                              0x00000022 };
@@ -2266,14 +2267,18 @@ bcm5333x_lag_group_get(uint8 unit, uint8 lagid, pbmp_t *lpbmp) {
 }
 #endif /* CFG_SWITCH_LAG_INCLUDED */
 
-/**交换机系统的初始化*/
+/**交换机系统的初始化
+ * 
+*/
 static void bcm5333x_system_init(void)
 {
     int i, j;
     uint32 entry[6];
     uint32 val;
+    //设置每端口的实例表信息
     uint32 port_entry[8] = { 0x01000000, 0x02000000, 0x00200000, 0x10004000,
                              0x00000001, 0x0, 0x0, 0x0 };
+    //
     uint32 dot1pmap[16] = {
     0x00000000, 0x00000001, 0x00000004, 0x00000005, 0x00000008, 0x00000009, 0x0000000c, 0x0000000d,
     0x00000010, 0x00000011, 0x00000014, 0x00000015, 0x00000018, 0x00000019, 0x0000001c, 0x0000001d };
@@ -2301,12 +2306,15 @@ static void bcm5333x_system_init(void)
          * TRUST_OUTER_DOT1P (Bit 57) = 0x1
          * PORT_VID (Bit 35-24) = 0x1
          */
+        //设置端口表
         bcm5333x_mem_set(0, M_PORT(i), port_entry, 8);
 
         /* Clear Unknown Unicast Block Mask. */
+        //清除未知单播块掩码
         bcm5333x_reg_set(0, R_UNKNOWN_UCAST_BLOCK_MASK_64(i), 0x0);
 
         /* Clear ingress block mask. */
+        //清除输入块掩码
         bcm5333x_reg_set(0, R_ING_EGRMSKBMAP_64(i), 0x0);
     }
 
@@ -2335,7 +2343,7 @@ static void bcm5333x_system_init(void)
         bcm5333x_mem_set(0, M_TRUNK32_CONFIG_TABLE(i), &val, 1);
         bcm5333x_mem_set(0, M_TRUNK32_PORT_TABLE(i), entry, 2);
     }
-
+    //使能巨帧
     enable_jumbo_frame();
     config_schedule_mode();
 
@@ -2343,6 +2351,7 @@ static void bcm5333x_system_init(void)
      * VLAN_DEFAULT_PBM is used as defalut VLAN members for those ports
      * that disable VLAN checks.
      */
+    //设置VLAN
     bcm5333x_reg_set(0, R_VLAN_DEFAULT_PBM, 0x3FFFFFFC);
 
     /* ING_VLAN_TAG_ACTION_PROFILE:
