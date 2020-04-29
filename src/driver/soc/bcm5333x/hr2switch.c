@@ -1173,7 +1173,7 @@ static void bcm5333x_load_led_program(void)
     uint32 addr;
     uint8 *led_program;
     int byte_count = 0;
-    uint8 led_option = 2;    
+    uint8 led_option = 1;    
     uint8 led_program_3[256];
 #ifdef CFG_VENDOR_CONFIG_SUPPORT_INCLUDED    
     sys_error_t sal_config_rv = SYS_OK;
@@ -1215,7 +1215,7 @@ static void bcm5333x_load_led_program(void)
     }
 
 #define LED_RAM_SIZE     0x100
-
+    //  设置程序内容和数据内容
     for (offset = 0; offset < LED_RAM_SIZE; offset++) 
     {
         WRITECSR(CMIC_LEDUP_PROGRAM_RAM_D(offset),(offset >= led_code_size) ? 0 : *(led_program + offset));
@@ -1223,8 +1223,9 @@ static void bcm5333x_load_led_program(void)
     }
 
     /* Swizzle the gp_to_cmic_link_status from [7:0] to [0:7] for GPORT0 */
+    //设置
     bcm5333x_reg_set(0, 2, R_GPORT_LINK_STATUS_TO_CMIC, 0x1);
-
+    //设置
     bcm5333x_reg_set(0, R_XLPORT_LED_CHAIN_CONFIG, 0x6);
 #endif /* CFG_LED_MICROCODE_INCLUDED */
     /* GPHY0 to LED mirroring */
@@ -1236,9 +1237,11 @@ static void bcm5333x_load_led_program(void)
     #if (CFG_LED_MICROCODE_INCLUDED == 2)
     /* led_current_sel=0x3, led_faultdet_pdwn_l=0x3f */
     /* led_ser2par_sel=1 */
+    //设置LED的并行寄存器
     bcm5333x_reg_set(0, R_TOP_PARALLEL_LED_CTRL, 0x3FB00);
     #endif
     /* enable LED processor */
+    //设置LED控制寄存器
     WRITECSR(CMIC_LEDUP0_CTRL, 0x6b);
 #endif /* CFG_LED_MICROCODE_INCLUDED */
 }

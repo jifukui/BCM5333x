@@ -359,7 +359,7 @@
   *      defined as 1 : includee serial LED feature and use "direct serial out" 
   *      defined as 2 : includee serial LED feature and use "internal serial-to-parallel to chip ballout" 
   */
-#define CFG_LED_MICROCODE_INCLUDED   (2)
+#define CFG_LED_MICROCODE_INCLUDED   (1)
 
 /*
   *  CFG_CONFIG_OPTION : option in SW (option in PRD)
