@@ -137,7 +137,7 @@ up2:
 ;
 ;  Inputs: (PORT_NUM)
 ;  Outputs: Four bits sent to LED stream
-;
+;  对于处于ACTIVE状态的处理
 
 activity:
         pushst  RX

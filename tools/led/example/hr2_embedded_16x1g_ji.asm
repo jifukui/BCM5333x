@@ -285,9 +285,11 @@ led_link_green:
         ret;
 ;没有连接的处理
 led_nolink:
-        pushst  ZERO
+        ;pushst  ZERO
+        pushst  ONE
         pack
-        pushst  ZERO
+        ;pushst  ZERO
+        pushst  ONE
         pack
         pushst  ZERO
         pack
