@@ -150,7 +150,7 @@ activity:
         add     b,(PORT_NUM)
         ld      a,ACT_EXT_TICKS
         ld      (b),a
-
+;行为1
 act1:
         ld      b,TXRX_TIMERS     ; Check TXRX LED extension timer
         add     b,(PORT_NUM)
@@ -165,7 +165,7 @@ act1:
 	    ;pop 
 	    jnc     led_nolink             ; no link, all black
         jmp     led_link_noact         ; link up, left keep green
-
+;行为2
 act2:                           
         ld      b,(TXRX_ALT_COUNT)
         cmp     b,TXRX_ALT_TICKS/2
