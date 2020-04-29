@@ -263,9 +263,9 @@ led_loop_green:
         ret;
 ;有link但是没有active的处理
 led_link_noact:
-        pushst  ONE
-        pack
         pushst  ZERO
+        pack
+        pushst  ONE
         pack
         pushst  ZERO
         pack
