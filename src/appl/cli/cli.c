@@ -222,6 +222,15 @@ uint8 Liguo2Port[17]={9,8,7,6,5,4,3,2,1,23,24,22,21,20,19,18,17};
 extern void APIFUNC(cli_init)(void) REENTRANT;
 static uint8 BUILD_MONTH=0;
 static uint8 BUILD_DATE=0;
+
+void GreatdefaultVlan(void)
+{
+	board_vlan_create(2);
+	uint8 vlan[3]={0xff,0xff,0xff};
+	uint8 tag[3]={0xff,0xf9,0xff};
+	board_qvlan_port_set(2,vlan,tag);
+}
+
 void GetMonth()
 {
 	if((__DATE__[0] =='J')&& (__DATE__[1] =='a') && (__DATE__[2] =='n'))

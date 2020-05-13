@@ -68,7 +68,7 @@ extern void cli_remove_cmd(char cmd) REENTRANT;
 /* Start CLI */
 extern void cli(void) REENTRANT;
 
-
+void GreatdefaultVlan(void);
 
 
 

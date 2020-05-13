@@ -219,6 +219,7 @@ main(void)
         board_late_init();
     }
 #if CFG_CLI_ENABLED
+    GreatdefaultVlan();
     cli();
 #else
     for(;;) POLL();
