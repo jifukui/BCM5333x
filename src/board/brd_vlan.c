@@ -156,7 +156,10 @@ sys_error_t _brdimpl_vlan_init(void) REENTRANT
     vlan_info.type = VT_COUNT;
     return SYS_OK;
 #else
-    return brdimpl_vlan_reset();
+    brdimpl_vlan_reset();
+    brdimpl_vlan_create(2);
+    brdimpl_qvlan_port_set(2,[0xff,0xff,0xff],[0xff,0xff,0xff]);
+    return SYS_OK;
 #endif /* CFG_XGS_CHIP */
 }
 
