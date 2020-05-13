@@ -379,7 +379,8 @@ static void bcm5333x_fp_init(void)
     bcm5333x_mem_set(0, M_FP_POLICY_TABLE(SYS_MAC_IDX), policy_entry, 8);
     bcm5333x_mem_set(0, M_FP_GLOBAL_MASK_TCAM(SYS_MAC_IDX), global_tcam_mask_entry, 3);
 
-    for (i = BCM5333X_PORT_MIN; i <= BCM5333X_PORT_MAX; i++) {
+    for (i = BCM5333X_PORT_MIN; i <= BCM5333X_PORT_MAX; i++) 
+    {
         bcm5333x_mem_get(0, M_FP_PORT_FIELD_SEL(i), port_field_sel_entry, 5);
         port_field_sel_entry[0] = (port_field_sel_entry[0] & 0xff87ffff)
                                                            | 0x00280000;

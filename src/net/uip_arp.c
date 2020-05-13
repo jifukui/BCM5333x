@@ -715,10 +715,13 @@ void uip_autoip_out(BOOL probe)
     sal_memcpy(BUF->shwaddr.addr, uip_ethaddr.addr, 6);
 
     uip_ipaddr_copy(&BUF->dipaddr, &aip.ipaddr);
-    if (probe) {
+    if (probe) 
+    {
         /* Probe packet. Sender IP is zero */
         sal_memset(&BUF->sipaddr, 0x00, 4);
-    } else {
+    } 
+    else 
+    {
         /* Announce packet. */
         uip_ipaddr_copy(&BUF->sipaddr, &aip.ipaddr);
     }
@@ -743,7 +746,8 @@ void uip_autoip_appcall(void)
     }
     uip_len = 0;
 
-    switch (aip.state) {
+    switch (aip.state) 
+    {
         case AUTOIP_STATE_INIT:
             if (SAL_TIME_EXPIRED(aip.last_probe, aip.next_probe_interval) > 0) {
                 uip_autoip_out(TRUE);

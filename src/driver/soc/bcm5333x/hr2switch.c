@@ -1031,8 +1031,8 @@ sys_error_t bcm5333x_link_status(uint8 unit, uint8 port, BOOL *link)
  * unit：操作单元号
  * op:操作编码
  * block_id：块ID
- * addr:
- * buf
+ * addr:地址
+ * buf：数据缓冲区
  * len:数据长度
  */
 static int bcm5333x_sw_op(uint8 unit,
@@ -1042,7 +1042,9 @@ static int bcm5333x_sw_op(uint8 unit,
                uint32 *buf,
                int len)
 {
+    //信息头
     uint32 msg_hdr;
+    //控制信息
     uint32 ctrl;
     int i;
 
@@ -1050,17 +1052,18 @@ static int bcm5333x_sw_op(uint8 unit,
     {
         return -1;
     }
-
+    //操作码左移26位或上块ID左移20位
     msg_hdr = (V_SMHDR_OP_CODE(op) | V_SMHDR_DEST_BLOCK(block_id));
-
+    //如果操作码不是读取内存的命令
     if (op != SC_OP_RD_MEM_CMD) 
     {
+        //设置数据长度乘以4然后左移7位
         msg_hdr |= V_SMHDR_DATA_LEN(len*4);
     }
-
+    //设置0x4803200c的值加上4*x
     WRITECSR(R_CMIC_SCHAN_D(0), msg_hdr);
     WRITECSR(R_CMIC_SCHAN_D(1), addr);
-
+    //对于是写寄存器和写内存的处理
     if (op == SC_OP_WR_REG_CMD || op == SC_OP_WR_MEM_CMD) 
     {
         for (i = 0; i < len; i++) 
@@ -1068,13 +1071,14 @@ static int bcm5333x_sw_op(uint8 unit,
             WRITECSR(R_CMIC_SCHAN_D(2+i), buf[i]);
         }
     }
-
+    //设置开始进行请求
     WRITECSR(CMIC_CMC1_SCHAN_CTRL, SC_CMCx_MSG_START);
-
+    //  读取100次
     for (i = 0; i < 100; i++) 
     {
         sal_usleep(2);
         ctrl = READCSR(CMIC_CMC1_SCHAN_CTRL);
+        //读取数据是否完成
         if (ctrl & SC_CMCx_MSG_DONE)
         {
             break;
@@ -1087,11 +1091,11 @@ static int bcm5333x_sw_op(uint8 unit,
         sal_printf("S-CHAN %d:0x%x, timeout!\n", block_id, addr);
     }
 #endif /* CFG_CONSOLE_ENABLED */
-
+    //读取状态值
     ctrl = READCSR(CMIC_CMC1_SCHAN_CTRL);
     ctrl &= ~SC_CMCx_MSG_DONE;
     WRITECSR(CMIC_CMC1_SCHAN_CTRL, ctrl);
-
+    //对于是读寄存器和读内存的处理
     if (op == SC_OP_RD_REG_CMD || op == SC_OP_RD_MEM_CMD) 
     {
         for (i = 0; i < len; i++) 
@@ -2529,7 +2533,7 @@ static void bcm5333x_system_init(void)
 
 #define BMD_MODID(_u)  (_u)
 #define HG_TRUNKID(_u)  (0)
-
+/***/
 static int  _bmd_post_init(int unit)
 {
     int lport, dest_unit, dest_modid;
@@ -2622,13 +2626,15 @@ static int  _bmd_post_init(int unit)
          */
         bcm5333x_reg_get(myunit, R_EGR_PORT(lport), &val);
         val &= ~(0xfe07);
-        if (IS_HG_PORT(lport)) {
+        if (IS_HG_PORT(lport)) 
+        {
             val |= 0x5;
         }
         val |= (BMD_MODID(unit) << 9);
         bcm5333x_reg_set(myunit, R_EGR_PORT(lport), val);
 
-        if (IS_XL_PORT(lport) && lport != 0) {
+        if (IS_XL_PORT(lport) && lport != 0) 
+        {
             /* Update MY_MODID[8:1] and higig2 mode[11] in XLPORT_CONFIG */
             val = (BMD_MODID(unit) << 1);
             if (IS_HG_PORT(lport)) {
@@ -2640,7 +2646,8 @@ static int  _bmd_post_init(int unit)
     }
 
     entry[0] = 0x1;
-    for (lport = BCM5333X_LPORT_MIN; lport <= BCM5333X_LPORT_MAX; lport++) {
+    for (lport = BCM5333X_LPORT_MIN; lport <= BCM5333X_LPORT_MAX; lport++) 
+    {
         /* ING_OUTER_TPID[0] for allowed outer TPID values */
         /* indexed via \{SRC_MODID[5:0], SRC_PORT[5:0]\}' */
         bcm5333x_mem_set(myunit, M_SYSTEM_CONFIG_TABLE((BMD_MODID(unit) << 6)+lport), entry, 1);
@@ -2654,7 +2661,9 @@ static int  _bmd_post_init(int unit)
     val = 0x303;
     bcm5333x_mem_set(myunit, M_EGR_VLAN_TAG_ACTION_PROFILE(1), &val, 1);
     val = (1 << 16);
-    SOC_HGPORT_ITER(lport) {
+    SOC_HGPORT_ITER(lport) 
+    {
+        //
         bcm5333x_reg_set(myunit, R_EGR_VLAN_CONTROL_3(lport), val);
     }
 
@@ -2769,6 +2778,7 @@ sys_error_t bcm5333x_sw_init(void)
 #endif /* CFG_VENDOR_CONFIG_SUPPORT_INCLUDED */
     
     /* CPS reset complete SWITCH and CMICd */
+    //初始化CPS初始化
     WRITECSR(CMIC_CPS_RESET, 0x1);
     sal_usleep(1000);
 
@@ -2793,7 +2803,7 @@ sys_error_t bcm5333x_sw_init(void)
         sal_printf("Vendor Config : Overwrite SKU option with value %d.\n", config_id);
     }
 #endif /* CFG_VENDOR_CONFIG_SUPPORT_INCLUDED */
-    /**根据设备的ID进行判断是否支持此设备*/
+    /**根据设备的ID进行判断是否支持此设备，对于没有支持的设备返货错误*/
     if ((hr2_sw_info.devid != BCM53333_DEVICE_ID) &&
         (hr2_sw_info.devid != BCM53334_DEVICE_ID) &&
         (hr2_sw_info.devid != BCM53393_DEVICE_ID) &&
@@ -2860,6 +2870,7 @@ sys_error_t bcm5333x_sw_init(void)
     /* Init PHYs */
     if (CDK_SUCCESS(rv)) 
     {
+        //初始化PHY
         rv = bmd_phy_staged_init(unit);
     }
 #ifdef CFG_VENDOR_CONFIG_SUPPORT_INCLUDED 
@@ -3220,7 +3231,7 @@ sys_error_t bcm5333x_sw_init(void)
     }
 
     _bmd_post_init(unit);
-
+    //加载LED程序
     bcm5333x_load_led_program();
 
 #if CONFIG_HURRICANE2_EMULATION

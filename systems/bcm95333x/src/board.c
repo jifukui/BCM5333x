@@ -515,8 +515,7 @@ sys_error_t board_tx(sys_pkt_t *pkt, BOARD_TX_CALLBACK cbk)
     return brdimpl_tx(pkt, cbk);
 }
 
-void
-board_rxtx_stop(void)
+void board_rxtx_stop(void)
 {
     bcm5333x_rxtx_stop();
     return;
@@ -570,11 +569,13 @@ BOOL board_check_image(hsaddr_t address, hsaddr_t *outaddr)
     }
 
     ptr += sizeof(flash_imghdr_t);
-    for (i = 0; i < size; i = i + 50) {
+    for (i = 0; i < size; i = i + 50) 
+    {
         chksum += *(ptr+i);
     }
 
-    if (chksum != hdrchksum) {
+    if (chksum != hdrchksum) 
+    {
 #if CFG_CONSOLE_ENABLED
         sal_printf("Checksum incorrect. Calculated chksum is %04X\n", chksum);
 #endif /* CFG_CONSOLE_ENABLED */
@@ -590,7 +591,8 @@ BOOL board_check_imageheader(msaddr_t address)
 {
     flash_imghdr_t *hdr = (flash_imghdr_t *)address;
 
-    if (sal_memcmp(hdr->seal, UM_IMAGE_HEADER_SEAL, sizeof(hdr->seal)) != 0) {
+    if (sal_memcmp(hdr->seal, UM_IMAGE_HEADER_SEAL, sizeof(hdr->seal)) != 0) 
+    {
 #if CFG_CONSOLE_ENABLED && !defined(CFG_DUAL_IMAGE_INCLUDED)
         sal_printf("Invalid header seal.  This is not a valid image.\n");
 #endif /* CFG_CONSOLE_ENABLED */
@@ -601,7 +603,8 @@ BOOL board_check_imageheader(msaddr_t address)
     sal_printf("Flash image is version %c.%c.%c for board %s\n",
                 hdr->majver, hdr->minver, hdr->ecover, hdr->boardname);
 #endif /* CFG_CONSOLE_ENABLED */
-    if (sal_strcmp(board_name(), (const char*)hdr->boardname) != 0) {
+    if (sal_strcmp(board_name(), (const char*)hdr->boardname) != 0) 
+    {
 #if CFG_CONSOLE_ENABLED
         sal_printf("This image is not appropriate for board type '%s'\n",board_name());
 #endif /* CFG_CONSOLE_ENABLED */
@@ -645,7 +648,8 @@ void board_loader_mode_set(loader_mode_t mode, bookkeeping_t *data)
 #ifdef CFG_DUAL_IMAGE_INCLUDED
     uint32 active_image = pdata->active_image;
 #endif
-    if (mode == LM_UPGRADE_FIRMWARE) {
+    if (mode == LM_UPGRADE_FIRMWARE) 
+    {
         sal_memcpy(pdata, data, sizeof(bookkeeping_t));
 #ifdef CFG_DUAL_IMAGE_INCLUDED
         pdata->active_image = active_image;
@@ -661,13 +665,15 @@ calculate_score(hsaddr_t address)
     hsaddr_t addr;
     
     /* Check image (header and checksum) first */
-    if (!board_check_imageheader(address) || !board_check_image(address, &addr)) {
+    if (!board_check_imageheader(address) || !board_check_image(address, &addr)) 
+    {
         return -1;
     }
 
     /* Header OK, now check if there is any valid timestamp */
     if (hdr->timestamp[0] != TIMESTAMP_MAGIC_START ||
-        hdr->timestamp[3] != TIMESTAMP_MAGIC_END) {
+        hdr->timestamp[3] != TIMESTAMP_MAGIC_END) 
+    {
         /* No timestamp found, but the image is OK */
         return 0;
     }
@@ -675,8 +681,7 @@ calculate_score(hsaddr_t address)
     return (int)(((uint16) hdr->timestamp[1] << 8) + (uint16)hdr->timestamp[2]);
 }
 /* Should be invoked in boot loader only */
-BOOL
-board_select_boot_image(hsaddr_t *outaddr)
+BOOL board_select_boot_image(hsaddr_t *outaddr)
 {
     int score1, score2;
     uint8 *ptr;
@@ -686,40 +691,56 @@ board_select_boot_image(hsaddr_t *outaddr)
     score1 = calculate_score((hsaddr_t)BOARD_FIRMWARE_ADDR);
     score2 = calculate_score((hsaddr_t)BOARD_SECONDARY_FIRMWARE_ADDR);
 
-    if (score1 == -1 && score2 == -1) {
+    if (score1 == -1 && score2 == -1) 
+    {
 #if CFG_CONSOLE_ENABLED
         sal_printf("There is no valid image \n");
 #endif /* CFG_CONSOLE_ENABLED */
         return FALSE;
     }
 
-    if (score1 == 0xffff || score2 == 0xffff) {
+    if (score1 == 0xffff || score2 == 0xffff) 
+    {
         /* Deal with overflow condition */
-        if (score1 == 1) {
+        if (score1 == 1) 
+        {
             score2 = 0;
-        } else if (score2 == 1) {
+        } 
+        else if (score2 == 1) 
+        {
             score1 = 0;
         }
     }
 
-    if (score1 == -1) {
+    if (score1 == -1) 
+    {
         booting_partition = 2 | ((uint32)(score2) << 16);
-    } else if (score2 == -1) {
+    } 
+    else if (score2 == -1) 
+    {
         booting_partition = 1 | ((uint32)(score1) << 16);
-    } else {
+    } 
+    else 
+    {
         /*
          * Partition 1 has priority over partition 2
          */
-        if (score1 >= score2) {
+        if (score1 >= score2) 
+        {
             booting_partition = 0x201 | ((uint32)(score1) << 16);
-        } else {
+        } 
+        else 
+        {
             booting_partition = 0x102 | ((uint32)(score2) << 16);
         }
     }
 
-    if (ACTIVE_IMAGE_GET(booting_partition) == 1) {
+    if (ACTIVE_IMAGE_GET(booting_partition) == 1) 
+    {
         ptr = HSADDR2DATAPTR(BOARD_FIRMWARE_ADDR);
-    } else {
+    } 
+    else 
+    {
         ptr = HSADDR2DATAPTR(BOARD_SECONDARY_FIRMWARE_ADDR);
     }
    
@@ -731,15 +752,13 @@ board_select_boot_image(hsaddr_t *outaddr)
     return TRUE;
 }
 
-void
-board_active_image_set(uint32 partition)
+void board_active_image_set(uint32 partition)
 {
     bookkeeping_t *pdata = (bookkeeping_t *)BOARD_BOOKKEEPING_ADDR;
     pdata->active_image = partition;
 }
 
-uint32
-board_active_image_get(void)
+uint32 board_active_image_get(void)
 {
     bookkeeping_t *pdata = (bookkeeping_t *)BOARD_BOOKKEEPING_ADDR;
     return pdata->active_image;
@@ -747,8 +766,7 @@ board_active_image_get(void)
 #endif /* CFG_DUAL_IMAGE_INCLUDED */
 
 #ifdef CFG_SWITCH_VLAN_INCLUDED
-sys_error_t
-board_vlan_type_set(vlan_type_t type)
+sys_error_t board_vlan_type_set(vlan_type_t type)
 {
     return brdimpl_vlan_type_set(type);
 }
@@ -759,28 +777,23 @@ sys_error_t board_vlan_type_get(vlan_type_t *type)
     return brdimpl_vlan_type_get(type);
 }
 
-
-sys_error_t
-board_vlan_create(uint16 vlan_id)
+sys_error_t board_vlan_create(uint16 vlan_id)
 {
     return brdimpl_vlan_create(vlan_id);
 }
 
 
-sys_error_t
-board_vlan_destroy(uint16 vlan_id)
+sys_error_t board_vlan_destroy(uint16 vlan_id)
 {
     return brdimpl_vlan_destroy(vlan_id);
 }
 
-sys_error_t
-board_pvlan_port_set(uint16  vlan_id, uint8 *uplist)
+sys_error_t board_pvlan_port_set(uint16  vlan_id, uint8 *uplist)
 {
     return brdimpl_pvlan_port_set(vlan_id, uplist);
 }
 
-sys_error_t
-board_pvlan_port_get(uint16  vlan_id, uint8 *uplist)
+sys_error_t board_pvlan_port_get(uint16  vlan_id, uint8 *uplist)
 {
     return brdimpl_pvlan_port_get(vlan_id, uplist);
 }
@@ -788,21 +801,21 @@ board_pvlan_port_get(uint16  vlan_id, uint8 *uplist)
 /* Input: lport
  * Output: the egress mask of this port. 1: can forward to. 0: cannot.
  */
-sys_error_t
-board_pvlan_egress_get(uint16 uport, uint8 *uplist)
+/**802.1q设置输出的时候*/
+sys_error_t board_pvlan_egress_get(uint16 uport, uint8 *uplist)
 {
     return brdimpl_pvlan_egress_get(uport, uplist);
 }
 
-sys_error_t
-board_untagged_vlan_set(uint16 uport, uint16 vlan_id)
+sys_error_t board_untagged_vlan_set(uint16 uport, uint16 vlan_id)
 {
     uint8 unit, lport;
     uint32 port_entry[8];
     sys_error_t rv = SYS_OK;
 
     rv = board_uport_to_lport(uport, &unit, &lport);
-    if (rv != SYS_OK) {
+    if (rv != SYS_OK) 
+    {
         return rv;
     }
 
@@ -814,8 +827,7 @@ board_untagged_vlan_set(uint16 uport, uint16 vlan_id)
   return rv;
 }
 
-sys_error_t
-board_untagged_vlan_get(uint16 uport, uint16 *vlan_id)
+sys_error_t board_untagged_vlan_get(uint16 uport, uint16 *vlan_id)
 {
     uint32 port_entry[8];
     uint8 unit, lport;
@@ -823,7 +835,8 @@ board_untagged_vlan_get(uint16 uport, uint16 *vlan_id)
     uint32 vid1, vid2;
 
     rv = board_uport_to_lport(uport, &unit, &lport);
-    if (rv != SYS_OK) {
+    if (rv != SYS_OK) 
+    {
         return rv;
     }
 
@@ -834,26 +847,22 @@ board_untagged_vlan_get(uint16 uport, uint16 *vlan_id)
     return rv;
 }
 
-sys_error_t
-board_qvlan_port_set(uint16  vlan_id, uint8 *uplist, uint8 *tag_uplist)
+sys_error_t board_qvlan_port_set(uint16  vlan_id, uint8 *uplist, uint8 *tag_uplist)
 {
     return brdimpl_qvlan_port_set(vlan_id, uplist, tag_uplist);
 }
 
-sys_error_t
-board_qvlan_port_get(uint16  vlan_id, uint8 *uplist, uint8 *tag_uplist)
+sys_error_t board_qvlan_port_get(uint16  vlan_id, uint8 *uplist, uint8 *tag_uplist)
 {
     return brdimpl_qvlan_port_get(vlan_id, uplist, tag_uplist);
 }
 
-uint16
-board_vlan_count(void)
+uint16 board_vlan_count(void)
 {
     return brdimpl_vlan_count();
 }
 
-sys_error_t
-board_qvlan_get_by_index(uint16  index, uint16 *vlan_id, uint8 *uplist, uint8 *tag_uplist)
+sys_error_t board_qvlan_get_by_index(uint16  index, uint16 *vlan_id, uint8 *uplist, uint8 *tag_uplist)
 {
     return brdimpl_qvlan_get_by_index(index, vlan_id, uplist, tag_uplist);
 }
@@ -1056,8 +1065,7 @@ board_lag_set(uint8 enable)
     return SYS_OK;
 }
 
-void
-board_lag_get(uint8 *enable)
+void board_lag_get(uint8 *enable)
 {
     *enable = lag_enable;
 }
@@ -1153,7 +1161,7 @@ board_lag_group_max_num(uint8 *num)
 {
     *num = BOARD_MAX_NUM_OF_LAG;
 }
-
+/***/
 void board_lag_linkchange(uint16 uport, BOOL link, void *arg)
 {
     uint8 unit, lport;
@@ -1161,22 +1169,29 @@ void board_lag_linkchange(uint16 uport, BOOL link, void *arg)
     uint8 i;
     sys_error_t rv = SYS_OK;
 
-    if (lag_enable == TRUE) {
+    if (lag_enable == TRUE) 
+    {
         rv = board_uport_to_lport(uport, &unit, &lport);
-        if (rv != SYS_OK) {
+        if (rv != SYS_OK) 
+        {
             return;
         }
-        if (!SOC_IS_DEERHOUND(unit) && lport < PHY_SECOND_QGPHY_PORT0) {
+        if (!SOC_IS_DEERHOUND(unit) && lport < PHY_SECOND_QGPHY_PORT0) 
+        {
             lport =SOC_PORT_L2P_MAPPING(lport);
         }
-        for (i = 1 ; i <= BOARD_MAX_NUM_OF_LAG ; i++) {
-            if ((lag_group[i-1].enable == TRUE) &&
-                (lag_group[i-1].lpbmp & (0x1 << lport))){
+        for (i = 1 ; i <= BOARD_MAX_NUM_OF_LAG ; i++) 
+        {
+            if ((lag_group[i-1].enable == TRUE) && (lag_group[i-1].lpbmp & (0x1 << lport)))
+            {
                 /* add lag setting to HW */
                 bcm5333x_lag_group_get(0, (i - 1), &hw_pbmp);
-                if (link) {
+                if (link) 
+                {
                     hw_pbmp |= (0x1 << lport);
-                } else {
+                } 
+                else 
+                {
                     hw_pbmp &= ~(0x1 << lport);
                 }
                 bcm5333x_lag_group_set(0, (i - 1), hw_pbmp);

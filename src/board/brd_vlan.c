@@ -98,13 +98,16 @@ STATICFN sys_error_t _brdimpl_vlan_sw_vlan_group_get(uint16 group_id,
         if (this_vlan->vlan_id == group_id)
         {
             //判断是否是要删除节点
-            if (delete_node) {
+            if (delete_node) 
+            {
                 /* Update head if necessary */
                 //如果前面的存在的处理
-                if (prev != NULL) {
+                if (prev != NULL) 
+                {
                     prev->next = this_vlan->next;
                 } 
-                else {
+                else 
+                {
                     vlan_info.head = this_vlan->next;
                 }
                 /* Update tail if necessary */
@@ -195,7 +198,10 @@ void _brdimpl_dump_vlan_info(void) REENTRANT
  *      - Disable 1Q VLAN and reset QVLAN table.
  *  2. VLAN related SW database init process.
  */
-/**VLAN复位*/
+/**VLAN复位
+ * 清除或者是初始化VLAN信息表
+ * 然后调用BCM53334的VLAN初始化函数进行VLAN的初始化
+*/
 sys_error_t brdimpl_vlan_reset(void) REENTRANT
 {
     uint8  i;
@@ -212,6 +218,7 @@ sys_error_t brdimpl_vlan_reset(void) REENTRANT
      *  4. type = NONE
      */
     this_vlan = vlan_info.head;
+    /**对于VLAN是空的处理，为VLAN分配空间和初始化数据*/
     if (this_vlan == NULL) 
     {
         this_vlan = sal_malloc(sizeof(vlan_list_t));
@@ -227,10 +234,13 @@ sys_error_t brdimpl_vlan_reset(void) REENTRANT
 	this_vlan->vlan_id = VLAN_DEFAULT;
 
     /* retrieve all port uplist and copy to vlan->uplist */
+    //设置所有的端口都参加
     _brdimpl_uplist_allport_set(this_vlan->uplist);
 
     /* Destroy other vlan groups */
+    //设置当前的VLAN指向下一个VLAN
     this_vlan = this_vlan->next;
+    /**清除所有的存在的VLAN*/
     while(this_vlan) 
     {
 
@@ -238,7 +248,8 @@ sys_error_t brdimpl_vlan_reset(void) REENTRANT
 
 #if CFG_XGS_CHIP
         /* Destroy vlan if it was QVLAN to save some work for XGS chip */
-        if (vlan_info.type == VT_DOT1Q){
+        if (vlan_info.type == VT_DOT1Q)
+        {
             (*soc->vlan_destroy)(0, this_vlan->vlan_id);
         }
 #endif /* CFG_XGS_CHIP */
@@ -322,7 +333,8 @@ sys_error_t brdimpl_vlan_type_set(vlan_type_t type) REENTRANT
 /**获取VLAN的类型*/
 sys_error_t brdimpl_vlan_type_get(vlan_type_t *type) REENTRANT
 {
-    if (type == NULL){
+    if (type == NULL)
+    {
         return SYS_ERR_PARAMETER;
     }
 
@@ -344,7 +356,8 @@ sys_error_t brdimpl_vlan_create(uint16 vlan_id) REENTRANT
     if (vlan_info.type == VT_DOT1Q)
     {
         //对于传入的VLAN的id不是合法的VLAN ID的处理
-        if (!SOC_1QVLAN_ID_IS_VALID(vlan_id)){
+        if (!SOC_1QVLAN_ID_IS_VALID(vlan_id))
+        {
             return SYS_ERR_PARAMETER;
         }
     }
@@ -376,7 +389,8 @@ sys_error_t brdimpl_vlan_create(uint16 vlan_id) REENTRANT
     /* not existed, create vlan */
     soc = board_get_soc_by_unit(0);
     rv = (*soc->vlan_create)(0, vlan_info.type, vlan_id);
-    if (rv) {
+    if (rv) 
+    {
         return rv;
     }
 
@@ -389,11 +403,13 @@ sys_error_t brdimpl_vlan_create(uint16 vlan_id) REENTRANT
 
     vlan->vlan_id = vlan_id;
     vlan->next = NULL;
-    if (vlan_info.tail != NULL) {
+    if (vlan_info.tail != NULL) 
+    {
         vlan_info.tail->next = vlan;
     }
     vlan_info.tail = vlan;
-    if (vlan_info.head == NULL) {
+    if (vlan_info.head == NULL) 
+    {
         vlan_info.head = vlan_info.tail;
     }
 
@@ -580,26 +596,32 @@ sys_error_t brdimpl_pvlan_egress_get(uint16 uport, uint8 *uplist) REENTRANT
     soc_switch_t    *soc;
     vlan_type_t     type;
 
-    if (uplist == NULL){
+    if (uplist == NULL)
+    {
         return SYS_ERR_PARAMETER;
     }
 
     rv = board_uport_to_lport(uport, &unit, &lport);
-    if (rv != SYS_OK) {
+    if (rv != SYS_OK) 
+    {
         return rv;
     }
 
     /* Only Pvlan will be checked here */
     rv = brdimpl_vlan_type_get(&type);
-    if (rv){
+    if (rv)
+    {
         return rv;
-    } else if (type != VT_PORT_BASED) {
+    } 
+    else if (type != VT_PORT_BASED) 
+    {
         return SYS_ERR_PARAMETER;
     }
 
     soc = board_get_soc_by_unit(0);
     rv = soc->pvlan_egress_get(0, lport, &lpbmp);
-    if (rv){
+    if (rv)
+    {
         return rv;
     }
 

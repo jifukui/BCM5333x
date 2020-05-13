@@ -71,7 +71,7 @@ static vlan_type_t hr2_vlan_type = VT_COUNT;
 /**对于基于Port的VLAN的出口数据设置
  * unit为设备单元号
  * lport为设备逻辑端口号
- * lpbmp为
+ * lpbmp为参加此VLAN的端口号
 */
 sys_error_t bcm5333x_pvlan_egress_set(uint8 unit, uint8 lport, pbmp_t lpbmp)
 {
@@ -81,7 +81,7 @@ sys_error_t bcm5333x_pvlan_egress_set(uint8 unit, uint8 lport, pbmp_t lpbmp)
     uint32 redirection_entry[2];
 #endif
     all_mask = BCM5333x_ALL_PORTS_MASK;
-
+    //实例的信息
     entry = lpbmp;
 
 #ifdef CFG_SWITCH_LOOPDETECT_INCLUDED
@@ -93,7 +93,7 @@ sys_error_t bcm5333x_pvlan_egress_set(uint8 unit, uint8 lport, pbmp_t lpbmp)
 #endif /* CFG_SWITCH_LOOPDETECT_INCLUDED */
 
     entry = ~(entry & all_mask);
-    //设置对于未知的单播的屏蔽
+    //设置对于未知的单播的屏蔽，设置对于未指定的端口进行阻塞
     rv = bcm5333x_mem_set(0, M_EGR_MASK(lport), &entry, 1);
 
     return rv;
@@ -124,8 +124,7 @@ sys_error_t bcm5333x_pvlan_egress_get(uint8 unit, uint8 lport, pbmp_t *lpbmp)
     return rv;
 }
 
-sys_error_t
-bcm5333x_qvlan_port_set(uint8 unit, uint16  vlan_id, pbmp_t lpbmp, pbmp_t tag_lpbmp)
+sys_error_t bcm5333x_qvlan_port_set(uint8 unit, uint16  vlan_id, pbmp_t lpbmp, pbmp_t tag_lpbmp)
 {
     sys_error_t rv = SYS_OK;
 
@@ -152,8 +151,7 @@ bcm5333x_qvlan_port_set(uint8 unit, uint16  vlan_id, pbmp_t lpbmp, pbmp_t tag_lp
 }
 
 
- sys_error_t
- bcm5333x_vlan_l3_ipmc_set(uint8 unit, uint16 vlan_id, uint16 uc_idx, uint16 umc_idx)
+ sys_error_t bcm5333x_vlan_l3_ipmc_set(uint8 unit, uint16 vlan_id, uint16 uc_idx, uint16 umc_idx)
  {
 	sys_error_t rv = SYS_OK; 
 	uint32 entry[4];
@@ -177,8 +175,7 @@ bcm5333x_qvlan_port_set(uint8 unit, uint16  vlan_id, pbmp_t lpbmp, pbmp_t tag_lp
     return rv;
  }
 
- sys_error_t
- bcm5333x_vlan_l3_ipmc_get(uint8 unit, uint16 vlan_id, uint16 *uc_idx, uint16 *umc_idx)
+ sys_error_t bcm5333x_vlan_l3_ipmc_get(uint8 unit, uint16 vlan_id, uint16 *uc_idx, uint16 *umc_idx)
  {
 	sys_error_t rv = SYS_OK; 
 	uint32 entry[4];	
@@ -205,8 +202,7 @@ bcm5333x_qvlan_port_set(uint8 unit, uint16  vlan_id, pbmp_t lpbmp, pbmp_t tag_lp
     return SYS_OK;
  }
 
- sys_error_t
- bcm5333x_vlan_l3_ipmc_del(uint8 unit, uint16 vlan_id)
+ sys_error_t bcm5333x_vlan_l3_ipmc_del(uint8 unit, uint16 vlan_id)
  {
 	sys_error_t rv = SYS_OK; 
 	uint32 entry[4];	
@@ -216,8 +212,7 @@ bcm5333x_qvlan_port_set(uint8 unit, uint16  vlan_id, pbmp_t lpbmp, pbmp_t tag_lp
     return rv;
  }
 
- sys_error_t
- bcm5333x_l3_ipmc_set(uint8 unit, uint16 idx, pbmp_t lpbmp)
+ sys_error_t bcm5333x_l3_ipmc_set(uint8 unit, uint16 idx, pbmp_t lpbmp)
  {
 	sys_error_t rv = SYS_OK; 
 	uint32 entry[3];
@@ -244,8 +239,7 @@ bcm5333x_qvlan_port_set(uint8 unit, uint16  vlan_id, pbmp_t lpbmp, pbmp_t tag_lp
 	return rv;
 }
 
- sys_error_t
- bcm5333x_l3_ipmc_del(uint8 unit, uint16 idx)
+ sys_error_t bcm5333x_l3_ipmc_del(uint8 unit, uint16 idx)
  {
 	sys_error_t rv = SYS_OK; 
     uint32 entry[3];
@@ -255,8 +249,7 @@ bcm5333x_qvlan_port_set(uint8 unit, uint16  vlan_id, pbmp_t lpbmp, pbmp_t tag_lp
 	return rv;
 }
 
- sys_error_t
- bcm5333x_l3_ipmc_get(uint8 unit, uint16 idx, pbmp_t *lpbmp)
+ sys_error_t bcm5333x_l3_ipmc_get(uint8 unit, uint16 idx, pbmp_t *lpbmp)
  {
 	sys_error_t rv = SYS_OK; 
     uint32 entry[4];
@@ -318,19 +311,7 @@ bcm5333x_qvlan_port_set(uint8 unit, uint16  vlan_id, pbmp_t lpbmp, pbmp_t tag_lp
     return rv;
 }
 
-/*
- *  Function : bcm5333x_vlan_create
- *
- *  Purpose :
- *      Create vlan.
- *
- *  Parameters :
- *
- *  Return :
- *
- *  Note :
- *
- */
+
 /**创建VLAN
  * unit：设备单元号
  * type：VLAN类型
@@ -369,19 +350,6 @@ sys_error_t bcm5333x_vlan_create(uint8 unit, vlan_type_t type, uint16  vlan_id)
 }
 
 
-/*
- *  Function : _bcm5333x_vlan_destroy
- *
- *  Purpose :
- *      Destroy vlan.
- *
- *  Parameters :
- *
- *  Return :
- *
- *  Note :
- *
- */
 /**销毁VLAN
  * unit：设备单元号
  * vlan_id：VLAN的ID号
@@ -401,21 +369,10 @@ sys_error_t bcm5333x_vlan_destroy(uint8 unit, uint16  vlan_id)
     return rv;
 }
 
-
-/*
- *  Function : bcm5333x_vlan_type_set
- *
- *  Purpose :
- *      Set current vlan type.
- *
- *  Parameters :
- *
- *  Return :
- *
- *  Note :
- *
- */
-/**设置VLAN的类型*/
+/**设置VLAN的类型
+ * unit：设备单元号
+ * type:协议类型
+*/
 sys_error_t bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
 {
     int i;
@@ -429,18 +386,23 @@ sys_error_t bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
     {
 
         /* Don't have to do this again if it was port based vlan */
-        if ((hr2_vlan_type == VT_NONE) || (hr2_vlan_type == VT_PORT_BASED)) {
+        //对于当前的VLAN的类型已经不是基于协议的直接返回
+        if ((hr2_vlan_type == VT_NONE) || (hr2_vlan_type == VT_PORT_BASED)) 
+        {
              hr2_vlan_type = type;
              return SYS_OK;
         }
 
         /* Enable USE_LEARN_VID and set LEARN_VID as '1' */
+        //使用地址映射逻辑表，学习和查询
         bcm5333x_reg_get(0, R_VLAN_CTRL, &val);
         val = (val & 0xffffe000) | 0x00001001;
         bcm5333x_reg_set(0, R_VLAN_CTRL, val);
 
         /* clear EN_IFILTER in PORT_TAB */
-        for (i = BCM5333X_LPORT_MIN; i <= BCM5333X_LPORT_MAX; i++) {
+        //清除所有端口的端口信息表
+        for (i = BCM5333X_LPORT_MIN; i <= BCM5333X_LPORT_MAX; i++) 
+        {
             bcm5333x_mem_get(0, M_PORT(i), port_entry, 8);
             port_entry[0] &= 0xffffffdf;
             bcm5333x_mem_set(0, M_PORT(i), port_entry, 8);
@@ -468,7 +430,7 @@ sys_error_t bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
             /* create vlan in EGR_VLAN */
             bcm5333x_mem_set(0, M_EGR_VLAN(i), entry, 3);
         }
-        
+        /**对于基于端口的处理*/
         if (type == VT_PORT_BASED)
         {
             if (VLAN_DEFAULT != 1)
@@ -510,6 +472,7 @@ sys_error_t bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
         }
 
     } 
+    //对于是基于802.1协议的支持
     else if (type == VT_DOT1Q)
     {
 
@@ -553,20 +516,10 @@ sys_error_t bcm5333x_vlan_type_set(uint8 unit, vlan_type_t type)
     return rv;
 }
 
-/*
- *  Function : bcm5333x_vlan_reset
- *
- *  Purpose :
- *      Clear all vlan related tables..
- *
- *  Parameters :
- *
- *  Return :
- *
- *  Note :
- *
- */
-/**交换机VLAN的复位*/
+
+/**交换机VLAN的复位，这个是整个交换机的VLAN的复位实现
+ * unit:设备单元号
+*/
 sys_error_t bcm5333x_vlan_reset(uint8 unit)
 {
     sys_error_t rv = SYS_OK;
@@ -582,26 +535,38 @@ sys_error_t bcm5333x_vlan_reset(uint8 unit)
 
 	/* Setup default vlan */
     /* STG=1, VALID=1, PBMP=all except CPU, VLAN_PROFILE_PTR=0 */
+    //设置VLAN的关系数据，低位在前
+
+    //设置所有端口参加
     entry[0] = BCM5333x_ALL_PORTS_MASK;
+    //设置此表有效，STP组ID为1
     entry[1] = 0xc0;
     entry[2] = 0x0;
     entry[3] = 0x0;
     bcm5333x_mem_set(0, M_VLAN(VLAN_DEFAULT), entry, 4);
 
     /* Setup EGR_VLAN, all ports untagged(exclude cpu) */
+    //设置VLAN输出关系表
+
+    //设置这些端口输出的数据应该是不带标签的
     entry[0] = BCM5333x_ALL_PORTS_MASK;
+    //设置属于这个VLAN的端口和STP的组ID为为1
     entry[1] = 0x1fffffff;
+    //设置这个表有效
     entry[2] = 0x10;
     bcm5333x_mem_set(0, M_EGR_VLAN(VLAN_DEFAULT), entry, 3);
 
     /* Set VLAN_STG and EGR_VLAN_STG */
     entry[0] = 0xfffffff0;
     entry[1] = 0x0fffffff;
+    //设置生成树组状态表，接收所有的数据
     bcm5333x_mem_set(0, M_VLAN_STG(1), entry, 2);
+    //设置输出生成树的状态表为接收所有数据
     bcm5333x_mem_set(0, M_EGR_VLAN_STG(1), entry, 2);
 
     /* Clear egr_mask for reconstruct */
     entry[0] = 0x0;
+    //设置所有端口对于所有端口未知单播的处理为接收,1阻止,0接收
     for (i = BCM5333X_PORT_MIN; i <= BCM5333X_PORT_MAX; i++) 
     {
         rv = bcm5333x_mem_set(0, M_EGR_MASK(i), &entry[0], 1);
@@ -641,6 +606,7 @@ sys_error_t bcm5333x_vlan_reset(uint8 unit)
     }
 
     /* Reset PVID to default vlan */
+    //设置每个端口的配置表
     for (i = BCM5333X_LPORT_MIN; i <= BCM5333X_LPORT_MAX; i++) 
     {
         bcm5333x_mem_get(0, M_PORT(i), entry, 8);
@@ -648,7 +614,8 @@ sys_error_t bcm5333x_vlan_reset(uint8 unit)
 		entry[1] = (entry[1] & 0xfffffff0) | ((VLAN_DEFAULT & 0xf00) >> 8);   
         rv = bcm5333x_mem_set(0, M_PORT(i), entry, 8);
     }
-
+    bcm5333x_vlan_create(0,VT_DOT1Q,2);
+    bcm5333x_qvlan_port_set(0,2,0x7fffffff,0x7ffff3ff);
     return rv;
 }
 #endif /* CFG_SWITCH_VLAN_INCLUDED */

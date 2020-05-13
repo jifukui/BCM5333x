@@ -139,6 +139,9 @@ STATICFN void mdns_goodbye_task(uint8 type);
  *    NULL : error or not enough question to bypass
  *    ptr : new data pointer
  */
+/**输入域名返回数据
+ * 
+*/
 STATICFN uint8* mdns_packet_domain_name_ignore(uint8 *data_ptr)
 {
     uint8 len, *ptr;

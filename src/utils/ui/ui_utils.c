@@ -1138,29 +1138,34 @@ uint32 mem_valid_field[] = {
     L2_MC_VALIDf,    
 };
 
-
-uint32 * soc_memacc_field_get(soc_field_info_t *fieldinfo, const uint32 *entbuf,
-                     uint32 *fldbuf)
+/**获取指定域的信息*/
+uint32 * soc_memacc_field_get(soc_field_info_t *fieldinfo, const uint32 *entbuf,uint32 *fldbuf)
 {    
     int i, wp, bp, len;
 
     bp = fieldinfo->bp;
     len = fieldinfo->len;
-    if (fieldinfo == NULL || entbuf == NULL || fldbuf == NULL) {
+    if (fieldinfo == NULL || entbuf == NULL || fldbuf == NULL) 
+    {
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return NULL;
     }
-    if (bp >= 1024) {
+    if (bp >= 1024) 
+    {
         fldbuf[0] = 1;
         return NULL;
     }
-
-    if (len == 1) {
+    //对于数据域的长度为1的处理
+    if (len == 1) 
+    {
         wp = bp / 32;
         bp = bp & (32 - 1);
-        if (entbuf[wp] & (1<<bp)) {
+        if (entbuf[wp] & (1<<bp)) 
+        {
             fldbuf[0] = 1;
-        } else {
+        } 
+        else 
+        {
             fldbuf[0] = 0;
         }
         return fldbuf;
@@ -1170,20 +1175,26 @@ uint32 * soc_memacc_field_get(soc_field_info_t *fieldinfo, const uint32 *entbuf,
     bp = bp & (32 - 1);
     i = 0;
 
-    for (; len > 0; len -= 32) {
-        if (bp) {
+    for (; len > 0; len -= 32) 
+    {
+        if (bp) 
+        {
             fldbuf[i] =
                 entbuf[wp++] >> bp &
                 ((1 << (32 - bp)) - 1);
-            if ( len > (32 - bp) ) {
+            if ( len > (32 - bp) ) 
+            {
                 fldbuf[i] |= entbuf[wp] <<
                     (32 - bp);
             }
-        } else {
+        } 
+        else 
+        {
             fldbuf[i] = entbuf[wp++];
         }
 
-        if (len < 32) {
+        if (len < 32) 
+        {
             fldbuf[i] &= ((1 << len) - 1);
         }
         i++;
@@ -1204,12 +1215,13 @@ void soc_memacc_mac_addr_get(soc_field_info_t *fieldinfo,void *entry, sal_mac_ad
 
     SAL_MAC_ADDR_FROM_UINT32(mac, mac_field);
 }
-
+/***/
 uint32 soc_memacc_field32_get(soc_field_info_t *fieldinfo, void *entry)
 {
     uint32 value;
 
-    if (fieldinfo == NULL || entry == NULL) {
+    if (fieldinfo == NULL || entry == NULL) 
+    {
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return 0;
     }
@@ -1243,8 +1255,9 @@ uint32 * soc_mem_field_get(soc_field_info_t *fieldinfo, const uint32 *entbuf,
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return NULL; 
     }
+    //获取指定表的有效域的位置
     field = mem_valid_field[tab_index];
-
+    //返回指定表的有效域的状态
     return &mem_arr[tab_index]->fields[field];
 } 
 
@@ -1322,54 +1335,66 @@ void soc_mem_dump(int tab_index, int change)
     uint32 nfval[SOC_MAX_MEM_FIELD_WORDS] = {0};
     soc_field_info_t *fieldp;
 
- 
-    if (tab_index >= MEM_MAX_COUNT) {
+    //判断表的索引号是否超出表的范围
+    if (tab_index >= MEM_MAX_COUNT) 
+    {
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return;
     }
     tab_prt = mem_arr[tab_index];
-    if (tab_prt == NULL) {
+    if (tab_prt == NULL) 
+    {
 		sal_printf("%s:%d ---return\n", __FUNCTION__, __LINE__);
         return;
     }
-	
-    for (index = tab_prt->index_min; index <= tab_prt->index_max; index++) {
+	//获取表的数据
+    for (index = tab_prt->index_min; index <= tab_prt->index_max; index++) 
+    {
         sal_memset(entry_data, 0, SOC_MAX_MEM_FIELD_WORDS);		
-		bcm5333x_mem_get(0, tab_prt->block_id,tab_prt->base + index, entry_data,
-		                    soc_mem_entry_words(tab_index));
-
-        if (tab_prt->flags & SOC_MEM_FLAG_VALID) {
+		bcm5333x_mem_get(0, tab_prt->block_id,tab_prt->base + index, entry_data,soc_mem_entry_words(tab_index));
+        //对于是内存的处理
+        if (tab_prt->flags & SOC_MEM_FLAG_VALID) 
+        {
+            //判断数据是不是有效
             fieldinfo = soc_mem_valid_field_info(tab_index);
+            //
             val = soc_memacc_field32_get(fieldinfo, entry_data);
-            if (0 == val) {
+            if (0 == val) 
+            {
                 continue;
             }
         }
-
-        for (f = tab_prt->nFields - 1; f >= 0; f--) {       
+        //对表的于进行处理
+        for (f = tab_prt->nFields - 1; f >= 0; f--) 
+        {       
             sal_memset(fval, 0, sizeof (fval));
             fieldp = &tab_prt->fields[f];
-            if (fieldp == NULL) {
+            if (fieldp == NULL) 
+            {
                 continue;
             }
-            if (change) {
+            //对于change的状态为1的处理
+            if (change) 
+            {
                 soc_mem_field_get(fieldp, entry_data, fval);        
-                if (sal_memcmp(fval, nfval, BITS2BYTES(fieldp->len) *
-                       sizeof (uint32)) == 0) {
+                if (sal_memcmp(fval, nfval, BITS2BYTES(fieldp->len) *sizeof (uint32)) == 0) 
+                {
                     continue;
                 }
             }
-   
-            if (first_print_flag == 0) {
+            //对于是第一个打印标记的处理
+            if (first_print_flag == 0) 
+            {
                 sal_printf("%s.[%d]:%s ", tab_prt->name, index,  "<");
                 first_print_flag = 1;
             }
-	    sal_memset(tmp, 0, 512);
+	        sal_memset(tmp, 0, 512);
             _shr_format_long_integer(tmp, fval, BITS2BYTES(fieldp->len));
             sal_printf("%s=%s%s", tab_prt->views[f],  tmp, f > 0 ? "," : "");        
 
         }
-        if (first_print_flag == 1) {
+        if (first_print_flag == 1) 
+        {
             sal_printf("%s\n",  ">");
             first_print_flag = 0;
         }		

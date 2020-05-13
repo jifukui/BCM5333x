@@ -132,22 +132,10 @@ typedef struct soc_switch_s {
 
 #if CFG_RXTX_SUPPORT_ENABLED
 
-    /*
-     * Set (the one and only) RX handler.
-     * If intr is TRUE, the handler will be called in interrupt context
-     */
     sys_error_t (*rx_set_handler)(uint8 unit, SOC_RX_HANDLER fn, BOOL intr) REENTRANT;              当intr的值为真将会被调用接收处理函数
 
-
-    /*
-     * Fill (or refill) one packet buffer to RX engine.
-     * You can fill more than one buffers until it returns SYS_ERR_FULL
-     */
     sys_error_t (*rx_fill_buffer)(uint8 unit, soc_rx_packet_t *pkt) REENTRANT;                      填充数据到发送引擎
 
-    /*
-     * Packet TX
-     */
     sys_error_t (*tx)(uint8 unit, soc_tx_packet_t *pkt) REENTRANT;                                  发送数据包函数
 
 #endif /* CFG_RXTX_SUPPORT_ENABLED */
@@ -367,3 +355,26 @@ typedef union BCM54282_TOP_MISC_GLOBAL_RESETr_s {
 	uint32_t top_misc_global_reset[1];
 	uint32_t _top_misc_global_reset;
 } BCM54282_TOP_MISC_GLOBAL_RESETr_t;
+交换机信息表
+typedef struct
+{
+    uint16  devid;                                          设备主ID
+    uint16  revid;                                          连接ID
+    uint8   link[BCM5333X_LPORT_MAX + 1];                   Link状态表
+    uint8   loopback[BCM5333X_LPORT_MAX + 1];               
+    uint8   port_count;                                     端口数量
+    uint32  pbmp;                                           端口位图
+#if defined(CFG_SWITCH_EEE_INCLUDED)
+    tick_t link_up_time[BCM5333X_LPORT_MAX+1];
+    uint8 need_process_for_eee_1s[BCM5333X_LPORT_MAX+1];
+#endif /*  CFG_SWITCH_EEE_INCLUDED */
+    int    port_p2l_mapping[BCM5333X_PORT_MAX + 1];         PHY端口到逻辑端口的映射图
+    int    port_l2p_mapping[BCM5333X_LPORT_MAX + 1];        逻辑端口到PHY端口的映射图
+    int    port_speed_max[BCM5333X_LPORT_MAX + 1];          
+    int    port_block_id[BCM5333X_LPORT_MAX + 1];           
+    int    port_block_port_id[BCM5333X_LPORT_MAX + 1];      
+    int    port_block_type[BCM5333X_LPORT_MAX + 1];         
+    BOOL    port_tx_pause_status[BCM5333X_LPORT_MAX + 1];       
+    BOOL    port_rx_pause_status[BCM5333X_LPORT_MAX + 1];           
+    mac_driver_t *p_mac[BCM5333X_LPORT_MAX + 1];            
+} bcm5333x_sw_info_t;

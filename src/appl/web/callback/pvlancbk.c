@@ -117,13 +117,15 @@ show_error(SSP_HANDLER_CONTEXT *cxt, SSP_PSMH psmem, int error) {
     return SSP_HANDLER_RET_MODIFIED;
 }
 
-static uint8
-pvlancbk_check_vlan_exist(uint16  vlan_id, uint8 *uplist)
+static uint8 pvlancbk_check_vlan_exist(uint16  vlan_id, uint8 *uplist)
 {
     sal_memset(&uplist[0], 0, sizeof(uint8) * MAX_UPLIST_WIDTH);
-    if (board_pvlan_port_get(vlan_id, uplist) == SYS_OK) {
+    if (board_pvlan_port_get(vlan_id, uplist) == SYS_OK) 
+    {
         return TRUE;
-    } else {
+    } 
+    else 
+    {
         return FALSE;
     }
 }
