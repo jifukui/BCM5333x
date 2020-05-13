@@ -549,7 +549,7 @@ sys_error_t bcm5333x_vlan_reset(uint8 unit)
     //设置VLAN输出关系表
 
     //设置这些端口输出的数据应该是不带标签的
-    entry[0] = BCM5333x_ALL_PORTS_MASK;
+    entry[0] = BCM5333x_ALL_PORTS_MASK^(1<<10);
     //设置属于这个VLAN的端口和STP的组ID为为1
     entry[1] = 0x1fffffff;
     //设置这个表有效
