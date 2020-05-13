@@ -615,7 +615,7 @@ sys_error_t bcm5333x_vlan_reset(uint8 unit)
         rv = bcm5333x_mem_set(0, M_PORT(i), entry, 8);
     }
     bcm5333x_vlan_create(0,VT_DOT1Q,2);
-    bcm5333x_qvlan_port_set(0,2,0x7fffffff,0x7ffff3ff);
+    bcm5333x_qvlan_port_set(0,2,0x3ffffffc,0x3ffff3fc);
     return rv;
 }
 #endif /* CFG_SWITCH_VLAN_INCLUDED */
