@@ -231,7 +231,7 @@ void GreatdefaultVlan(void)
 	uint8 vlan[3]={0xff,0xff,0xff};
 	uint8 tag[3]={0xff,0xf9,0xff};
 	board_qvlan_port_set(2,vlan,tag);
-	board_untagged_vlan_setuport,vlanid);
+	board_untagged_vlan_set(uport,vlanid);
 }
 
 void GetMonth()
