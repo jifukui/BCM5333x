@@ -151,6 +151,8 @@ sys_error_t _brdimpl_vlan_init(void) REENTRANT
 {
     vlan_info.head = NULL;
     vlan_info.tail = NULL;
+    uint8 vlan[4]=[0xff,0xff,0xff,0x00];
+    uint8 tag[4]=[0xff,0xf9,0xff,0x00];
 #if (CFG_XGS_CHIP && CFG_PERSISTENCE_SUPPORT_ENABLED)
     /* Assign invalid vlan type so it could be updated later */
     vlan_info.type = VT_COUNT;
@@ -158,7 +160,7 @@ sys_error_t _brdimpl_vlan_init(void) REENTRANT
 #else
     brdimpl_vlan_reset();
     brdimpl_vlan_create(2);
-    brdimpl_qvlan_port_set(2,[0xff,0xff,0xff],[0xff,0xff,0xff]);
+    brdimpl_qvlan_port_set(2,vlan,vlan);
     return SYS_OK;
 #endif /* CFG_XGS_CHIP */
 }
