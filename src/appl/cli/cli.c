@@ -96,7 +96,7 @@ typedef struct
 	uint8 min;
 	uint8 build;
 }SorftWare;
-static  SorftWare sorftware={1,2,7};
+static  SorftWare sorftware={1,0,0};
 typedef struct command_buf_s
 {
 	uint8 CommandHead;

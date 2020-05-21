@@ -156,7 +156,7 @@ include ${BSP_SRC}/tools.mk
 CFLAGS += -I. $(INCDIRS)
 CFLAGS += -D_CFE_ ${VDEF} -DCFG_BOARDNAME=\"${CFG_BOARDNAME}\"
 CFLAGS += -DCFG_RELEASE_STAGE=${CFG_RELEASE_STAGE}
-
+#CFLAGS +=-DJIFUKUI_DEBUG
 
 #
 # Gross - allow more options to be supplied from command line

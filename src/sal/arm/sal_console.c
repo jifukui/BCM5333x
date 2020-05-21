@@ -156,7 +156,9 @@ void sal_console_init(void)
 /**串口输出数据用户接口函数*/
 void sal_printf(const char *fmt, ...)
 {
-//	return;
+#ifndef JIFUKUI_DEBUG
+	return;
+#elif
 #if CFG_CONSOLE_ENABLED
     va_list arg_ptr;
     char buf[256];
@@ -168,6 +170,7 @@ void sal_printf(const char *fmt, ...)
     um_console_print(buf);
 #else
     UNREFERENCED_PARAMETER(fmt);
+#endif
 #endif
 }
 
