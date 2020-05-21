@@ -158,7 +158,7 @@ void sal_printf(const char *fmt, ...)
 {
 #ifndef JIFUKUI_DEBUG
 	return;
-#elif
+#else
 #if CFG_CONSOLE_ENABLED
     va_list arg_ptr;
     char buf[256];
