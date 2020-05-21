@@ -64,7 +64,7 @@
 #include "boardapi/mcast.h"
 #if CFG_CLI_ENABLED
 #define BUFLEN  64
-#define JIFUKUI_DEBUG
+//#define JIFUKUI_DEBUG
 static const uint32 Timeout=100000; 
 static const uint8 commandhead=0xeb;
 static const uint8 commandaddr=0x5f;
