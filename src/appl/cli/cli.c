@@ -95,7 +95,7 @@ typedef struct
 	uint8 maj;
 	uint8 min;
 	uint8 build;
-	uint8[1] func;
+	uint8 func[1];
 }SorftWare;
 static  SorftWare sorftware={1,64,20,{170}};
 typedef struct command_buf_s
@@ -775,9 +775,9 @@ void GetSorftwareVer()
                 CommandStatus=Errlenerr;
                 return ;
         }*/
-	uint8 data[3];
+	uint8 data[4];
 	sal_memcpy(data,(void *)&sorftware,sizeof(sorftware));
-	DataProd(1,data,sizeof(data),TRUE);
+	DataProd(1,data,sizeof(data),FALSE);
 }
 
 void GetBuildtime()
