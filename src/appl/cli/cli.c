@@ -108,7 +108,7 @@ typedef struct command_buf_s
 }command_buf;
 command_buf rx_Command,tx_Command;
 static uint8 CommandStatus;
-statuc uint8 Com26Start=3;
+static uint8 Com26Start=3;
 ///////////////////////////////////////////////////
 void StartRecCom();
 void EndRecCom();
