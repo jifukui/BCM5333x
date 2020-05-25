@@ -92,12 +92,12 @@ struct commandbuf
 }BufStatus;
 typedef struct
 {
+	uint8 cardtyte;
 	uint8 maj;
-	uint8 min;
 	uint8 build;
 	uint8 func[1];
 }SorftWare;
-static  SorftWare sorftware={1,64,20,{170}};
+static  SorftWare sorftware={64,1,20,{170}};
 typedef struct command_buf_s
 {
 	uint8 CommandHead;
@@ -655,10 +655,10 @@ void CommandIDHandler0x80()
 	tx_Command.CommandData[2]=rx_Command.CommandData[2];
 	switch(rx_Command.CommandData[0])
 	{
-		case 0x00:
+		case 0:
 			CommandIDHandler0x80_0x00();
 			break;
-		case 0x01: 
+		case 1: 
 			CommandIDHandler0x80_0x01();
 			break;
 		case 0x26:
