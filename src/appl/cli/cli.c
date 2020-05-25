@@ -2027,7 +2027,7 @@ void SetPortPVID()
 		if(SYS_OK!=board_qvlan_port_get(vid,port,tag))
 		{
 			CommandStatus=Errdataerr;
-			return 
+			return ;
 		}
 		if(1==vid)
 		{
