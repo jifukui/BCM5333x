@@ -1969,7 +1969,7 @@ void GetPortPVID()
 	if(SYS_OK==board_untagged_vlan_get(portid,&vid))
 	{
 		uint8 data[2];
-		if(11==portid&&1==vid)
+		if(11!=portid&&1==vid)
 		{
 			vid=3;
 		}
@@ -2009,6 +2009,8 @@ void SetPortPVID()
 	uint16 vid;
 	uint16 portid=rx_Command.CommandData[1];
 	GetValue(Com26Start,value,sizeof(value));
+	put_char(value[0]);
+	put_char(value[1]);
 	uint82uint16(value,&vid,sizeof(value));
 	if(SYS_OK==board_untagged_vlan_get(portid,&vid))
 	{
@@ -2029,6 +2031,13 @@ void SetPortPVID()
 			CommandStatus=Errdataerr;
 			return ;
 		}
+		put_char(port[0]);
+		put_char(port[1]);
+		put_char(port[2]);
+		
+		put_char(tag[0]);
+		put_char(tag[1]);
+		put_char(tag[2]);
 		if(1==vid)
 		{
 			UntagTransform(portid,tag,TRUE);
@@ -2037,6 +2046,9 @@ void SetPortPVID()
 		{
 			UntagTransform(portid,tag,FALSE);
 		}
+		put_char(tag[0]);
+		put_char(tag[1]);
+		put_char(tag[2]);
 		if((SYS_OK==board_qvlan_port_set(vid,port,tag))&&(SYS_OK==board_untagged_vlan_set(portid,vid)))
 		{
 			tx_Command.CommandLen=0x04;
