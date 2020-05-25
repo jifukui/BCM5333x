@@ -95,8 +95,9 @@ typedef struct
 	uint8 maj;
 	uint8 min;
 	uint8 build;
+	uint8[1] func;
 }SorftWare;
-static  SorftWare sorftware={1,0,0};
+static  SorftWare sorftware={1,64,20,{170}};
 typedef struct command_buf_s
 {
 	uint8 CommandHead;
@@ -229,12 +230,17 @@ static uint8 BUILD_DATE=0;
 
 void GreatdefaultVlan(void)
 {
-	uint16 uport=11;
+	uint16 uport=10;
 	uint16 vlanid=2;
 	board_vlan_create(2);
 	uint8 vlan[3]={0xff,0xff,0xff};
-	uint8 tag[3]={0xff,0xf9,0xff};
+	uint8 tag[3]={0x00,0x00,0x00};
 	board_qvlan_port_set(2,vlan,tag);
+	for(uint16 i=1;i<=24;i++)
+	{
+		board_untagged_vlan_set(i,vlanid);
+	}
+	vlanid=1;
 	board_untagged_vlan_set(uport,vlanid);
 }
 
@@ -666,11 +672,26 @@ void CommandIDHandler0x80()
 }
 void CommandIDHandler0x80_0x00()
 {
-	GetPortPVID();
+	if (170==rx_Command.CommandData[1])
+	{
+		GetPortPVID();
+	}
+	else
+	{
+		CommandStatus=Errnocom;
+	}
 }
 void CommandIDHandler0x80_0x01()
 {
-	SetPortPVID();
+	if (170==rx_Command.CommandData[1])
+	{
+		SetPortPVID();
+	}
+	else
+	{
+		CommandStatus=Errnocom;
+	}
+	
 }
 void CommandIDHandler0x80_0x26()
 {	
@@ -1948,6 +1969,10 @@ void GetPortPVID()
 	if(SYS_OK==board_untagged_vlan_get(portid,&vid))
 	{
 		uint8 data[2];
+		if(11==portid&&1==vid)
+		{
+			vid=3;
+		}
 		uint162uint8(&vid,data,sizeof(data));
 		DataProd(Com26Start,data,sizeof(data),TRUE);
 	}
@@ -1975,7 +2000,7 @@ void UntagTransform(uint8 port,uint8 *data,int8 flag)
 }
 void SetPortPVID()
 {
-	if(5!=rx_Command.CommandLen)
+	if(7!=rx_Command.CommandLen)
 	{
 		CommandStatus=Errdataerr;
 		return ;
@@ -2007,7 +2032,7 @@ void SetPortPVID()
 		{
 			UntagTransform(portid,tag,FALSE);
 		}
-		if((SYS_OK==board_qvlan_port_set(vid,port,tag))&&(SYS_OK==board_untagged_vlan_get(portid,&vid)))
+		if((SYS_OK==board_qvlan_port_set(vid,port,tag))&&(SYS_OK==board_untagged_vlan_set(portid,&vid)))
 		{
 			tx_Command.CommandLen=0x04;
 			tx_Command.CommandData[Com26Start]=0xFA;
