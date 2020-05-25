@@ -534,7 +534,7 @@ void CommandFormat()
 	{
 		case 0x00:
 			CommandIDHandler0x00();
-			break();
+			break;
 		case 0x80:
 			CommandIDHandler0x80();
 			break;
