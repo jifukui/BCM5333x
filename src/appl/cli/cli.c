@@ -1992,7 +1992,7 @@ void SetPortPVID()
 	{
 		CommandStatus=Errdataerr;
 	}
-	if(portid!=10&&portid!=11(1==vid||2==vid))
+	if(portid!=10&&portid!=11&&(1==vid||2==vid))
 	{
 		uint8 port[3]={0xff,0xff,0xff};
 		uint8 tag[3]={0xff,0xff,0xff};
