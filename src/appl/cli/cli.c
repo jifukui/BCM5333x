@@ -2022,8 +2022,13 @@ void SetPortPVID()
 	}
 	if(portid!=10&&portid!=11&&(1==vid||2==vid))
 	{
-		uint8 port[3]={0xff,0xff,0xff};
-		uint8 tag[3]={0xff,0xff,0xff};
+		uint8 port[3];
+		uint8 tag[3];
+		if(SYS_OK!=board_qvlan_port_get(vlanid,port,tag)
+		{
+			CommandStatus=Errdataerr;
+			return 
+		}
 		if(1==vid)
 		{
 			UntagTransform(portid,tag,TRUE);
@@ -2032,7 +2037,7 @@ void SetPortPVID()
 		{
 			UntagTransform(portid,tag,FALSE);
 		}
-		if((SYS_OK==board_qvlan_port_set(vid,port,tag))&&(SYS_OK==board_untagged_vlan_set(portid,&vid)))
+		if((SYS_OK==board_qvlan_port_set(vid,port,tag))&&(SYS_OK==board_untagged_vlan_set(portid,vid)))
 		{
 			tx_Command.CommandLen=0x04;
 			tx_Command.CommandData[Com26Start]=0xFA;
