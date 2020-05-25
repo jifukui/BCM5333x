@@ -108,7 +108,7 @@ typedef struct command_buf_s
 }command_buf;
 command_buf rx_Command,tx_Command;
 static uint8 CommandStatus;
-#define Com26Start 3
+statuc uint8 Com26Start=3;
 ///////////////////////////////////////////////////
 void StartRecCom();
 void EndRecCom();
@@ -1947,7 +1947,7 @@ void GetPortPVID()
 	uint16 portid=rx_Command.CommandData[1];
 	if(SYS_OK==board_untagged_vlan_get(portid,&vid))
 	{
-		uint8 data[2];Com26Start
+		uint8 data[2];
 		uint162uint8(vid,data,sizeof(data));
 		DataProd(Com26Start,data,sizeof(data),TRUE);
 	}
@@ -1966,11 +1966,11 @@ void UntagTransform(uint8 port,uint8 *data,int8 flag)
 	val=1<<val;
 	if(flag)
 	{
-		data[index]| = val;
+		data[index]=data[index] | val;
 	}
 	else
 	{
-		data[index] & =(~val);
+		data[index] =data[index]&(~val);
 	}
 }
 void SetPortPVID()
