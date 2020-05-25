@@ -655,10 +655,10 @@ void CommandIDHandler0x80()
 	tx_Command.CommandData[2]=rx_Command.CommandData[2];
 	switch(rx_Command.CommandData[0])
 	{
-		case 0:
+		case 0x00:
 			CommandIDHandler0x80_0x00();
 			break;
-		case 1: 
+		case 0x01: 
 			CommandIDHandler0x80_0x01();
 			break;
 		case 0x26:
@@ -672,7 +672,7 @@ void CommandIDHandler0x80()
 }
 void CommandIDHandler0x80_0x00()
 {
-	if (170==rx_Command.CommandData[1])
+	if (170==rx_Command.CommandData[2])
 	{
 		GetPortPVID();
 	}
@@ -683,7 +683,7 @@ void CommandIDHandler0x80_0x00()
 }
 void CommandIDHandler0x80_0x01()
 {
-	if (170==rx_Command.CommandData[1])
+	if (170==rx_Command.CommandData[2])
 	{
 		SetPortPVID();
 	}
