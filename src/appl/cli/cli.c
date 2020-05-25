@@ -127,6 +127,8 @@ void commandbuf_add();
 void CommandFormat();
 void CommandIDHandler0x00();
 void CommandIDHandler0x80();
+void CommandIDHandler0x80_0x00();
+void CommandIDHandler0x80_0x01();
 void CommandIDHandler0x80_0x26();
 void CommandIDHandler0x80_0x26_0x00();
 void GetSorftwareVer();
