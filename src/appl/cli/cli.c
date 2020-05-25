@@ -1948,7 +1948,7 @@ void GetPortPVID()
 	if(SYS_OK==board_untagged_vlan_get(portid,&vid))
 	{
 		uint8 data[2];
-		uint162uint8(vid,data,sizeof(data));
+		uint162uint8(&vid,data,sizeof(data));
 		DataProd(Com26Start,data,sizeof(data),TRUE);
 	}
 	else
@@ -1988,7 +1988,7 @@ void SetPortPVID()
 	if(SYS_OK==board_untagged_vlan_get(portid,&vid))
 	{
 		uint8 data[2];
-		uint162uint8(vid,data,sizeof(data));
+		uint162uint8(&vid,data,sizeof(data));
 		DataProd(Com26Start,data,sizeof(data),TRUE);
 	}
 	else
