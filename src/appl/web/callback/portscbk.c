@@ -319,9 +319,11 @@ ssphandler_setport_cgi(SSP_HANDLER_CONTEXT *cxt, SSP_PSMH psmem) REENTRANT
 #ifdef CFG_SWITCH_LAG_INCLUDED
         board_vlan_type_get(&vlan_type);
 
-        if (vlan_type == VT_DOT1Q) {
+        if (vlan_type == VT_DOT1Q) 
+        {
             /* Load LAG bit map */
-            for (tid = 0; tid < BOARD_MAX_NUM_OF_LAG; tid++) {
+            for (tid = 0; tid < BOARD_MAX_NUM_OF_LAG; tid++) 
+            {
                  enable[tid] = FALSE;
                  board_lag_group_get(tid+1, &enable[tid] , &laguplist[tid][0]);
                  if (enable[tid] == FALSE) {

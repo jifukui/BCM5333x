@@ -186,6 +186,8 @@ void GetVlanMember();
 void SetVlanMember();
 void GetVlanCounts();
 void GetVlanByIndex();
+void GetPortPVID();
+void SetPortPVID();
 ///////////////////////////////////////////////////////
 void CommandIDHandler0x80_0x26_0x05();
 void GetIGMPSnoopingStatus();
@@ -376,58 +378,58 @@ void APIFUNC(cli)(void) REENTRANT
     for(;;) 
     {
     	val=get_char();
-	if(commandhead==val)
-	{
-		rx_Command.CommandHead=val;		
-		StartRecCom();
-	}
-	else
-	{
-		if(BufStatus.index)
+		if(commandhead==val)
 		{
-			switch(BufStatus.index)
-			{
-				case liguoA_command_addr:
-					rx_Command.CommandAddr=val;
-					break;
-				case liguoA_command_id:
-					rx_Command.CommandID=val;
-					tx_Command.CommandID=val;
-					break;
-				case liguoA_command_len:
-					rx_Command.CommandLen=val;
-					break;
-				default:
-					if(BufStatus.index-4<rx_Command.CommandLen)
-					{
-						rx_Command.CommandData[BufStatus.index-4]=val;
-					}
-					else if((BufStatus.index-4)==rx_Command.CommandLen)
-					{
-						EndRecCom();
-						rx_Command.CommandCrc=val;
-						if(0xA5==rx_Command.CommandCrc||rx_Command.CommandCrc==CheckCrc(rx_Command))
-						{
-							CommandFormat();
-						}
-						else
-						{
-							CommandStatus=Errdataerr;
-						}
-						if(CommandStatus)
-						{
-							CommandErrHandler();
-						}
-						SendMessage();
-					}
-			}	
+			rx_Command.CommandHead=val;		
+			StartRecCom();
 		}
 		else
 		{
-			continue;
-		}	
-	}
-	commandbuf_add();
+			if(BufStatus.index)
+			{
+				switch(BufStatus.index)
+				{
+					case liguoA_command_addr:
+						rx_Command.CommandAddr=val;
+						break;
+					case liguoA_command_id:
+						rx_Command.CommandID=val;
+						tx_Command.CommandID=val;
+						break;
+					case liguoA_command_len:
+						rx_Command.CommandLen=val;
+						break;
+					default:
+						if(BufStatus.index-4<rx_Command.CommandLen)
+						{
+							rx_Command.CommandData[BufStatus.index-4]=val;
+						}
+						else if((BufStatus.index-4)==rx_Command.CommandLen)
+						{
+							EndRecCom();
+							rx_Command.CommandCrc=val;
+							if(0xA5==rx_Command.CommandCrc||rx_Command.CommandCrc==CheckCrc(rx_Command))
+							{
+								CommandFormat();
+							}
+							else
+							{
+								CommandStatus=Errdataerr;
+							}
+							if(CommandStatus)
+							{
+								CommandErrHandler();
+							}
+							SendMessage();
+						}
+				}	
+			}
+			else
+			{
+				continue;
+			}	
+		}
+		commandbuf_add();
     }
 #endif
 }
@@ -530,6 +532,9 @@ void CommandFormat()
 {
 	switch(rx_Command.CommandID)
 	{
+		case 0x00:
+			CommandIDHandler0x00();
+			break();
 		case 0x80:
 			CommandIDHandler0x80();
 			break;
@@ -612,6 +617,24 @@ void uint162uint8(const uint16 *src,uint8 *des,uint8 len)
         }
 
 }
+void CommandIDHandler0x00()
+{
+	if(rx_Command.CommandLen<1)
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
+	tx_Command.CommandData[0]=rx_Command.CommandData[0];
+	switch (rx_Command.CommandData[0])
+	{
+		case 0x01:
+			GetSorftwareVer();
+			break;
+		default:
+			CommandStatus=Errnocom;
+			break;
+	}
+}
 void CommandIDHandler0x80()
 {
 	if(rx_Command.CommandLen<Com26Start)
@@ -624,6 +647,11 @@ void CommandIDHandler0x80()
 	tx_Command.CommandData[2]=rx_Command.CommandData[2];
 	switch(rx_Command.CommandData[0])
 	{
+		case 0x00:
+			CommandIDHandler0x80_0x00();
+			break;
+		case CommandIDHandler0x80_0x01();
+			break;
 		case 0x26:
 			CommandIDHandler0x80_0x26();
 			break;
@@ -632,6 +660,14 @@ void CommandIDHandler0x80()
 			break;
 			
 	}
+}
+void CommandIDHandler0x80_0x00()
+{
+	GetPortPVID();
+}
+void CommandIDHandler0x80_0x01()
+{
+	SetPortPVID();
 }
 void CommandIDHandler0x80_0x26()
 {	
@@ -710,14 +746,14 @@ void CommandIDHandler0x80_0x26_0x00()
 }
 void GetSorftwareVer()
 {
-	if(3!=rx_Command.CommandLen)
+	/*if(3!=rx_Command.CommandLen)
         {
                 CommandStatus=Errlenerr;
                 return ;
-        }
+        }*/
 	uint8 data[3];
 	sal_memcpy(data,(void *)&sorftware,sizeof(sorftware));
-	DataProd(Com26Start,data,sizeof(data),TRUE);
+	DataProd(1,data,sizeof(data),TRUE);
 }
 
 void GetBuildtime()
@@ -1896,6 +1932,93 @@ void GetVlanByIndex()
 	}
 	uint162uint8(&vlan,value,sizeof(value));
 	DataProd(index,value,sizeof(value),TRUE);
+}
+void GetPortPVID()
+{
+	if(3!=rx_Command.CommandLen)
+	{
+		CommandStatus=Errdataerr;
+		return ;
+	}
+	uint16 vid;
+	uint16 portid=rx_Command.CommandData[1];
+	if(SYS_OK==board_untagged_vlan_get(portid,&vid))
+	{
+		uint8 data[2];Com26Start
+		uint162uint8(vid,data,sizeof(data));
+		DataProd(Com26Start,data,sizeof(data),TRUE);
+	}
+	else
+	{
+		CommandStatus=Errdataerr;
+	}
+}
+void UntagTransform(uint8 port,uint8 *data,int8 flag)
+{
+	uint8 index;
+	uint8 val;
+	port=port-1;
+	index=port/8;
+	val=port%8;
+	val=1<<val;
+	if(flag)
+	{
+		data[index]| = val;
+	}
+	else
+	{
+		data[index] & =(~val);
+	}
+}
+void SetPortPVID()
+{
+	if(5!=rx_Command.CommandLen)
+	{
+		CommandStatus=Errdataerr;
+		return ;
+	}
+	uint8 value[2];
+	uint16 vid;
+	uint16 portid=rx_Command.CommandData[1];
+	GetValue(Com26Start,value,sizeof(value));
+	uint82uint16(value,&vid,sizeof(value));
+	if(SYS_OK==board_untagged_vlan_get(portid,&vid))
+	{
+		uint8 data[2];Com26Start
+		uint162uint8(vid,data,sizeof(data));
+		DataProd(Com26Start,data,sizeof(data),TRUE);
+	}
+	else
+	{
+		CommandStatus=Errdataerr;
+	}
+	if(portid!=10&&portid!=11(1==vid||2==vid))
+	{
+		uint8 port[3]={0xff,0xff,0xff};
+		uint8 tag[3]={0xff,0xff,0xff};
+		if(1==vid)
+		{
+			UntagTransform(portid,tag,TRUE);
+		}
+		else
+		{
+			UntagTransform(portid,tag,FALSE);
+		}
+		if((SYS_OK==board_qvlan_port_set(vid,port,tag))&&(SYS_OK==board_untagged_vlan_get(portid,&vid)))
+		{
+			tx_Command.CommandLen=0x04;
+			tx_Command.CommandData[Com26Start]=0xFA;
+		}
+		else
+		{
+			CommandStatus=Errdataerr;
+		}
+		
+	}
+	else
+	{
+		CommandStatus=Errdataerr;
+	}
 }
 //////////////////////////////////////////////////////////////////////////
 void CommandIDHandler0x80_0x26_0x05()
