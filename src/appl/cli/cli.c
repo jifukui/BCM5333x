@@ -652,7 +652,8 @@ void CommandIDHandler0x80()
 		case 0x00:
 			CommandIDHandler0x80_0x00();
 			break;
-		case CommandIDHandler0x80_0x01();
+		case 0x01: 
+			CommandIDHandler0x80_0x01();
 			break;
 		case 0x26:
 			CommandIDHandler0x80_0x26();
