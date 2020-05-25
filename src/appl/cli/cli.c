@@ -1988,15 +1988,20 @@ void UntagTransform(uint8 port,uint8 *data,int8 flag)
 	port=port-1;
 	index=port/8;
 	val=port%8;
+	put_char(index);
+	put_char(val);
 	val=1<<val;
+	put_char(val);
+	put_char(data[index]);
 	if(flag)
 	{
-		data[index]=data[index] | val;
+		data[index] = (data[index] | val) ;
 	}
 	else
 	{
-		data[index] =data[index]&(~val);
+		data[index] = (data[index]&(~val)) ;
 	}
+	put_char(data[index]);
 }
 void SetPortPVID()
 {
