@@ -230,7 +230,7 @@ static uint8 BUILD_DATE=0;
 
 void GreatdefaultVlan(void)
 {
-	uint16 uport=10;
+	uint16 uport=11;
 	uint16 vlanid=2;
 	board_vlan_create(2);
 	uint8 vlan[3]={0xff,0xff,0xff};
@@ -1988,11 +1988,7 @@ void UntagTransform(uint8 port,uint8 *data,int8 flag)
 	port=port-1;
 	index=port/8;
 	val=port%8;
-	put_char(index);
-	put_char(val);
 	val=1<<val;
-	put_char(val);
-	put_char(data[index]);
 	if(flag)
 	{
 		data[index] |=val ;
@@ -2001,7 +1997,6 @@ void UntagTransform(uint8 port,uint8 *data,int8 flag)
 	{
 		data[index] &= (~val) ;
 	}
-	put_char(data[index]);
 }
 void SetPortPVID()
 {
@@ -2025,9 +2020,6 @@ void SetPortPVID()
 			CommandStatus=Errdataerr;
 			return ;
 		}		
-		put_char(tag[0]);
-		put_char(tag[1]);
-		put_char(tag[2]);
 		if(1==vid)
 		{
 			UntagTransform(portid,tag,TRUE);
@@ -2036,9 +2028,6 @@ void SetPortPVID()
 		{
 			UntagTransform(portid,tag,FALSE);
 		}
-		put_char(tag[0]);
-		put_char(tag[1]);
-		put_char(tag[2]);
 		if((SYS_OK==board_qvlan_port_set(pvid,port,tag))&&(SYS_OK==board_untagged_vlan_set(portid,vid)))
 		{
 			tx_Command.CommandLen=0x04;
