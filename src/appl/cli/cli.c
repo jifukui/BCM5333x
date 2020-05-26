@@ -1961,7 +1961,7 @@ void GetPortPVID()
 {
 	if(3!=rx_Command.CommandLen)
 	{
-		CommandStatus=Errdataerr;
+		CommandStatus=Errlenerr;
 		return ;
 	}
 	uint16 vid;
@@ -1995,11 +1995,11 @@ void UntagTransform(uint8 port,uint8 *data,int8 flag)
 	put_char(data[index]);
 	if(flag)
 	{
-		data[index] = (data[index] | val) ;
+		data[index] |=val ;
 	}
 	else
 	{
-		data[index] = (data[index]&(~val)) ;
+		data[index] &= (~val) ;
 	}
 	put_char(data[index]);
 }
@@ -2007,39 +2007,24 @@ void SetPortPVID()
 {
 	if(7!=rx_Command.CommandLen)
 	{
-		CommandStatus=Errdataerr;
+		CommandStatus=Errlenerr;
 		return ;
 	}
+	uint16 pvid=2;
 	uint8 value[2];
 	uint16 vid;
 	uint16 portid=rx_Command.CommandData[1];
 	GetValue(Com26Start,value,sizeof(value));
-	put_char(value[0]);
-	put_char(value[1]);
 	uint82uint16(value,&vid,sizeof(value));
-	if(SYS_OK==board_untagged_vlan_get(portid,&vid))
-	{
-		uint8 data[2];
-		uint162uint8(&vid,data,sizeof(data));
-		DataProd(Com26Start,data,sizeof(data),TRUE);
-	}
-	else
-	{
-		CommandStatus=Errdataerr;
-	}
 	if(portid!=10&&portid!=11&&(1==vid||2==vid))
 	{
 		uint8 port[3];
 		uint8 tag[3];
-		if(SYS_OK!=board_qvlan_port_get(vid,port,tag))
+		if(SYS_OK!=board_qvlan_port_get(pvid,port,tag))
 		{
 			CommandStatus=Errdataerr;
 			return ;
-		}
-		put_char(port[0]);
-		put_char(port[1]);
-		put_char(port[2]);
-		
+		}		
 		put_char(tag[0]);
 		put_char(tag[1]);
 		put_char(tag[2]);
@@ -2054,7 +2039,7 @@ void SetPortPVID()
 		put_char(tag[0]);
 		put_char(tag[1]);
 		put_char(tag[2]);
-		if((SYS_OK==board_qvlan_port_set(vid,port,tag))&&(SYS_OK==board_untagged_vlan_set(portid,vid)))
+		if((SYS_OK==board_qvlan_port_set(pvid,port,tag))&&(SYS_OK==board_untagged_vlan_set(portid,vid)))
 		{
 			tx_Command.CommandLen=0x04;
 			tx_Command.CommandData[Com26Start]=0xFA;
