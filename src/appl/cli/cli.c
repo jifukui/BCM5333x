@@ -767,9 +767,9 @@ void GetSorftwareVer()
                 CommandStatus=Errlenerr;
                 return ;
         }*/
-	uint8 data[5];
+	uint8 data[15];
 	sal_memcpy(data,(void *)&sorftware,sizeof(sorftware));
-	DataProd(1,data,sizeof(data),FALSE);
+	DataProd(1,data,sizeof(sorftware),FALSE);
 }
 
 void GetBuildtime()
@@ -1953,16 +1953,13 @@ void GetPortPVID()
 	uint16 portid=rx_Command.CommandData[1];
 	if(SYS_OK==board_untagged_vlan_get(portid,&vid))
 	{
-		//uint8 data[2];
+		uint8 data[2];
 		if(11!=portid&&1==vid)
 		{
 			vid=3;
 		}
-		//uint162uint8(&vid,data,sizeof(data));
-		//DataProd(Com26Start,data,sizeof(data),TRUE);
-		rx_Command.CommandLen=5;
-		rx_Command.CommandData[3] = ((vid>>7)&0x7F);
-		rx_Command.CommandData[4] = (vid&0x7f);
+		uint162uint8(&vid,data,sizeof(data));
+		DataProd(Com26Start,data,sizeof(data),FALSE);
 	}
 	else
 	{
@@ -1994,11 +1991,8 @@ void SetPortPVID()
 		return ;
 	}
 	uint16 pvid=2;
-	//uint8 value[2];
 	uint16 vid;
 	uint16 portid=rx_Command.CommandData[1];
-	//GetValue(Com26Start,value,sizeof(value));
-	//uint82uint16(value,&vid,sizeof(value));
 	vid=( rx_Command.CommandData[3] << 7 ) + rx_Command.CommandData[4];
 	if(portid!=10&&portid!=11&&(1==vid||2==vid))
 	{
