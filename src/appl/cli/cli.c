@@ -94,10 +94,11 @@ typedef struct
 {
 	uint8 cardtyte;
 	uint8 maj;
+	uint8 cputype
 	uint8 build;
 	uint8 func[1];
 }SorftWare;
-static  SorftWare sorftware={64,1,20,{170}};
+static  SorftWare sorftware={64,1,0x20,1,{170}};
 typedef struct command_buf_s
 {
 	uint8 CommandHead;
@@ -446,12 +447,10 @@ BOOL APIFUNC(cli_add_cmd)(char cmd, CLI_CMD_FUNC func) REENTRANT
 {
 #ifdef JIFUKUI_DEBUG
 	CLI_CMD_FUNC *pcmd = NULL;
-    
     SAL_ASSERT(func);
     if (func == NULL) {
         return FALSE;
     }
-    
     if (cmd >= 'a' && cmd <= 'z') {
         pcmd = &cmds[cmd - 'a'];
     } else if (cmd >= 'A' && cmd <= 'Z') {
@@ -461,13 +460,11 @@ BOOL APIFUNC(cli_add_cmd)(char cmd, CLI_CMD_FUNC func) REENTRANT
     } else {
         SAL_ASSERT(FALSE);
         return FALSE;
-    }
-    
+    }   
     SAL_ASSERT(*pcmd == NULL);
     if (*pcmd != NULL) {
         return FALSE;
-    }
-    
+    }    
     *pcmd = func;
     return TRUE;
 #else
@@ -479,7 +476,6 @@ void APIFUNC(cli_remove_cmd)(char cmd) REENTRANT
 {
 #ifdef JIFUKUI_DEBUG
 	CLI_CMD_FUNC *pcmd = NULL;
-    
     if (cmd >= 'a' && cmd <= 'z') {
         pcmd = &cmds[cmd - 'a'];
     } else if (cmd >= 'A' && cmd <= 'Z') {
@@ -490,7 +486,6 @@ void APIFUNC(cli_remove_cmd)(char cmd) REENTRANT
         SAL_ASSERT(FALSE);
         return;
     }
-    
     *pcmd = NULL;
 #else
     
@@ -616,14 +611,13 @@ void uint322uint8(const uint32 *src,uint8 *des,uint8 len)
 void uint162uint8(const uint16 *src,uint8 *des,uint8 len)
 {
 	uint8 i,n;
-        for(i=0;i<(len/sizeof(uint16));i++)
-        {
-                for(n=0;n<sizeof(uint16);n++)
-                {
-                        *(des+((i*sizeof(uint16)+n)))=*(src+i)/(1<<(8*(1-n)));
+	for(i=0;i<(len/sizeof(uint16));i++)
+	{
+		for(n=0;n<sizeof(uint16);n++)
+		{
+			*(des+((i*sizeof(uint16)+n)))=*(src+i)/(1<<(8*(1-n)));
 		}
-        }
-
+	}
 }
 void CommandIDHandler0x00()
 {
@@ -666,8 +660,7 @@ void CommandIDHandler0x80()
 			break;
 		default:
 			CommandStatus=Errnocom;
-			break;
-			
+			break;		
 	}
 }
 void CommandIDHandler0x80_0x00()
@@ -690,8 +683,7 @@ void CommandIDHandler0x80_0x01()
 	else
 	{
 		CommandStatus=Errnocom;
-	}
-	
+	}	
 }
 void CommandIDHandler0x80_0x26()
 {	
@@ -775,7 +767,7 @@ void GetSorftwareVer()
                 CommandStatus=Errlenerr;
                 return ;
         }*/
-	uint8 data[4];
+	uint8 data[5];
 	sal_memcpy(data,(void *)&sorftware,sizeof(sorftware));
 	DataProd(1,data,sizeof(data),FALSE);
 }
@@ -783,10 +775,10 @@ void GetSorftwareVer()
 void GetBuildtime()
 {
 	if(3!=rx_Command.CommandLen)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+			CommandStatus=Errlenerr;
+			return ;
+	}
 	uint8 data[7];
 	data[0]=BUILD_YEAR/100;
 	data[1]=BUILD_YEAR%100;
@@ -802,10 +794,10 @@ void GetBuildtime()
 void GetFirewareVer()
 {
 	if(3!=rx_Command.CommandLen)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 	uint8 data[3];
 	
 	data[0]=CFE_VER_MAJOR;
@@ -818,10 +810,10 @@ void GetFirewareVer()
 void GetMacAddress()
 {
 	if(3!=rx_Command.CommandLen)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 	uint8 MacAddr[6];
 	sys_error_t err=0;
 	err=get_system_mac(MacAddr);
@@ -836,10 +828,10 @@ void GetMacAddress()
 void GetIPv6()
 {
 	if(4!=rx_Command.CommandLen)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 	uint8 data[16],type;
 	sys_error_t err=0;
 	err=get_ipv6_address(rx_Command.CommandData[3],(uip_ip6addr_t*)&data,&type);
@@ -855,45 +847,45 @@ void GetIPv6()
 void GetIPv4()
 {
 	if(3!=rx_Command.CommandLen)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 	get_network_interface_config(liguonet_ipaddr,liguonet_netmask,liguonet_gateway);
 	DataProd(Com26Start,liguonet_ipaddr,sizeof(liguonet_ipaddr),TRUE);
 }
 void GetSubMask()
 {
 	if(3!=rx_Command.CommandLen)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
-     	get_network_interface_config(liguonet_ipaddr,liguonet_netmask,liguonet_gateway);
-        DataProd(Com26Start,liguonet_netmask,sizeof(liguonet_netmask),TRUE);
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
+	get_network_interface_config(liguonet_ipaddr,liguonet_netmask,liguonet_gateway);
+	DataProd(Com26Start,liguonet_netmask,sizeof(liguonet_netmask),TRUE);
 
 }
 void GetGateway()
 {
 	if(3!=rx_Command.CommandLen)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
-        get_network_interface_config(liguonet_ipaddr,liguonet_netmask,liguonet_gateway);
-        DataProd(3,liguonet_gateway,sizeof(liguonet_gateway),TRUE);
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
+	get_network_interface_config(liguonet_ipaddr,liguonet_netmask,liguonet_gateway);
+	DataProd(3,liguonet_gateway,sizeof(liguonet_gateway),TRUE);
 
 }
 void GetDHCPStatus()
 {
 	if(3!=rx_Command.CommandLen)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
-       	uint8 err=0;
-        err=get_network_interface_config(liguonet_ipaddr,liguonet_netmask,liguonet_gateway);
-        DataProd(3,&err,sizeof(err),FALSE);
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
+	uint8 err=0;
+	err=get_network_interface_config(liguonet_ipaddr,liguonet_netmask,liguonet_gateway);
+	DataProd(3,&err,sizeof(err),FALSE);
 
 }
 void GetDevicePortNum()
@@ -1085,21 +1077,20 @@ void SetSubMask()
 void SetGateway()
 {
 	if(0x0B!=rx_Command.CommandLen)
-        {
-                CommandStatus=Errlenerr;
-                return;
-        }
-        uint8 gate[4];
-        GetValue(3,gate,sizeof(gate));
-        sys_error_t err;
+	{
+		CommandStatus=Errlenerr;
+		return;
+	}
+	uint8 gate[4];
+	GetValue(3,gate,sizeof(gate));
+	sys_error_t err;
 	get_network_interface_config(liguonet_ipaddr,liguonet_netmask,liguonet_gateway);
-        err=set_network_interface_config(INET_CONFIG_STATIC,liguonet_ipaddr,liguonet_netmask,gate);
-        if(SYS_OK!=err)
-        {
-                CommandStatus=Errdataerr;
-                return;
-        }
-
+	err=set_network_interface_config(INET_CONFIG_STATIC,liguonet_ipaddr,liguonet_netmask,gate);
+	if(SYS_OK!=err)
+	{
+		CommandStatus=Errdataerr;
+		return;
+	}
 }
 void SetDHCPStatus()
 {
@@ -1128,14 +1119,14 @@ void SetDHCPStatus()
 }
 void SetBonjourStatus()
 {
-	 if(4!=rx_Command.CommandLen)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	if(4!=rx_Command.CommandLen)
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 #ifndef __BOOTLOADER__
-        uint8 bonjour=rx_Command.CommandData[3];
-        mdns_bonjour_enable_set((BOOL)bonjour);
+	uint8 bonjour=rx_Command.CommandData[3];
+	mdns_bonjour_enable_set((BOOL)bonjour);
 #endif
 
 }
@@ -1408,10 +1399,10 @@ void GetPortAutonegoStatus()
 void SetPortAutonegoStatus()
 {
 	if(rx_Command.CommandLen!=0x05)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 	uint8 unit,lport,uport,index=Com26Start;
 	int	an=rx_Command.CommandData[index+1];
 	uport=rx_Command.CommandData[index];
@@ -1426,10 +1417,10 @@ void GetPortStomCtrStatus()
 {
 #ifdef CFG_SWITCH_RATE_INCLUDED
 	if(rx_Command.CommandLen!=0x04)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 	uint8 index=Com26Start;
 	uint16 uport=rx_Command.CommandData[index];
 	sys_error_t err;
@@ -1451,10 +1442,10 @@ void SetPortStomCtrStatus()
 {
 #ifdef CFG_SWITCH_RATE_INCLUDED
 	if(rx_Command.CommandLen!=0x0C)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 	uint8 index=Com26Start;
 	uint8 uport=rx_Command.CommandData[index];
 	uint8 value[4];
@@ -1476,10 +1467,10 @@ void SetPortStomCtrStatus()
 void GetPortRevPackets()
 {
 	if(rx_Command.CommandLen!=0x04)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 	uint32 counts;
 	uint8 value[4];
 	uint8 uport,lport,index=Com26Start,unit;
@@ -1495,21 +1486,21 @@ void GetPortRevPackets()
 void GetPortSenPackets()
 {
 	if(rx_Command.CommandLen!=0x04)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
-        uint32 counts;
-        uint8 value[4];
-        uint8 uport,lport,index=Com26Start,unit;
-        uport=rx_Command.CommandData[index];
-        board_uport_to_lport((uint16)uport,&unit,&lport);
-        lport=SOC_PORT_L2P_MAPPING(lport);
-        bcm5333x_reg_get(0,SOC_PORT_BLOCK(lport),R_GTBYT(SOC_PORT_BLOCK_INDEX(lport)),&counts);
+	{
+			CommandStatus=Errlenerr;
+			return ;
+	}
+	uint32 counts;
+	uint8 value[4];
+	uint8 uport,lport,index=Com26Start,unit;
+	uport=rx_Command.CommandData[index];
+	board_uport_to_lport((uint16)uport,&unit,&lport);
+	lport=SOC_PORT_L2P_MAPPING(lport);
+	bcm5333x_reg_get(0,SOC_PORT_BLOCK(lport),R_GTBYT(SOC_PORT_BLOCK_INDEX(lport)),&counts);
 	uint322uint8(&counts,value,sizeof(uint32));
-        uint322uint8(&counts,value,sizeof(uint32));
-        tx_Command.CommandData[index++]=uport;
-        DataProd(index,value,sizeof(value),TRUE);
+	uint322uint8(&counts,value,sizeof(uint32));
+	tx_Command.CommandData[index++]=uport;
+	DataProd(index,value,sizeof(value),TRUE);
 
 }
 void GetQVlanID()
@@ -1558,11 +1549,7 @@ void SetQVlanID()
 	if(SYS_OK==err)
 	{
 		tx_Command.CommandLen=0x04;
-			
-	
 		tx_Command.CommandData[3]=0xFA;
-		
-	
 	}
 	else
 	{
@@ -1573,35 +1560,35 @@ void GetPortInputLimit()
 {
 #ifdef CFG_SWITCH_RATE_INCLUDED
 	if(rx_Command.CommandLen!=0x04)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
-        uint8 uport,value[4],index=Com26Start;
-        uint32 pps;
-        uport=rx_Command.CommandData[index];
-        GetValue(index+1,value,sizeof(value));
-        uint82uint32(value,&pps,sizeof(value));
-        sys_error_t err;
-        err=board_port_rate_ingress_get((uint16) uport,&pps);
-        if(SYS_OK!=err)
-        {
-                CommandStatus=Errdataerr;
-                return;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
+	uint8 uport,value[4],index=Com26Start;
+	uint32 pps;
+	uport=rx_Command.CommandData[index];
+	GetValue(index+1,value,sizeof(value));
+	uint82uint32(value,&pps,sizeof(value));
+	sys_error_t err;
+	err=board_port_rate_ingress_get((uint16) uport,&pps);
+	if(SYS_OK!=err)
+	{
+		CommandStatus=Errdataerr;
+		return;
+	}
 	uint322uint8(&pps,value,sizeof(pps));
-        tx_Command.CommandData[index++]=uport;
-        DataProd(index,value,sizeof(value),TRUE);
+	tx_Command.CommandData[index++]=uport;
+	DataProd(index,value,sizeof(value),TRUE);
 #endif
 }
 void SetPortInputLimit()
 {
 #ifdef CFG_SWITCH_RATE_INCLUDED
 	if(rx_Command.CommandLen!=0x0C)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 	uint8 uport,value[4],index=Com26Start;
 	uint32 pps;
 	uport=rx_Command.CommandData[index];
@@ -1624,25 +1611,25 @@ void GetPortOutputLimit()
 {
 #ifdef CFG_SWITCH_RATE_INCLUDED
 	if(rx_Command.CommandLen!=0x04)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
-        uint8 uport,value[4],index=Com26Start;
-        uint32 pps;
-        uport=rx_Command.CommandData[index];
-        GetValue(index+1,value,sizeof(value));
-        uint82uint32(value,&pps,sizeof(value));
-        sys_error_t err;
-        err=board_port_rate_egress_get((uint16) uport,&pps);
-        if(SYS_OK!=err)
-        {
-                CommandStatus=Errdataerr;
-                return;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
+	uint8 uport,value[4],index=Com26Start;
+	uint32 pps;
+	uport=rx_Command.CommandData[index];
+	GetValue(index+1,value,sizeof(value));
+	uint82uint32(value,&pps,sizeof(value));
+	sys_error_t err;
+	err=board_port_rate_egress_get((uint16) uport,&pps);
+	if(SYS_OK!=err)
+	{
+		CommandStatus=Errdataerr;
+		return;
+	}
 	uint322uint8(&pps,value,sizeof(pps));
-        tx_Command.CommandData[index++]=uport;
-        DataProd(index,value,sizeof(value),TRUE);
+	tx_Command.CommandData[index++]=uport;
+	DataProd(index,value,sizeof(value),TRUE);
 #endif
 
 }
@@ -1650,35 +1637,35 @@ void SetPortOutputLimit()
 {
 #ifdef CFG_SWITCH_RATE_INCLUDED
 	if(rx_Command.CommandLen!=0x0C)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 	uint8 uport,value[4],index=Com26Start;
-        uint32 pps;
-        uport=rx_Command.CommandData[index];
-        GetValue(index+1,value,sizeof(value));
-        uint82uint32(value,&pps,sizeof(value));
-        sys_error_t err;
-        err=board_port_rate_egress_set((uint16) uport,pps);
-        if(SYS_OK!=err)
-        {
-                CommandStatus=Errdataerr;
-                return;
-        }
-        tx_Command.CommandData[index++]=uport;
-        tx_Command.CommandData[index++]=0xFA;
-        tx_Command.CommandLen=index;
+	uint32 pps;
+	uport=rx_Command.CommandData[index];
+	GetValue(index+1,value,sizeof(value));
+	uint82uint32(value,&pps,sizeof(value));
+	sys_error_t err;
+	err=board_port_rate_egress_set((uint16) uport,pps);
+	if(SYS_OK!=err)
+	{
+			CommandStatus=Errdataerr;
+			return;
+	}
+	tx_Command.CommandData[index++]=uport;
+	tx_Command.CommandData[index++]=0xFA;
+	tx_Command.CommandLen=index;
 #endif
 }
 void GetPortSpeed()
 {
 #ifdef CFG_SWITCH_RATE_INCLUDED
 	if(rx_Command.CommandLen!=0x04)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 	uint8 unit,lport,uport,index=Com26Start,value[4];
 	int link,ad;
 	uint32 speed;
@@ -1700,55 +1687,55 @@ void SetPortSpeed()
 {
 #ifdef CFG_SWITCH_RATE_INCLUDED
 	if(rx_Command.CommandLen!=0x0C)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 	uint8 unit,lport,uport,index=Com26Start,value[4];
-        uint32 speed;
-        uport=rx_Command.CommandData[index];
+	uint32 speed;
+	uport=rx_Command.CommandData[index];
 	GetValue(index+1,value,sizeof(value));
 	uint82uint32(value,&speed,sizeof(value));
-        board_uport_to_lport((uint16)uport,&unit,&lport);
-        lport=SOC_PORT_L2P_MAPPING(lport);
+	board_uport_to_lport((uint16)uport,&unit,&lport);
+	lport=SOC_PORT_L2P_MAPPING(lport);
 	PHY_SPEED_SET(BMD_PORT_PHY_CTRL(unit,lport),speed);
-        uint322uint8(&speed,value,sizeof(value));
-        tx_Command.CommandData[index++]=uport;
-        DataProd(index,value,sizeof(value),TRUE);
+	uint322uint8(&speed,value,sizeof(value));
+	tx_Command.CommandData[index++]=uport;
+	DataProd(index,value,sizeof(value),TRUE);
 #endif
 }
 void GetPortFlowCtrStatus()
 {
 	if(rx_Command.CommandLen!=0x04)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
 
 	uint8 unit,lport,index=Com26Start;
-        uint16 uport=rx_Command.CommandData[index];
-        int link,ad;
-        BOOL tx,rx;
-        board_uport_to_lport(uport,&unit,&lport);
-        lport=SOC_PORT_P2L_MAPPING(lport);
-        PHY_LINK_GET(BMD_PORT_PHY_CTRL(unit,lport),&link,&ad);
-        board_port_pause_get(uport,&tx,&rx);
-        tx_Command.CommandData[index]=rx_Command.CommandData[index];
-        index++;
-        if(!link)
-        {
-                tx_Command.CommandData[index++]=0x02;
+	uint16 uport=rx_Command.CommandData[index];
+	int link,ad;
+	BOOL tx,rx;
+	board_uport_to_lport(uport,&unit,&lport);
+	lport=SOC_PORT_P2L_MAPPING(lport);
+	PHY_LINK_GET(BMD_PORT_PHY_CTRL(unit,lport),&link,&ad);
+	board_port_pause_get(uport,&tx,&rx);
+	tx_Command.CommandData[index]=rx_Command.CommandData[index];
+	index++;
+	if(!link)
+	{
+		tx_Command.CommandData[index++]=0x02;
 	}
 	else
 	{
-		 if(tx&&rx)
-        	{
-                	tx_Command.CommandData[index++]=1;
-	        }
-        	else
-       	        {
-               		 tx_Command.CommandData[index++]=0;
-   	        }
+		if(tx&&rx)
+		{
+			tx_Command.CommandData[index++]=1;
+		}
+		else
+		{
+			tx_Command.CommandData[index++]=0;
+		}
 	}
 	tx_Command.CommandLen=index;
 }
@@ -1859,7 +1846,6 @@ void GetVlanMember()
 		tx_Command.CommandData[17]=taglist[2]&0xF0;
 		tx_Command.CommandData[18]=taglist[2]&0x0F;		
 	}
-
 	else
 	{
 		CommandStatus=Errdataerr;
@@ -1911,7 +1897,6 @@ void SetVlanMember()
 	if(SYS_OK==board_qvlan_port_set(vlanid,portlist,taglist))
 	{
 		tx_Command.CommandLen=0x08;
-		
 		tx_Command.CommandData[3]=rx_Command.CommandData[3];
 		tx_Command.CommandData[4]=rx_Command.CommandData[4];
 		tx_Command.CommandData[5]=rx_Command.CommandData[5];
@@ -1968,13 +1953,16 @@ void GetPortPVID()
 	uint16 portid=rx_Command.CommandData[1];
 	if(SYS_OK==board_untagged_vlan_get(portid,&vid))
 	{
-		uint8 data[2];
+		//uint8 data[2];
 		if(11!=portid&&1==vid)
 		{
 			vid=3;
 		}
-		uint162uint8(&vid,data,sizeof(data));
-		DataProd(Com26Start,data,sizeof(data),TRUE);
+		//uint162uint8(&vid,data,sizeof(data));
+		//DataProd(Com26Start,data,sizeof(data),TRUE);
+		rx_Command.CommandLen=5;
+		rx_Command.CommandData[3] = ((vid<<7)&0x7F);
+		rx_Command.CommandData[4] = (vid&0x7f);
 	}
 	else
 	{
@@ -2000,7 +1988,7 @@ void UntagTransform(uint8 port,uint8 *data,int8 flag)
 }
 void SetPortPVID()
 {
-	if(7!=rx_Command.CommandLen)
+	if(5!=rx_Command.CommandLen)
 	{
 		CommandStatus=Errlenerr;
 		return ;
@@ -2009,8 +1997,9 @@ void SetPortPVID()
 	uint8 value[2];
 	uint16 vid;
 	uint16 portid=rx_Command.CommandData[1];
-	GetValue(Com26Start,value,sizeof(value));
-	uint82uint16(value,&vid,sizeof(value));
+	//GetValue(Com26Start,value,sizeof(value));
+	//uint82uint16(value,&vid,sizeof(value));
+	vid=rx_Command.CommandData[3]<<7+rx_Command.CommandData[4];
 	if(portid!=10&&portid!=11&&(1==vid||2==vid))
 	{
 		uint8 port[3];
@@ -2036,8 +2025,7 @@ void SetPortPVID()
 		else
 		{
 			CommandStatus=Errdataerr;
-		}
-		
+		}	
 	}
 	else
 	{
@@ -2089,10 +2077,10 @@ void SetIGMPSnoopingStatus()
 {
 #ifdef CFG_SWITCH_MCAST_INCLUDED
 	if(rx_Command.CommandLen!=0x04)
-        {
-                CommandStatus=Errlenerr;
-                return;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return;
+	}
 	uint8 enable,index=Com26Start;
 	enable=rx_Command.CommandData[index];
 	igmpsnoop_enable_set(enable);
@@ -2104,10 +2092,10 @@ void GetIGMPSnoopingVlan()
 {
 #ifdef CFG_SWITCH_MCAST_INCLUDED
 	if(rx_Command.CommandLen!=0x03)
-        {
-                CommandStatus=Errlenerr;
-                return;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return;
+	}
 	uint8 index=Com26Start,value[2];
 	uint16 vlan;
 	igmpsnoop_vid_get(&vlan);
@@ -2119,10 +2107,10 @@ void SetIGMPSnoopingVlan()
 {	
 #ifdef CFG_SWITCH_MCAST_INCLUDED
 	if(rx_Command.CommandLen!=0x07)
-        {
-                CommandStatus=Errlenerr;
-                return;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return;
+	}
 	uint8 value[2],index=Com26Start;
 	uint16 vlan;
 	GetValue(index,value,sizeof(value));
@@ -2136,10 +2124,10 @@ void GetUnknowMuticaseStatus()
 {
 #ifdef CFG_SWITCH_MCAST_INCLUDED
 	if(rx_Command.CommandLen!=0x03)
-        {
-                CommandStatus=Errlenerr;
-                return;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return;
+	}
 	uint8 enable,index=Com26Start;
 	sys_error_t err;
 	err=board_block_unknown_mcast_get(&enable);
@@ -2156,21 +2144,21 @@ void SetUnknowMuticaseStatus()
 {
 #ifdef CFG_SWITCH_MCAST_INCLUDED
 	if(rx_Command.CommandLen!=0x04)
-        {
-                CommandStatus=Errlenerr;
-                return;
-        }
+	{
+		CommandStatus=Errlenerr;
+		return;
+	}
 	uint8 enable,index=Com26Start;
-        sys_error_t err;
+	sys_error_t err;
 	enable=rx_Command.CommandData[index];
-        err=board_block_unknown_mcast_set(enable);
-        if(SYS_OK!=err)
-        {
-                CommandStatus=Errdataerr;
-                return ;
-        }
-        tx_Command.CommandData[index++]=0xFA;
-        tx_Command.CommandLen=index;
+	err=board_block_unknown_mcast_set(enable);
+	if(SYS_OK!=err)
+	{
+		CommandStatus=Errdataerr;
+		return ;
+	}
+	tx_Command.CommandData[index++]=0xFA;
+	tx_Command.CommandLen=index;
 #endif
 }
 //////////////////////////////////////////////////////////////////////////
@@ -2294,37 +2282,37 @@ void GetPhyRegVal()
 void SetPhyRegVal()
 {
 	if(rx_Command.CommandLen!=0x0C)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
-        if(!rx_Command.CommandData[rx_Command.CommandLen-1])
-        {
-                CommandStatus=Errdataerr;
-                return ;
-        }
-        uint8 port=rx_Command.CommandData[Com26Start];
-        if(!CheckPortID(port))
-        {
-                CommandStatus=Errdataerr;
-                return ;
-        }
-        port=SOC_PORT_P2L_MAPPING(port);
-        uint8 addr[2],value[2];
-        GetValue(Com26Start+1,addr,sizeof(addr));
-        GetValue(Com26Start+1+sizeof(addr),value,sizeof(value));
-        sys_error_t err;
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
+	if(!rx_Command.CommandData[rx_Command.CommandLen-1])
+	{
+		CommandStatus=Errdataerr;
+		return ;
+	}
+	uint8 port=rx_Command.CommandData[Com26Start];
+	if(!CheckPortID(port))
+	{
+		CommandStatus=Errdataerr;
+		return ;
+	}
+	port=SOC_PORT_P2L_MAPPING(port);
+	uint8 addr[2],value[2];
+	GetValue(Com26Start+1,addr,sizeof(addr));
+	GetValue(Com26Start+1+sizeof(addr),value,sizeof(value));
+	sys_error_t err;
 	uint16 add;
 	uint82uint16(addr,&add,sizeof(addr));
 	uint16 val;
 	uint82uint16(value,&val,sizeof(value));
-        err=phy_reg_write(port,add,val);
-        if(SYS_OK!=err)
+	err=phy_reg_write(port,add,val);
+	if(SYS_OK!=err)
 	{
-                CommandStatus=Errdataerr;
-                return ;
-     	}
-        tx_Command.CommandLen=0x04;
+		CommandStatus=Errdataerr;
+		return ;
+	}
+	tx_Command.CommandLen=0x04;
 	tx_Command.CommandData[Com26Start]=0xFA;
 
 }
@@ -2360,30 +2348,30 @@ void GetSwitchRegVal()
 void SetSwitchRegVal()
 {
 	if(rx_Command.CommandLen<0x15||(rx_Command.CommandLen%8!=5))
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
-        if(!rx_Command.CommandData[0x14])
-        {
-                CommandStatus=Errdataerr;
-                return ;
-        }
-        uint8 len=rx_Command.CommandData[0x14];
-        uint8 length=len*4;
-        uint8 addr[4],value[length];
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
+	if(!rx_Command.CommandData[0x14])
+	{
+		CommandStatus=Errdataerr;
+		return ;
+	}
+	uint8 len=rx_Command.CommandData[0x14];
+	uint8 length=len*4;
+	uint8 addr[4],value[length];
 	uint8 id=rx_Command.CommandData[Com26Start];
-        GetValue(Com26Start+1,addr,sizeof(addr));
+	GetValue(Com26Start+1,addr,sizeof(addr));
 	GetValue(Com26Start+2+sizeof(addr),value,sizeof(value));
-        sys_error_t err=0;
+	sys_error_t err=0;
 	uint32 add,val[len];
 	uint82uint32(addr,&add,sizeof(addr));
 	uint82uint32(value,val,sizeof(value));
-        err=bcm5333x_reg64_set(0,id,add,val,(int)len);
-        if(SYS_OK!=err)
-        {
-                CommandStatus=Errdataerr;
-                return ;
+	err=bcm5333x_reg64_set(0,id,add,val,(int)len);
+	if(SYS_OK!=err)
+	{
+		CommandStatus=Errdataerr;
+		return ;
 	}
 	tx_Command.CommandLen=0x04;
 	tx_Command.CommandData[Com26Start]=0xFA;
@@ -2391,28 +2379,28 @@ void SetSwitchRegVal()
 void GetTable()
 {
 	if(rx_Command.CommandLen!=0x0D)
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
-        if(!rx_Command.CommandData[rx_Command.CommandLen-1])
-        {
-                CommandStatus=Errdataerr;
-                return ;
-        }
-        uint8 len=rx_Command.CommandData[rx_Command.CommandLen-1];
-        uint8 length=len*4;
-        uint8 addr[4],value[length];
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
+	if(!rx_Command.CommandData[rx_Command.CommandLen-1])
+	{
+		CommandStatus=Errdataerr;
+		return ;
+	}
+	uint8 len=rx_Command.CommandData[rx_Command.CommandLen-1];
+	uint8 length=len*4;
+	uint8 addr[4],value[length];
 	uint8 id=rx_Command.CommandData[Com26Start];
-        GetValue(Com26Start+1,addr,sizeof(addr));
-        sys_error_t err=0;
+	GetValue(Com26Start+1,addr,sizeof(addr));
+	sys_error_t err=0;
 	uint32 add,val[len];
 	uint82uint32(addr,&add,sizeof(addr));
-        err=bcm5333x_mem_get(0,id,add,val,len);
-        if(SYS_OK!=err)
-        {
-                CommandStatus=Errdataerr;
-                return ;
+	err=bcm5333x_mem_get(0,id,add,val,len);
+	if(SYS_OK!=err)
+	{
+		CommandStatus=Errdataerr;
+		return ;
 	}
 	uint322uint8(val,value,sizeof(val));
 	DataProd(Com26Start,value,sizeof(value),TRUE);
@@ -2421,34 +2409,33 @@ void GetTable()
 void SetTable()
 {
 	if(rx_Command.CommandLen<0x15||(rx_Command.CommandLen%8!=5))
-        {
-                CommandStatus=Errlenerr;
-                return ;
-        }
-        if(!rx_Command.CommandData[0x14])
-        {
-                CommandStatus=Errdataerr;
-                return ;
-        }
-        uint8 len=rx_Command.CommandData[0x14];
-        uint8 length=len*4;
-        uint8 addr[4],value[length];
+	{
+		CommandStatus=Errlenerr;
+		return ;
+	}
+	if(!rx_Command.CommandData[0x14])
+	{
+		CommandStatus=Errdataerr;
+		return ;
+	}
+	uint8 len=rx_Command.CommandData[0x14];
+	uint8 length=len*4;
+	uint8 addr[4],value[length];
 	uint8 id=rx_Command.CommandData[Com26Start];
-        GetValue(Com26Start+1,addr,sizeof(addr));
+	GetValue(Com26Start+1,addr,sizeof(addr));
 	GetValue(Com26Start+2+sizeof(addr),value,sizeof(value));
-        sys_error_t err=0;
+	sys_error_t err=0;
 	uint32 add,val[len];
 	uint82uint32(addr,&add,sizeof(addr));
 	uint82uint32(value,val,sizeof(val));
-        err=bcm5333x_mem_set(0,id,(uint32)add,(uint32 *)value,len);
-        if(SYS_OK!=err)
-        {
-                CommandStatus=Errdataerr;
-                return ;
+	err=bcm5333x_mem_set(0,id,(uint32)add,(uint32 *)value,len);
+	if(SYS_OK!=err)
+	{
+		CommandStatus=Errdataerr;
+		return ;
 	}
 	tx_Command.CommandLen=0x04;
 	tx_Command.CommandData[Com26Start]=0xFA;
-
 }
 //////////////////////////////////////////////////////////////////////////
 void Timeouthandler()
