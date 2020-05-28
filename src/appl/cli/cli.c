@@ -98,7 +98,7 @@ typedef struct
 	uint8 build;
 	uint8 func[1];
 }SorftWare;
-static  SorftWare sorftware={64,1,0x20,1,{170}};
+static  SorftWare sorftware={64,0x10,0x20,1,{170}};
 typedef struct command_buf_s
 {
 	uint8 CommandHead;
@@ -231,7 +231,8 @@ static uint8 BUILD_DATE=0;
 
 void GreatdefaultVlan(void)
 {
-	uint16 uport=11;
+	//10 号口为RJ-45的端口
+	uint16 uport=10;
 	uint16 vlanid=2;
 	board_vlan_create(2);
 	uint8 vlan[3]={0xff,0xff,0xff};
@@ -1954,7 +1955,7 @@ void GetPortPVID()
 	if(SYS_OK==board_untagged_vlan_get(portid,&vid))
 	{
 		uint8 data[2];
-		if(11!=portid&&1==vid)
+		if(10!=portid&&1==vid)
 		{
 			vid=3;
 		}
