@@ -94,7 +94,7 @@ typedef struct
 {
 	uint8 cardtyte;
 	uint8 maj;
-	uint8 cputype
+	uint8 cputype;
 	uint8 build;
 	uint8 func[1];
 }SorftWare;
