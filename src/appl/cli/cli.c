@@ -1999,7 +1999,7 @@ void SetPortPVID()
 	uint16 portid=rx_Command.CommandData[1];
 	//GetValue(Com26Start,value,sizeof(value));
 	//uint82uint16(value,&vid,sizeof(value));
-	vid=rx_Command.CommandData[3]<<7+rx_Command.CommandData[4];
+	vid=( rx_Command.CommandData[3] << 7 ) + rx_Command.CommandData[4];
 	if(portid!=10&&portid!=11&&(1==vid||2==vid))
 	{
 		uint8 port[3];
