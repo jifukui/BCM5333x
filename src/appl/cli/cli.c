@@ -1961,7 +1961,7 @@ void GetPortPVID()
 		//uint162uint8(&vid,data,sizeof(data));
 		//DataProd(Com26Start,data,sizeof(data),TRUE);
 		rx_Command.CommandLen=5;
-		rx_Command.CommandData[3] = ((vid<<7)&0x7F);
+		rx_Command.CommandData[3] = ((vid>>7)&0x7F);
 		rx_Command.CommandData[4] = (vid&0x7f);
 	}
 	else
