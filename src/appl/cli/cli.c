@@ -1994,7 +1994,7 @@ void SetPortPVID()
 		return ;
 	}
 	uint16 pvid=2;
-	uint8 value[2];
+	//uint8 value[2];
 	uint16 vid;
 	uint16 portid=rx_Command.CommandData[1];
 	//GetValue(Com26Start,value,sizeof(value));
